@@ -6,10 +6,10 @@ import math
 # HELPER FUNCTIONS
 def convert():
     # calculate area of garden
-    garden_square_footage = garden_area(float(garden_length.get()))
-    fountain_square_footage = float(fountain_radius.get())
+    garden_square_footage = garden_area(garden_length.get())
+    fountain_square_footage = fountain_radius.get()
     flower_bed_square_footage = bed_area(garden_square_footage, fountain_square_footage)
-    cubic_feet_of_soil = soil_volume(flower_bed_square_footage, float(depth.get()))
+    cubic_feet_of_soil = soil_volume(flower_bed_square_footage, depth.get())
 
     # update output labels
     garden_square_footage_output_string.set(f"The total square footage of the garden is {garden_square_footage}")
@@ -62,7 +62,7 @@ garden_length_label = ttk.Label(
     text =  "Please enter the length of one of the sides of the garden: ",
     font =  'Calibri 12')
 garden_length_label.grid(row = 1,column = 1, sticky = 'E')
-garden_length = tk.IntVar()
+garden_length = tk.DoubleVar()
 garden_length_entry = ttk.Entry(
     master = input_frame, 
     textvariable = garden_length)
@@ -75,7 +75,7 @@ fountain_radius_label = ttk.Label(
     text =  "Please enter the radius of the fountain: ",
     font =  'Calibri 12')
 fountain_radius_label.grid(row = 2,column = 1, sticky = 'E')
-fountain_radius = tk.IntVar()
+fountain_radius = tk.DoubleVar()
 fountain_radius_entry = ttk.Entry(
     master = input_frame, 
     textvariable = fountain_radius)
@@ -87,7 +87,7 @@ depth_label = ttk.Label(
     text =  "Please enter the depth of the flower bed: ",
     font =  'Calibri 12')
 depth_label.grid(row = 3,column = 1, sticky = 'E')
-depth = tk.IntVar()
+depth = tk.DoubleVar()
 depth_entry = ttk.Entry(
     master = input_frame, 
     textvariable = depth)
@@ -137,8 +137,10 @@ cubic_feet_of_soil_output_label.grid(row = 8, columnspan = 2)
 
 # main task controls the execution flow of the garden soil calculator program
 def main():
-    # run to see the window
+    garden_length_entry.focus_set()
+    garden_length_entry.select_range(0, tk.END)
     window.mainloop()
+
 
 # call main to execute Python program
 main()
