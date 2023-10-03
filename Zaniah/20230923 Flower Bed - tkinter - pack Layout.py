@@ -148,10 +148,5 @@ cubic_feet_of_soil_output_label = ttk.Label(
 cubic_feet_of_soil_output_label.pack(pady = 5)
 
 
-# main task controls the execution flow of the garden soil calculator program
-def main():
-    # run to see the window
+if __name__ == '__main__':
     window.mainloop()
-
-# call main to execute Python program
-main()
