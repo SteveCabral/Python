@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from ttkthemes import ThemedTk   # pip install ttkthemes
 
 import math
 
@@ -38,9 +39,14 @@ def soil_volume(bed_area, depth):
 
 # GUI INTERFACE:
 # app window
-window = tk.Tk()
+#window = tk.Tk()
+window = ThemedTk("arc")
 window.title("Flower Bed Calculator")
 #window.geometry("640x480") # set window width x height
+# setting theme
+#style = ThemedStyle(window)
+#style.set_theme("black")    # https://ttkthemes.readthedocs.io/en/latest/themes.html#black
+
 
 # app title
 title_label = ttk.Label(master = window 
