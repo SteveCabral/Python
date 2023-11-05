@@ -1,26 +1,28 @@
+from PyQt6.QtWidgets import QApplication, QMainWindow, QLabel, QLineEdit, QVBoxLayout, QWidget
+
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.button_is_checked = True
-
         self.setWindowTitle("My App")
 
-        button = QPushButton("Press Me!")
-        button.setCheckable(True)
-        button.clicked.connect(self.the_button_was_toggled)
-        button.setChecked(self.button_is_checked)
+        self.label = QLabel()
 
-        self.setCentralWidget(button)
+        self.input = QLineEdit()
+        self.input.textChanged.connect(self.label.setText)
 
-    def the_button_was_toggled(self, checked):
-        self.button_is_checked = checked
+        layout = QVBoxLayout()
+        layout.addWidget(self.input)
+        layout.addWidget(self.label)
 
-        print(self.button_is_checked)
+        container = QWidget()
+        container.setLayout(layout)
+
+        # Set the central widget of the Window.
+        self.setCentralWidget(container)
 
 
 app = QApplication(sys.argv)
