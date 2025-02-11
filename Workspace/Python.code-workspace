@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "C:\\Repos\\Python"
+		}
+	],
+	"settings": {
+		"editor.formatOnSave": true,
+		"python.defaultInterpreterPath": "C:\\PythonVenv\\py311\\Scripts\\python.exe",
+		"python.terminal.activateEnvironment": true,
+		"python.terminal.activateEnvInCurrentTerminal": true
+	}
+}
