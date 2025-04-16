@@ -27,7 +27,7 @@ print("10 * 10 + 5 * 1 --> " + str(number))
 number += 1
 print("number += 1 --> " + str(number))
 
-number. = 3 / 2
+number = 3 / 2
 print("3 / 2 --> " + str(number))
 
 
