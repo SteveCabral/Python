@@ -1,0 +1,16 @@
+{
+    "settings": {
+        "python.defaultInterpreterPath": "C:\\PythonVenv\\py311\\Scripts\\Activate.ps1",
+        "python.terminal.activateEnvironment": true,
+        "editor.formatOnSave": true
+    },
+    "python.terminal.activateEnvInCurrentTerminal": true,
+    "python.terminal.shellIntegration.enabled": true,
+    "python-envs.pythonProjects": [
+        {
+            "path": "",
+            "envManager": "ms-python.python:venv",
+            "packageManager": "ms-python.python:pip"
+        }
+    ]
+}
