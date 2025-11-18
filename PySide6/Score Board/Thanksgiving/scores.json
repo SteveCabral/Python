@@ -1,0 +1,103 @@
+{
+  "players": [
+    {
+      "player": "A",
+      "score": 0,
+      "rank": 1,
+      "is_selected": false
+    },
+    {
+      "player": "Amy",
+      "score": 0,
+      "rank": 2,
+      "is_selected": false
+    },
+    {
+      "player": "B",
+      "score": 0,
+      "rank": 3,
+      "is_selected": false
+    },
+    {
+      "player": "C",
+      "score": 0,
+      "rank": 4,
+      "is_selected": false
+    },
+    {
+      "player": "Chris",
+      "score": 0,
+      "rank": 5,
+      "is_selected": false
+    },
+    {
+      "player": "D",
+      "score": 0,
+      "rank": 6,
+      "is_selected": false
+    },
+    {
+      "player": "Danielle",
+      "score": 0,
+      "rank": 7,
+      "is_selected": false
+    },
+    {
+      "player": "Dorothea",
+      "score": 0,
+      "rank": 8,
+      "is_selected": false
+    },
+    {
+      "player": "E",
+      "score": 0,
+      "rank": 9,
+      "is_selected": false
+    },
+    {
+      "player": "F",
+      "score": 0,
+      "rank": 10,
+      "is_selected": false
+    },
+    {
+      "player": "G",
+      "score": 0,
+      "rank": 11,
+      "is_selected": false
+    },
+    {
+      "player": "H",
+      "score": 0,
+      "rank": 12,
+      "is_selected": false
+    },
+    {
+      "player": "I",
+      "score": 0,
+      "rank": 13,
+      "is_selected": true
+    },
+    {
+      "player": "Leo",
+      "score": 0,
+      "rank": 14,
+      "is_selected": false
+    },
+    {
+      "player": "Mercedes",
+      "score": 0,
+      "rank": 15,
+      "is_selected": false
+    },
+    {
+      "player": "Steve",
+      "score": 0,
+      "rank": 16,
+      "is_selected": false
+    }
+  ],
+  "clicked_numbers": [
+    4
+  ]
+}

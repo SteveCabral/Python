@@ -1,29 +1,39 @@
+# LeaderBoard.py
 import sys
+import json
+from pathlib import Path
 from operator import itemgetter
+
 from PySide6.QtCore import (
-    Qt, QAbstractTableModel, QModelIndex, Signal, Slot, QItemSelection
+    Qt, QAbstractTableModel, QModelIndex, Slot,
+    QSortFilterProxyModel, QSize
 )
 from PySide6.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QHBoxLayout, 
-    QVBoxLayout, QTableView, QLineEdit, QPushButton, 
-    QGridLayout, QSplitter, QLabel # <-- You added this after the last error, but I need to point it out here
+    QApplication, QMainWindow, QWidget, QHBoxLayout,
+    QVBoxLayout, QTableView, QLineEdit, QPushButton,
+    QGridLayout, QSplitter, QLabel, QMessageBox,
+    QHeaderView, QAbstractItemView, QHBoxLayout as QHLayout
+)
+from PySide6.QtGui import (
+    QColor, QBrush, QFont, QGuiApplication,
+    QAction, QKeySequence, QIcon, QPixmap, QPainter, QPen
 )
 
-# --- 1. Leaderboard Data Model (QAbstractTableModel) ---
-# This class handles the data storage, sorting, and display roles for the QTableView.
+
+SCORES_FILE = Path(__file__).parent / "scores.json"
+BUTTON_SIZE = 70  # px (kept in sync with pixmap size)
+
+
 class LeaderboardModel(QAbstractTableModel):
-    """A custom model to handle the game's player data and sorting logic."""
-    
-    # Define column indices for clarity
+    """Model for the leaderboard: list of dicts with 'player','score','rank','is_selected'."""
+
     RANK, PLAYER, SCORE = 0, 1, 2
     HEADER_LABELS = ["Rank", "Player", "Score"]
 
-    def __init__(self, players_data, parent=None):
+    def __init__(self, players_data=None, parent=None):
         super().__init__(parent)
-        # Data structure: List of dicts: 
-        # [{'player': 'Alice', 'score': 15, 'rank': 1}]
-        self._players = players_data
-        self.sort_data() # Initial sort
+        self._players = players_data[:] if players_data else []
+        self.sort_data()
 
     def rowCount(self, parent=QModelIndex()):
         return len(self._players)
@@ -34,264 +44,506 @@ class LeaderboardModel(QAbstractTableModel):
     def data(self, index, role=Qt.ItemDataRole.DisplayRole):
         if not index.isValid():
             return None
-        
         row = index.row()
         col = index.column()
+        if not (0 <= row < len(self._players)):
+            return None
+        item = self._players[row]
 
         if role == Qt.ItemDataRole.DisplayRole:
-            item = self._players[row]
             if col == self.RANK:
-                return item['rank']
+                return item.get('rank', '')
             elif col == self.PLAYER:
-                return item['player']
+                return item.get('player', '')
             elif col == self.SCORE:
-                return item['score']
-        
-        # Make the Player column selectable for setting the current player
-        if role == Qt.ItemDataRole.FlagsRole and col == self.PLAYER:
-            return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
+                return item.get('score', 0)
+
+        if role == Qt.ItemDataRole.BackgroundRole:
+            if item.get('is_selected', False):
+                return QBrush(QColor("#D6EAF8"))
 
         return None
 
     def headerData(self, section, orientation, role=Qt.ItemDataRole.DisplayRole):
         if role == Qt.ItemDataRole.DisplayRole and orientation == Qt.Orientation.Horizontal:
             return self.HEADER_LABELS[section]
-        return None
+        return super().headerData(section, orientation, role)
+
+    def flags(self, index):
+        if not index.isValid():
+            return Qt.ItemFlag.NoItemFlags
+        return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
 
     def sort_data(self):
-        """Sorts the data based on score (descending) then player name (ascending, as tie-breaker)."""
-        
-        # 1. Sort by the secondary key (Player Name) in ascending order.
-        # This is the tie-breaker sort. Python's sort is stable, so this order will be preserved.
-        sorted_players = sorted(
-            self._players, 
-            key=itemgetter('player'), 
-            reverse=False # Ascending order for tie-breaker
-        )
-        
-        # 2. Sort by the primary key (Score) in descending order.
-        # Since Python's sort is stable, items with the same score maintain the order established in step 1.
-        sorted_players = sorted(
-            sorted_players, 
-            key=itemgetter('score'), 
-            reverse=True # Descending order for score
-        )
+        """Sort by score (desc) then player name (asc). Recalculate ranks and notify view."""
+        # stable sort: secondary key first
+        players = sorted(self._players, key=itemgetter('player'))
+        players = sorted(players, key=itemgetter('score'), reverse=True)
 
-        # 3. Assign Rank (starting at 1)
-        for i, player in enumerate(sorted_players):
-            player['rank'] = i + 1
-        
-        self._players = sorted_players
-        
-        # Notify the view that the underlying data has changed for a full redraw
-        self.layoutChanged.emit()
+        for i, p in enumerate(players):
+            p['rank'] = i + 1
 
-        # 2. Assign Rank (starting at 1)
-        for i, player in enumerate(sorted_players):
-            player['rank'] = i + 1
-        
-        self._players = sorted_players
-        
-        # Notify the view that the underlying data has changed for a full redraw
-        self.layoutChanged.emit()
+        self.beginResetModel()
+        self._players = players
+        self.endResetModel()
+
+        if self.rowCount() > 0:
+            self.dataChanged.emit(self.index(0, 0), self.index(self.rowCount() - 1, self.columnCount() - 1))
 
     @Slot(str)
     def add_player(self, name):
-        """Adds a new player to the list and re-sorts."""
-        # Prevent adding duplicate names (case-insensitive check)
-        if name.lower() in [p['player'].lower() for p in self._players]:
-            return 
-        
-        # Notify the view before and after adding to a list for efficiency
-        self.beginInsertRows(QModelIndex(), len(self._players), len(self._players))
-        self._players.append({'player': name, 'score': 0, 'rank': 0})
+        if not name:
+            return
+        if name.lower() in (p['player'].lower() for p in self._players):
+            return
+        self.beginInsertRows(QModelIndex(), self.rowCount(), self.rowCount())
+        self._players.append({'player': name, 'score': 0, 'rank': 0, 'is_selected': False})
         self.endInsertRows()
-        
         self.sort_data()
 
     @Slot(str, int)
-    def update_score(self, player_name, points):
-        """Updates the score of a player and re-sorts."""
-        player_found = False
-        # Find the player and update their score
+    def update_score(self, player_name: str, points: int):
         for player in self._players:
             if player['player'] == player_name:
-                player['score'] += points
-                player_found = True
+                player['score'] = player.get('score', 0) + points
                 break
-        
-        if player_found:
-            self.sort_data()
-            
-# --- 2. Main Application Window ---
-class GameWindow(QMainWindow):
-    # Signal to notify the PlayerControl panel that a new player is selected
-    player_selected = Signal(str)
+        self.sort_data()
 
+    @Slot(str)
+    def set_selected_player(self, player_name: str):
+        changed = False
+        for p in self._players:
+            new_val = (p['player'] == player_name)
+            if p.get('is_selected', False) != new_val:
+                p['is_selected'] = new_val
+                changed = True
+        if changed and self.rowCount() > 0:
+            self.dataChanged.emit(self.index(0, 0), self.index(self.rowCount() - 1, self.columnCount() - 1))
+
+    @Slot()
+    def reset_scores(self):
+        if not self._players:
+            return
+        self.beginResetModel()
+        for p in self._players:
+            p['score'] = 0
+            p['is_selected'] = False
+            p['rank'] = 0
+        self.endResetModel()
+        self.sort_data()
+
+
+class GameWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Thanksgiving Family Game 🦃")
-        self.setGeometry(100, 100, 800, 600)
+        self.setGeometry(100, 100, 1000, 640)
 
-        central_widget = QWidget()
-        self.setCentralWidget(central_widget)
-
-        main_splitter = QSplitter(Qt.Orientation.Horizontal)
-        
-        # Call to _create_leaderboard_widget which calls _create_player_controls
-        self.leaderboard_widget = self._create_leaderboard_widget() 
-        main_splitter.addWidget(self.leaderboard_widget)
-        
-        # --- Right Side: Game Grid ---
-        self.game_grid_widget = self._create_game_grid_widget()
-        main_splitter.addWidget(self.game_grid_widget)
-        
-        # Set the initial ratio for the split (e.g., 30% for leaderboard, 70% for game)
-        main_splitter.setSizes([250, 550]) 
-
-        # Set the main layout of the central widget to the splitter
-        layout = QHBoxLayout(central_widget)
-        layout.addWidget(main_splitter)
-        
-        # Initial selected player
+        # controller state
+        self.clicked_numbers = set()
         self.current_player_name = "None"
+        self._last_action = None  # dict holding undo info: {'player','points','number'}
+
+        # UI setup
+        central = QWidget()
+        self.setCentralWidget(central)
+        main_layout = QHBoxLayout(central)
+
+        splitter = QSplitter(Qt.Orientation.Horizontal)
+        main_layout.addWidget(splitter)
+
+        # create/load players and state from disk if available
+        players_from_file, clicked_from_file = self._load_state()
+
+        initial_players = players_from_file if players_from_file is not None else [
+            {'player': 'Leo', 'score': 15, 'rank': 0, 'is_selected': False},
+            {'player': 'Amy', 'score': 20, 'rank': 0, 'is_selected': False},
+            {'player': 'Chris', 'score': 15, 'rank': 0, 'is_selected': False},
+        ]
+
+        self.model = LeaderboardModel(initial_players)
+
+        # left: leaderboard + controls
+        self.leaderboard_widget = self._create_leaderboard_widget()
+        splitter.addWidget(self.leaderboard_widget)
+
+        # right: game grid
+        self.game_grid_widget = self._create_game_grid_widget()
+        splitter.addWidget(self.game_grid_widget)
+
+        splitter.setSizes([360, 640])
+
+        # menu actions
+        self._create_actions()
+
+        # apply loaded board state (if any)
+        if clicked_from_file:
+            self.clicked_numbers = set(clicked_from_file)
+            for n in self.clicked_numbers:
+                btn = self.grid_buttons.get(n)
+                if btn:
+                    btn.setEnabled(False)
+                    btn.setIcon(self._make_icon(n, used=True))
+                    btn.setIconSize(QSize(BUTTON_SIZE, BUTTON_SIZE))
+
+    # ---------- persistence ----------
+    def _load_state(self):
+        """Return (players_list_or_None, clicked_numbers_or_None)."""
+        if not SCORES_FILE.exists():
+            return None, None
+        try:
+            with SCORES_FILE.open("r", encoding="utf-8") as f:
+                data = json.load(f)
+            players = data.get("players")
+            clicked = data.get("clicked_numbers", [])
+            # Ensure structure is correct
+            if players and isinstance(players, list):
+                # normalize dicts to include required keys
+                players_norm = []
+                for p in players:
+                    players_norm.append({
+                        'player': p.get('player', ''),
+                        'score': p.get('score', 0),
+                        'rank': p.get('rank', 0),
+                        'is_selected': p.get('is_selected', False)
+                    })
+                return players_norm, clicked
+            return None, clicked
+        except Exception:
+            return None, None
+
+    def _save_state(self):
+        """Save players and clicked numbers to JSON file."""
+        try:
+            players_to_save = [
+                {
+                    'player': p.get('player', ''),
+                    'score': p.get('score', 0),
+                    'rank': p.get('rank', 0),
+                    'is_selected': p.get('is_selected', False)
+                } for p in self.model._players
+            ]
+            data = {
+                'players': players_to_save,
+                'clicked_numbers': list(self.clicked_numbers)
+            }
+            with SCORES_FILE.open("w", encoding="utf-8") as f:
+                json.dump(data, f, indent=2)
+        except Exception as e:
+            print("Failed to save state:", e)
+
+    # ---------- actions & UI ----------
+    def _create_actions(self):
+        reset_action = QAction("Reset Game", self)
+        reset_action.setShortcut(QKeySequence("Ctrl+R"))
+        reset_action.triggered.connect(self._reset_game)
+        self.addAction(reset_action)
+
+        undo_action = QAction("Undo Last", self)
+        undo_action.setShortcut(QKeySequence("Ctrl+Z"))
+        undo_action.triggered.connect(self._undo_last)
+        self.addAction(undo_action)
 
     def _create_leaderboard_widget(self):
-        """Creates the widget containing the QTableView and player controls."""
-        
-        # Initial dummy data
-        initial_players = [
-            {'player': 'Leo', 'score': 15, 'rank': 0},
-            {'player': 'Amy', 'score': 20, 'rank': 0},
-            {'player': 'Chris', 'score': 15, 'rank': 0},
-        ]
-        
-        # Model-View setup
-        self.model = LeaderboardModel(initial_players)
-        self.table_view = QTableView()
-        self.table_view.setModel(self.model)
-        self.table_view.horizontalHeader().setStretchLastSection(True)
-        self.table_view.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)
-        self.table_view.setSelectionMode(QTableView.SelectionMode.SingleSelection)
-
-        # Connect selection change to a slot to set the current player
-        self.table_view.selectionModel().selectionChanged.connect(self._select_player_from_table)
-        
-        # Player Controls Widget (Add Player, Current Player)
-        self.player_controls = self._create_player_controls()
-        
-        # Layout for the left side
-        left_vbox = QVBoxLayout()
-        left_vbox.addWidget(self.table_view)
-        left_vbox.addWidget(self.player_controls)
-
-        leaderboard_container = QWidget()
-        leaderboard_container.setLayout(left_vbox)
-        return leaderboard_container
-
-    def _create_player_controls(self):
-        """Creates the widget for adding a player and displaying the current player."""
-        
         container = QWidget()
         vbox = QVBoxLayout(container)
-        
-        # 1. Add Player Controls
-        add_player_hbox = QHBoxLayout()
+
+        # Search box and proxy model
+        search_h = QWidget()
+        sh_layout = QHLayout()
+        search_h.setLayout(sh_layout)
+        sh_layout.addWidget(QLabel("Search:"))
+        self.search_box = QLineEdit()
+        self.search_box.setPlaceholderText("Filter by player name...")
+        sh_layout.addWidget(self.search_box)
+        vbox.addWidget(search_h)
+
+        self.proxy = QSortFilterProxyModel(self)
+        self.proxy.setSourceModel(self.model)
+        self.proxy.setFilterCaseSensitivity(Qt.CaseInsensitive)
+        self.proxy.setFilterKeyColumn(LeaderboardModel.PLAYER)
+
+        self.table_view = QTableView()
+        self.table_view.setModel(self.proxy)
+        self.table_view.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.table_view.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.table_view.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        self.table_view.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table_view.setSortingEnabled(True)  # allow clicking headers to sort
+        vbox.addWidget(self.table_view)
+
+        # Connect search -> proxy
+        self.search_box.textChanged.connect(self.proxy.setFilterFixedString)
+
+        # when selection changes on proxy view, map to source index
+        sel_model = self.table_view.selectionModel()
+        sel_model.currentChanged.connect(self._on_table_current_changed)
+
+        # Controls area
+        ctrl = QWidget()
+        ctrl_layout = QVBoxLayout(ctrl)
+
+        add_h = QWidget()
+        add_h_layout = QHLayout()
+        add_h.setLayout(add_h_layout)
+
         self.player_name_input = QLineEdit()
         self.player_name_input.setPlaceholderText("Enter Player Name")
-        
-        add_button = QPushButton("➕ Add Player")
-        add_button.clicked.connect(self._add_player)
-        
-        add_player_hbox.addWidget(self.player_name_input)
-        add_player_hbox.addWidget(add_button)
-        vbox.addLayout(add_player_hbox)
+        self.add_player_btn = QPushButton("➕ Add Player")
+        self.add_player_btn.setEnabled(False)
+        self.add_player_btn.clicked.connect(self._add_player)
 
-        # 2. Current Player Display
-        current_player_hbox = QHBoxLayout()
-        current_player_hbox.addWidget(QLabel("Current Player:"))
-        
-        # *** SELF.CURRENT_PLAYER_LABEL IS CREATED AND ASSIGNED HERE ***
-        self.current_player_label = QLabel("None") 
+        add_h_layout.addWidget(self.player_name_input)
+        add_h_layout.addWidget(self.add_player_btn)
+        ctrl_layout.addWidget(add_h)
+
+        # Enable add button only when text present
+        self.player_name_input.textChanged.connect(lambda text: self.add_player_btn.setEnabled(bool(text.strip())))
+
+        status_h = QWidget()
+        status_layout = QHLayout()
+        status_h.setLayout(status_layout)
+        status_layout.addWidget(QLabel("Current Player:"))
+        self.current_player_label = QLabel("None")
         self.current_player_label.setStyleSheet("font-weight: bold; color: blue;")
-        current_player_hbox.addWidget(self.current_player_label)
+        status_layout.addWidget(self.current_player_label)
 
-        vbox.addLayout(current_player_hbox)
+        # reset + undo buttons
+        btns = QWidget()
+        btns_layout = QHLayout()
+        btns.setLayout(btns_layout)
+        self.reset_btn = QPushButton("🔄 Reset Game")
+        self.reset_btn.clicked.connect(self._reset_game)
+        self.undo_btn = QPushButton("↩ Undo")
+        self.undo_btn.clicked.connect(self._undo_last)
+        self.undo_btn.setEnabled(False)
+
+        btns_layout.addWidget(self.reset_btn)
+        btns_layout.addWidget(self.undo_btn)
+        status_layout.addWidget(btns)
+
+        ctrl_layout.addWidget(status_h)
+        vbox.addWidget(ctrl)
 
         return container
-        
+
     def _create_game_grid_widget(self):
-        """Creates the 6x6 grid of buttons for the game interface."""
-        
         container = QWidget()
-        grid_layout = QGridLayout(container)
-        
-        # Create 6x6 grid buttons with numbers 1 to 36
+        vbox = QVBoxLayout(container)
+
+        grid_layout = QGridLayout()
+        grid_layout.setSpacing(6)
+
+        self.grid_buttons = {}
         for i in range(6):
             for j in range(6):
-                number = (i * 6) + j + 1
-                button = QPushButton(str(number))
-                # Set a fixed size for a clean grid look
-                button.setFixedSize(50, 50) 
-                
-                # Connect the button click to the score update logic
-                button.clicked.connect(lambda checked, val=number: self._handle_grid_click(val))
-                
-                grid_layout.addWidget(button, i, j)
-        
-        # Center the grid within its container
-        vbox = QVBoxLayout(container)
-        vbox.addLayout(grid_layout)
-        vbox.setAlignment(grid_layout, Qt.AlignmentFlag.AlignCenter)
+                number = i * 6 + j + 1
+                btn = QPushButton()
+                btn.setFixedSize(BUTTON_SIZE, BUTTON_SIZE)
+                btn.setIcon(self._make_icon(number, used=False))
+                btn.setIconSize(QSize(BUTTON_SIZE, BUTTON_SIZE))
+                font = QFont()
+                font.setBold(True)
+                font.setPointSize(10)
+                btn.setFont(font)
+                btn.clicked.connect(lambda checked, n=number: self._handle_grid_click(n))
+                grid_layout.addWidget(btn, i, j)
+                self.grid_buttons[number] = btn
 
+        vbox.addLayout(grid_layout)
         return container
 
+    # ---------- drawing icons ----------
+    def _make_icon(self, number: int, used: bool = False) -> QIcon:
+        """Create a QIcon with the number drawn. If used=True draw an 'X' overlay."""
+        size = BUTTON_SIZE
+        pix = QPixmap(size, size)
+        pix.fill(QColor("transparent"))
+        p = QPainter(pix)
+
+        # background circle
+        radius = size // 2 - 2
+        center = (size // 2, size // 2)
+        bg_color = QColor("#FFFFFF") if not used else QColor("#E0E0E0")
+        pen = QPen(QColor("#2C3E50"))
+        pen.setWidth(2)
+        p.setPen(pen)
+        p.setBrush(bg_color)
+        p.drawEllipse(center[0] - radius, center[1] - radius, radius * 2, radius * 2)
+
+        # number text
+        p.setPen(QPen(QColor("#2C3E50")))
+        f = QFont()
+        f.setBold(True)
+        f.setPointSize(18)
+        p.setFont(f)
+        txt = str(number)
+        rect = pix.rect()
+        p.drawText(rect, Qt.AlignCenter, txt)
+
+        if used:
+            # draw an X overlay
+            pen_x = QPen(QColor("#8B0000"))
+            pen_x.setWidth(4)
+            p.setPen(pen_x)
+            offset = size * 0.22
+            p.drawLine(int(offset), int(offset), int(size - offset), int(size - offset))
+            p.drawLine(int(size - offset), int(offset), int(offset), int(size - offset))
+
+        p.end()
+        return QIcon(pix)
+
+    # ---------- model/view interactions ----------
     @Slot()
     def _add_player(self):
-        """Slot to handle the 'Add Player' button click."""
-        player_name = self.player_name_input.text().strip()
+        name = self.player_name_input.text().strip()
+        if not name:
+            return
+        self.model.add_player(name)
+        self.player_name_input.clear()
+        self.add_player_btn.setEnabled(False)
+        # select the newly added player in proxy view
+        # find the source row
+        for src_row, p in enumerate(self.model._players):
+            if p['player'] == name:
+                src_idx = self.model.index(src_row, LeaderboardModel.PLAYER)
+                proxy_idx = self.proxy.mapFromSource(src_idx)
+                self.table_view.setCurrentIndex(proxy_idx)
+                break
+        self._save_state()
+
+    @Slot("QModelIndex", "QModelIndex")
+    def _on_table_current_changed(self, current, previous):
+        # 'current' is proxy index; map to source to get player
+        if not current.isValid():
+            self._set_current_player("None")
+            return
+        src_idx = self.proxy.mapToSource(current)
+        player_name = self.model.data(src_idx, Qt.ItemDataRole.DisplayRole)
         if player_name:
-            self.model.add_player(player_name)
-            self.player_name_input.clear()
-            
-            # Auto-select the newly added player
-            self._set_current_player(player_name)
-            
-    @Slot(QItemSelection, QItemSelection)
-    def _select_player_from_table(self, selected, deselected):
-        """Slot to handle selection changes in the QTableView."""
-        indexes = selected.indexes()
-        if indexes:
-            # The player name is in column 1 (index 1)
-            player_index = indexes[0].siblingAtColumn(self.model.PLAYER)
-            player_name = self.model.data(player_index)
             self._set_current_player(player_name)
         else:
             self._set_current_player("None")
 
-    def _set_current_player(self, player_name):
-        """Internal method to update the current player state."""
+    def _set_current_player(self, player_name: str):
         self.current_player_name = player_name
         self.current_player_label.setText(player_name)
-        # Optional: Emit signal if other widgets need to react
-        self.player_selected.emit(player_name)
-
+        self.model.set_selected_player(player_name)
 
     @Slot(int)
-    def _handle_grid_click(self, points):
-        """Slot to handle a button click in the game grid."""
+    def _handle_grid_click(self, points: int):
         if self.current_player_name == "None":
-            print("Please select a player first!")
-            # Optional: Show a QMessageBox to the user
+            QMessageBox.warning(self, "Player Not Selected", "Please select a player from the leaderboard first!")
             return
-            
-        print(f"Player '{self.current_player_name}' scores {points} points!")
-        
-        # Update the model with the new score
+        if points in self.clicked_numbers:
+            return
+
+        # update model (score)
+        # record previous state for undo
+        prev_score = None
+        for p in self.model._players:
+            if p['player'] == self.current_player_name:
+                prev_score = p.get('score', 0)
+                break
+
         self.model.update_score(self.current_player_name, points)
 
+        # update UI button
+        btn = self.grid_buttons.get(points)
+        if btn:
+            btn.setEnabled(False)
+            btn.setIcon(self._make_icon(points, used=True))
+            btn.setIconSize(QSize(BUTTON_SIZE, BUTTON_SIZE))
+            btn.update()
+
+        # record last action for undo
+        self._last_action = {
+            'player': self.current_player_name,
+            'points': points,
+            'number': points,
+            'prev_score': prev_score
+        }
+        self.undo_btn.setEnabled(True)
+
+        # mark clicked and save
+        self.clicked_numbers.add(points)
+        self._save_state()
+
+    @Slot()
+    def _undo_last(self):
+        if not self._last_action:
+            return
+        act = self._last_action
+        player = act['player']
+        pts = act['points']
+        num = act['number']
+        prev = act.get('prev_score')
+
+        # restore player score (set to prev_score if available, otherwise subtract)
+        found = False
+        for p in self.model._players:
+            if p['player'] == player:
+                if prev is not None:
+                    p['score'] = prev
+                else:
+                    p['score'] = p.get('score', 0) - pts
+                found = True
+                break
+        if found:
+            # notify model/view
+            self.model.sort_data()
+
+        # re-enable button
+        btn = self.grid_buttons.get(num)
+        if btn:
+            btn.setEnabled(True)
+            btn.setIcon(self._make_icon(num, used=False))
+            btn.setIconSize(QSize(BUTTON_SIZE, BUTTON_SIZE))
+            btn.update()
+
+        # remove from clicked set and save
+        if num in self.clicked_numbers:
+            self.clicked_numbers.remove(num)
+        self._last_action = None
+        self.undo_btn.setEnabled(False)
+        self._save_state()
+
+    @Slot()
+    def _reset_game(self):
+        if QMessageBox.question(self, "Reset Game",
+                                "Are you sure you want to reset all scores and clear the board?",
+                                QMessageBox.Yes | QMessageBox.No,
+                                QMessageBox.No) != QMessageBox.Yes:
+            return
+
+        # reset model scores
+        self.model.reset_scores()
+        # clear clicked numbers and re-enable buttons
+        self.clicked_numbers.clear()
+        for n, btn in self.grid_buttons.items():
+            btn.setEnabled(True)
+            btn.setIcon(self._make_icon(n, used=False))
+            btn.setIconSize(QSize(BUTTON_SIZE, BUTTON_SIZE))
+            btn.update()
+
+        # clear current selection and controller state
+        self.table_view.clearSelection()
+        self._set_current_player("None")
+
+        # clear undo
+        self._last_action = None
+        self.undo_btn.setEnabled(False)
+
+        # repaint grid widget to satisfy style engines
+        self.game_grid_widget.update()
+
+        # save
+        self._save_state()
+        print("Game state reset successfully.")
+
 if __name__ == '__main__':
+    QGuiApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     app = QApplication(sys.argv)
-    window = GameWindow()
-    window.show()
+    w = GameWindow()
+    w.show()
     sys.exit(app.exec())
