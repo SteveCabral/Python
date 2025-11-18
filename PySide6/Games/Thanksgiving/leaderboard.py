@@ -48,6 +48,7 @@ class LeaderboardModel(QAbstractTableModel):
         return Qt.ItemFlag.ItemIsEnabled | Qt.ItemFlag.ItemIsSelectable
 
     def _recalculate(self):
+        # sort by score desc, name asc
         self._players = sorted(self._players, key=itemgetter('player'))
         self._players = sorted(self._players, key=itemgetter('score'), reverse=True)
         for i, p in enumerate(self._players):

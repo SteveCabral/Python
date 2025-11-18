@@ -3,23 +3,31 @@ from PySide6.QtWidgets import QWidget, QGridLayout, QLabel
 from PySide6.QtGui import QFont
 from PySide6.QtCore import Qt
 
+# Helper to split phrase without breaking words into 4 rows (12,14,14,12 capacity)
 CAPACITY = [12, 14, 14, 12]
+
 
 def split_phrase_into_rows(phrase: str):
     words = phrase.split(' ')
     rows = [''] * 4
     idx = 0
     for w in words:
-        candidate = (rows[idx] + ' ' + w) if rows[idx] else w
+        if rows[idx]:
+            candidate = rows[idx] + ' ' + w
+        else:
+            candidate = w
         if len(candidate) <= CAPACITY[idx]:
             rows[idx] = candidate
         else:
             idx += 1
             if idx >= 4:
+                # shouldn't happen if phrase validated earlier
                 break
             rows[idx] = w
+    # pad with spaces for display consistent cells
     rows = [r.ljust(CAPACITY[i]) for i, r in enumerate(rows)]
     return rows
+
 
 class PhraseGridWidget(QWidget):
     def __init__(self, parent=None):
@@ -54,7 +62,8 @@ class PhraseGridWidget(QWidget):
 
     def reveal_letter(self, letter: str):
         letter = letter.upper()
-        for row in self.cells:
-            for lbl in row:
+        # replace any matching letters in cells with white background
+        for r, row in enumerate(self.cells):
+            for c, lbl in enumerate(row):
                 if lbl.text().upper() == letter:
                     lbl.setStyleSheet('background-color: white; border: 1px solid #AAB7B8;')

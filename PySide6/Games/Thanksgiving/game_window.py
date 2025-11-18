@@ -1,7 +1,5 @@
 # game_window.py
-from PySide6.QtWidgets import (
-    QWidget, QHBoxLayout, QVBoxLayout, QLabel, QPushButton, QMessageBox
-)
+from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QPushButton, QMessageBox
 from PySide6.QtCore import Slot, Qt
 
 from leaderboard import LeaderboardModel
@@ -9,6 +7,7 @@ from phrase_manager import PhraseManager
 from widgets.phrase_grid import PhraseGridWidget
 from widgets.letter_buttons import LetterButtonsWidget
 from config import load_config
+
 
 class GameWindow(QWidget):
     def __init__(self, parent=None):
@@ -21,19 +20,23 @@ class GameWindow(QWidget):
 
         layout = QVBoxLayout(self)
 
+        # phrase grid
         self.phrase_grid = PhraseGridWidget()
         layout.addWidget(self.phrase_grid)
 
+        # category label
         self.category_label = QLabel('')
         self.category_label.setStyleSheet('background-color: #3498DB; color: black; font-weight: bold;')
         self.category_label.setFixedHeight(32)
         self.category_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.category_label)
 
+        # letter buttons
         self.letters = LetterButtonsWidget(self.points_map)
         self.letters.letter_clicked.connect(self.on_letter)
         layout.addWidget(self.letters)
 
+        # control buttons
         btn_layout = QHBoxLayout()
         self.start_btn = QPushButton('Start Game')
         self.next_btn = QPushButton('Next Phrase')
@@ -50,8 +53,14 @@ class GameWindow(QWidget):
         self.current_phrase = None
         self.current_player = None
 
+    def set_current_player(self, player: str):
+        self.current_player = player
+        self.model.set_selected(player)
+
+
     @Slot()
     def start_game(self):
+        # mark all available
         QMessageBox.information(self, 'Start', 'Game started. Click Next Phrase to load first phrase.')
         self.letters.reset()
 
@@ -72,17 +81,20 @@ class GameWindow(QWidget):
         if not self.current_player:
             QMessageBox.warning(self, 'No player', 'Select a player first from the leaderboard!')
             return
+        
+        # reveal letters and compute scoring
         occurrences = self.current_phrase.phrase.count(letter)
         if occurrences > 0:
             points = self.points_map.get(letter, 5) * occurrences
             self.model.update_score(self.current_player, points)
             self.phrase_grid.reveal_letter(letter)
         else:
-            cost = 0
+            cost = self.points_map.get(letter, 5) * 0
             QMessageBox.information(self, 'Not found', f"Letter {letter} is not in phrase. Cost {cost}.")
             self.model.update_score(self.current_player, -cost)
         self.letters.disable_letter(letter)
 
     @Slot()
     def solve(self):
+        # show dialog for user solution (left as exercise to use QInputDialog or custom dialog)
         pass

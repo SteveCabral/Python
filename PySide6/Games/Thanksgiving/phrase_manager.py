@@ -10,6 +10,7 @@ class Phrase:
     category: str
     available: bool = True
 
+
 class PhraseManager:
     def __init__(self, phrases_config: List[dict]):
         self._phrases = []
