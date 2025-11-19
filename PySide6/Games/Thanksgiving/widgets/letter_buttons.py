@@ -1,6 +1,6 @@
 # widgets/letter_buttons.py
 from PySide6.QtWidgets import QWidget, QGridLayout, QPushButton
-from PySide6.QtCore import Signal
+from PySide6.QtCore import Signal, Qt
 
 class LetterButtonsWidget(QWidget):
     letter_clicked = Signal(str)
@@ -8,6 +8,8 @@ class LetterButtonsWidget(QWidget):
     def __init__(self, points_map: dict, parent=None):
         super().__init__(parent)
         self.points = points_map
+        # allow the widget to accept keyboard focus so focus can move here
+        self.setFocusPolicy(Qt.StrongFocus)
         self.grid = QGridLayout(self)
         self.buttons = {}
         letters = [chr(c) for c in range(ord('A'), ord('Z')+1)]

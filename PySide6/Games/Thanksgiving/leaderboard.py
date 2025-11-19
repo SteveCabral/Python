@@ -90,3 +90,11 @@ class LeaderboardModel(QAbstractTableModel):
 
     def players(self):
         return list(self._players)
+
+    def reset(self):
+        """Clear all players and reset the model state."""
+        from PySide6.QtCore import QModelIndex
+        self.beginResetModel()
+        self._players = []
+        self.endResetModel()
+        self.layoutChanged.emit()

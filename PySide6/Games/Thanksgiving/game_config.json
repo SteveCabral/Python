@@ -5,36 +5,50 @@
       "category": "EVENT"
     },
     {
+      "phrase": "Mississippi River",
+      "category": "Place In the U.S."
+    },
+    {
+      "phrase": "Butterball turkey",
+      "category": "FOOD"
+    },
+    {
+      "phrase": "apple and pumpkin pies",
+      "category": "FOOD"
+    },
+    {
       "phrase": "GIVE THANKS",
       "category": "HOLIDAY"
     }
   ],
   "points": {
-    "A": 5,
+    "A": -5,
     "B": 5,
     "C": 5,
     "D": 5,
-    "E": 5,
+    "E": -5,
     "F": 5,
     "G": 5,
     "H": 5,
-    "I": 5,
-    "J": 5,
+    "I": -5,
+    "J": 10,
     "K": 5,
     "L": 5,
     "M": 5,
     "N": 5,
-    "O": 5,
+    "O": -5,
     "P": 5,
-    "Q": 5,
+    "Q": 10,
     "R": 5,
     "S": 5,
     "T": 5,
-    "U": 5,
-    "V": 5,
+    "U": -5,
+    "V": 10,
     "W": 5,
-    "X": 5,
+    "X": 10,
     "Y": 5,
-    "Z": 5
+    "Z": 10
   }
+  ,
+  "time_limit": 10
 }
