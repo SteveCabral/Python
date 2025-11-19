@@ -2,7 +2,7 @@
 from PySide6.QtWidgets import QWidget, QHBoxLayout, QVBoxLayout, QLabel, QPushButton, QMessageBox, QLineEdit
 from PySide6.QtCore import Slot, Qt
 from PySide6.QtGui import QKeySequence
-from PySide6.QtGui import QShortcut
+from PySide6.QtGui import QShortcut, QFont
 from PySide6.QtCore import QTimer
 
 from leaderboard import LeaderboardModel
@@ -85,9 +85,26 @@ class GameWindow(QWidget):
         # category label
         self.category_label = QLabel('')
         self.category_label.setStyleSheet('background-color: #3498DB; color: black; font-weight: bold;')
+        # set category font to 16pt
+        try:
+            self.category_label.setFont(QFont('Sans Serif', 16))
+        except Exception:
+            pass
         self.category_label.setFixedHeight(32)
         self.category_label.setAlignment(Qt.AlignCenter)
         layout.addWidget(self.category_label)
+
+        # Letter Selected Information Grid: shows last letter selection result
+        self.letter_info_label = QLabel('')
+        self.letter_info_label.setStyleSheet('background-color: #FFFFFF; color: black;')
+        # set info font to 16pt
+        try:
+            self.letter_info_label.setFont(QFont('Sans Serif', 16))
+        except Exception:
+            pass
+        self.letter_info_label.setFixedHeight(28)
+        self.letter_info_label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(self.letter_info_label)
 
         # letter buttons
         self.letters = LetterButtonsWidget(self.points_map)
@@ -292,6 +309,11 @@ class GameWindow(QWidget):
             points = self.points_map.get(letter, 5) * occurrences
             self.model.update_score(self.current_player, points)
             self.phrase_grid.reveal_letter(letter)
+            # update the Letter Selected Information Grid
+            try:
+                self.letter_info_label.setText(f"Letter {letter} appears {occurrences} times. {self.current_player} gets {points}.")
+            except Exception:
+                pass
             # if all letters now revealed, mark phrase solved/unavailable
             if self.phrase_grid.is_fully_revealed():
                 self.phrase_manager.mark_unavailable(self.current_phrase)
@@ -315,7 +337,11 @@ class GameWindow(QWidget):
         else:
             # apply penalty equal to the configured points for the letter
             cost = self.points_map.get(letter, 5)
-            QMessageBox.information(self, 'Not found', f"Letter {letter} is not in phrase. Penalty {cost}.")
+            # update the Letter Selected Information Grid for miss
+            try:
+                self.letter_info_label.setText(f"Letter {letter} is not in the phrase. {self.current_player} loses {cost}.")
+            except Exception:
+                pass
             self.model.update_score(self.current_player, -cost)
         self.letters.disable_letter(letter)
 
