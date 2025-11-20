@@ -79,7 +79,7 @@ class GameWindow(QWidget):
 
         # timer logic
         self._timer = QTimer(self)
-        self._timer.setInterval(1000)
+        self._timer.setInterval(1000) # 1 second
         self._timer.timeout.connect(self._tick)
 
         # category label
@@ -306,12 +306,13 @@ class GameWindow(QWidget):
         # reveal letters and compute scoring
         occurrences = self.current_phrase.phrase.count(letter)
         if occurrences > 0:
-            points = self.points_map.get(letter, 5) * occurrences
+            letter_points = self.points_map.get(letter, 5)
+            points = letter_points * occurrences
             self.model.update_score(self.current_player, points)
             self.phrase_grid.reveal_letter(letter)
             # update the Letter Selected Information Grid
             try:
-                self.letter_info_label.setText(f"Letter {letter} appears {occurrences} times. {self.current_player} gets {points}.")
+                self.letter_info_label.setText(f"Letter {letter} ({letter_points} point{'s' if letter_points != 1 else ''}) appears {occurrences} times. {self.current_player} gets {points}.")
             except Exception:
                 pass
             # if all letters now revealed, mark phrase solved/unavailable
