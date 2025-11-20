@@ -123,3 +123,23 @@ class LeaderboardModel(QAbstractTableModel):
             else:
                 # Ensure view refresh even if nothing changed
                 self.layoutChanged.emit()
+
+    def reset_played_flags(self):
+        """Reset the 'played' flag for all players to False and notify views.
+
+        This is used when advancing to a new phrase so the UI can track who
+        has played on the current phrase.
+        """
+        if not self._players:
+            return
+        changed = False
+        for p in self._players:
+            if p.get('played', False):
+                p['played'] = False
+                changed = True
+        if self.rowCount() > 0:
+            if changed:
+                self.dataChanged.emit(self.index(0, 0), self.index(self.rowCount()-1, self.columnCount()-1))
+            else:
+                # ensure view refresh even if nothing changed
+                self.layoutChanged.emit()

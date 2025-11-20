@@ -162,12 +162,22 @@ class GameWindow(QWidget):
             parent = self.parent()
             if parent is not None and hasattr(parent, 'set_current_player'):
                 parent.set_current_player(next_player)
+                # ensure per-player countdown resets when advancing players
+                try:
+                    self._reset_timer()
+                except Exception:
+                    pass
                 return
         except Exception:
             pass
 
         # Fallback: set current player locally and update parent UI if possible
         self.set_current_player(next_player)
+        # ensure timer is reset for the newly selected player
+        try:
+            self._reset_timer()
+        except Exception:
+            pass
         try:
             parent = self.parent()
             if parent is not None:
@@ -260,6 +270,13 @@ class GameWindow(QWidget):
 
     @Slot()
     def next_phrase(self):
+        # Reset the per-player "played" flag when moving to a new phrase
+        try:
+            if hasattr(self.model, 'reset_played_flags'):
+                self.model.reset_played_flags()
+        except Exception:
+            pass
+
         phrase = self.phrase_manager.next_available()
         if not phrase:
             # No more phrases — end the game and show top players
