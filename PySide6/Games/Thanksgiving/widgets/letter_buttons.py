@@ -31,6 +31,12 @@ class LetterButtonsWidget(QWidget):
                 btn.setFixedWidth(max(16, int(w * 0.5)))
             except Exception:
                 pass
+            # show tooltip with the points this letter is worth
+            try:
+                pts = self.points.get(L, 5)
+                btn.setToolTip(f"Points = {pts}")
+            except Exception:
+                pass
             btn.clicked.connect(lambda checked, ch=L: self._on_click(ch))
             self.buttons[L] = btn
             self.grid.addWidget(btn, i // COLS, i % COLS)

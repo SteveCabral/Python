@@ -7,7 +7,9 @@ DEFAULT_CONFIG = {
         {"phrase": "A FUN FAMILY GAME", "category": "EVENT"},
         {"phrase": "GIVE THANKS", "category": "HOLIDAY"}
     ],
-    "points": {chr(c): 5 for c in range(ord('A'), ord('Z')+1)}
+    "points": {chr(c): 5 for c in range(ord('A'), ord('Z')+1)},
+    # default time limit (seconds)
+    "time_limit": 20
 }
 
 CONFIG_FILE = Path(__file__).parent / 'game_config.json'

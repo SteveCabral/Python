@@ -98,3 +98,28 @@ class LeaderboardModel(QAbstractTableModel):
         self._players = []
         self.endResetModel()
         self.layoutChanged.emit()
+
+    def reset_scores(self):
+        """Reset scores and played/selection flags for existing players, keeping their names.
+
+        This preserves the list of players so users don't have to re-enter names when
+        starting a new game, while clearing any accumulated scores or played-state.
+        """
+        if not self._players:
+            return
+        changed = False
+        for p in self._players:
+            if p.get('score', 0) != 0 or p.get('played', False) or p.get('is_selected', False):
+                p['score'] = 0
+                p['played'] = False
+                p['is_selected'] = False
+                changed = True
+        # Recalculate ranks (will set ranks based on the now-zero scores and player ordering)
+        self._recalculate()
+        # Notify views
+        if self.rowCount() > 0:
+            if changed:
+                self.dataChanged.emit(self.index(0, 0), self.index(self.rowCount()-1, self.columnCount()-1))
+            else:
+                # Ensure view refresh even if nothing changed
+                self.layoutChanged.emit()

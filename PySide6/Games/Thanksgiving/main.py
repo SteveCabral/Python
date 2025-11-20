@@ -52,9 +52,10 @@ class MainWindow(QMainWindow):
         left_v.addWidget(self.add_player_btn)
         left_v.addWidget(self.table)
 
-        # Add Current Player label
+        # Current Player label (kept as attribute but not shown in leaderboard)
+        # The visible current player is displayed in the Game Window above the phrase grid,
+        # so keep the attribute for programmatic updates but do not add it to the leaderboard layout.
         self.current_player_label = QLabel("Current Player: None")
-        left_v.addWidget(self.current_player_label)
 
         left_widget = QWidget()
         left_widget.setLayout(left_v)

@@ -40,7 +40,7 @@ class GameWindow(QWidget):
         header_layout.addWidget(self.current_player_label, 1)
 
         # timer display: fixed two-digit, monospace, bright red
-        self.time_limit = int(self.config.get('time_limit', 10))
+        self.time_limit = int(self.config.get('time_limit', 20))
         self._time_remaining = self.time_limit
         self.timer_label = QLabel(f"{self._time_remaining:02d}")
         self.timer_label.setFixedWidth(64)
@@ -199,9 +199,12 @@ class GameWindow(QWidget):
     @Slot()
     def start_game(self):
         # Reset everything to initial state and load first phrase
-        # Reset leaderboard (shared model)
+        # Reset leaderboard scores but keep existing players if any
         try:
-            if hasattr(self.model, 'reset'):
+            if hasattr(self.model, 'reset_scores') and self.model.rowCount() > 0:
+                self.model.reset_scores()
+            elif hasattr(self.model, 'reset'):
+                # fallback: clear players if no reset_scores available
                 self.model.reset()
         except Exception:
             pass
@@ -333,7 +336,7 @@ class GameWindow(QWidget):
                 QMessageBox.information(
                     self,
                     'Solved',
-                    f"All letters revealed — phrase solved by {self.current_player}.\nThe current leader is {leader}.\nClick Next Phrase to continue."
+                    f"All letters revealed.\nPhrase solved by {self.current_player}.\nThe current leader is {leader}.\nClick Next Phrase to continue."
                 )
         else:
             # apply penalty equal to the configured points for the letter
