@@ -46,13 +46,16 @@ class PhraseGridWidget(QWidget):
         font = QFont('Sans Serif', FONT_SIZE)
         for r, cap in enumerate(CAPACITY):
             row_cells = []
+            # offset rows with capacity 12 by 1 column so they align visually
+            # with the 14-column rows (i.e., start at column 1)
+            row_offset = 1 if cap == 12 else 0
             for c in range(cap):
                 lbl = QLabel(' ')
                 lbl.setFixedSize(size, size)
                 lbl.setAlignment(Qt.AlignCenter)
                 lbl.setStyleSheet('background-color: #A9DFBF; border: 1px solid #7DCEA0;')
                 lbl.setFont(font)
-                self.grid.addWidget(lbl, r, c)
+                self.grid.addWidget(lbl, r, c + row_offset)
                 row_cells.append(lbl)
             self.cells.append(row_cells)
             self._grid_chars.append([None] * cap)

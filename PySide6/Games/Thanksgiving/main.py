@@ -1,9 +1,10 @@
 # main.py
 import sys
 from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout, QLabel
+from PySide6.QtCore import Qt
 from game_window import GameWindow
 from leaderboard import LeaderboardModel
-from PySide6.QtWidgets import QTableView, QHeaderView, QVBoxLayout
+from PySide6.QtWidgets import QTableView, QHeaderView, QVBoxLayout, QSizePolicy
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -48,9 +49,37 @@ class MainWindow(QMainWindow):
         self.add_player_btn.clicked.connect(do_add_player)
         # allow pressing Enter in the input to add the player
         self.player_input.returnPressed.connect(do_add_player)
-        left_v.addWidget(self.player_input)
-        left_v.addWidget(self.add_player_btn)
-        left_v.addWidget(self.table)
+
+        # Leaderboard title label (same width as player list area)
+        from PySide6.QtGui import QFont
+        self.leaderboard_label = QLabel('LeaderBoard')
+        try:
+            self.leaderboard_label.setFont(QFont('Sans Serif', 16))
+        except Exception:
+            pass
+        self.leaderboard_label.setAlignment(Qt.AlignCenter)
+
+        left_v.addWidget(self.leaderboard_label)
+        # Make the table expand to fill the space between the leaderboard label and
+        # the Add Player controls at the bottom.
+        try:
+            self.table.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        except Exception:
+            pass
+        left_v.addWidget(self.table, 1)
+        # place add-player controls at bottom in a single-row container with border
+        add_container = QWidget()
+        add_layout = QHBoxLayout()
+        add_layout.setContentsMargins(6, 6, 6, 6)
+        add_layout.setSpacing(8)
+        add_container.setLayout(add_layout)
+        try:
+            add_container.setStyleSheet('border: 1px solid #CCCCCC; padding: 4px; border-radius: 4px;')
+        except Exception:
+            pass
+        add_layout.addWidget(self.player_input)
+        add_layout.addWidget(self.add_player_btn)
+        left_v.addWidget(add_container)
 
         # Current Player label (kept as attribute but not shown in leaderboard)
         # The visible current player is displayed in the Game Window above the phrase grid,

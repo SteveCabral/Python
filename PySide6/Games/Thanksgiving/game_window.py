@@ -275,6 +275,20 @@ class GameWindow(QWidget):
 
         # Load the first phrase
         self.next_phrase()
+        # After starting, select the top-ranked player as the current player (if any)
+        try:
+            players = None
+            if hasattr(self.model, 'players'):
+                players = self.model.players()
+            if players:
+                top_player = players[0].get('player')
+                parent = self.parent()
+                if parent is not None and hasattr(parent, 'set_current_player'):
+                    parent.set_current_player(top_player)
+                else:
+                    self.set_current_player(top_player)
+        except Exception:
+            pass
         # ensure GameWindow has focus so keyboard presses are captured
         self.setFocus()
 
