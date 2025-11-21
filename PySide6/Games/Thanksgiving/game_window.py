@@ -35,6 +35,7 @@ class GameWindow(QWidget):
 
         # local current player label (also updated by MainWindow)
         self.current_player_label = QLabel('Current Player: None')
+
         # reduce header height so phrase grid gets more visual space
         self.current_player_label.setFixedHeight(20)
         header_layout.addWidget(self.current_player_label, 1)
@@ -45,8 +46,10 @@ class GameWindow(QWidget):
         self.timer_label = QLabel(f"{self._time_remaining:02d}")
         self.timer_label.setFixedWidth(64)
         self.timer_label.setAlignment(Qt.AlignCenter)
+
         # use the same large font for both labels (36pt); timer stays red
         from PySide6.QtGui import QFont
+
         # make current player slightly smaller while keeping timer large
         player_font = QFont('Consolas', 24)
         timer_font = QFont('Consolas', 36)
@@ -55,12 +58,15 @@ class GameWindow(QWidget):
         self.timer_label.setStyleSheet('color: red; font-family: "Consolas", "Courier New", monospace; font-weight: bold; font-size: 36px;')
         header_layout.addWidget(self.timer_label)
         layout.addWidget(header)
+
         # shrink header height to roughly 1/4 of its natural size to give grid more space
         try:
             h = max(32, int(header.sizeHint().height() * 0.25))
+
             # double the header height as requested
             h = h * 2
             header.setFixedHeight(h)
+
             # make the child labels match the header height and font
             try:
                 self.current_player_label.setFixedHeight(h)
@@ -85,6 +91,7 @@ class GameWindow(QWidget):
         # category label
         self.category_label = QLabel('')
         self.category_label.setStyleSheet('background-color: #3498DB; color: black; font-weight: bold;')
+
         # set category font to 16pt
         try:
             self.category_label.setFont(QFont('Sans Serif', 16))
@@ -97,6 +104,7 @@ class GameWindow(QWidget):
         # Letter Selected Information Grid: shows last letter selection result
         self.letter_info_label = QLabel('')
         self.letter_info_label.setStyleSheet('background-color: #FFFFFF; color: black;')
+
         # set info font to 16pt
         try:
             self.letter_info_label.setFont(QFont('Sans Serif', 16))
@@ -127,6 +135,19 @@ class GameWindow(QWidget):
         self.start_btn = QPushButton('Start Game')
         self.next_btn = QPushButton('Next Phrase')
         self.next_player_btn = QPushButton('Next Player')
+
+        # Style: light blue background, black text
+        btn_style = 'background-color: #ADD8E6; color: black; font-weight: bold; border-radius: 6px;'
+        # Double height and half width (approximate values)
+        btn_height = 32
+        btn_width = 120
+        for btn in (self.start_btn, self.next_btn, self.next_player_btn):
+            try:
+                btn.setFixedSize(btn_width, btn_height)
+                btn.setStyleSheet(btn_style)
+            except Exception:
+                pass
+
         btn_layout.addWidget(self.start_btn)
         btn_layout.addWidget(self.next_btn)
         btn_layout.addWidget(self.next_player_btn)
@@ -272,6 +293,7 @@ class GameWindow(QWidget):
     def next_phrase(self):
         # Reset the per-player "played" flag when moving to a new phrase
         try:
+            self.letter_info_label.setText('')  # clear last letter info
             if hasattr(self.model, 'reset_played_flags'):
                 self.model.reset_played_flags()
         except Exception:
@@ -330,20 +352,25 @@ class GameWindow(QWidget):
             points = letter_points * occurrences
             self.model.update_score(self.current_player, points)
             self.phrase_grid.reveal_letter(letter)
+
             # update the Letter Selected Information Grid
             try:
-                self.letter_info_label.setText(f"Letter {letter} ({letter_points} point{'s' if letter_points != 1 else ''}) appears {occurrences} times. {self.current_player} gets {points}.")
+                self.letter_info_label.setText(f"Letter {letter} ({letter_points} point{'s' if letter_points != 1 else ''}) appears {occurrences} times. {self.current_player} gets {points} = {letter_points} (points) \u00D7 {occurrences} (occurrences).")
             except Exception:
                 pass
+
             # if all letters now revealed, mark phrase solved/unavailable
             if self.phrase_grid.is_fully_revealed():
                 self.phrase_manager.mark_unavailable(self.current_phrase)
+
                 # if there are no more phrases, end the game now
                 if not self.phrase_manager.next_available():
                     self.end_game()
                     return
+                
                 # otherwise enable Next so user can advance to the following phrase
                 self.next_btn.setEnabled(True)
+
                 # determine current leader (top-ranked player)
                 players = self.model.players()
                 if players:

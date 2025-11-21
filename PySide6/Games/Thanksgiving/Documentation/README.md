@@ -80,6 +80,36 @@ python main.py
 - Pass `leaderboard_model` into `GameWindow` to unify the model used by both panes.
 - Implement `solve()` and call `phrase_manager.mark_unavailable()` when a phrase is solved.
 
+### PyGame Version
+
+There is a separate PyGame-based recreation of this app located at the repository path:
+
+`Thanksgiving (PyGame)/main.py`
+
+This version reproduces the core gameplay loop (leaderboard, phrase display, letter guesses, timer) using `pygame` rather than PySide6. It reads `game_config.json` from the original `Thanksgiving/` folder so you can reuse the same phrases and per-letter points.
+
+Install PyGame (recommended in your virtualenv):
+
+```bash
+python -m pip install pygame
+```
+
+Then run the PyGame version from the repository root (or from the `Thanksgiving (PyGame)` folder):
+
+```bash
+python "Thanksgiving (PyGame)/main.py"
+```
+
+The PyGame version supports keyboard-driven controls:
+- `p` — add player (type name, Enter to commit)
+- `s` — start game (keeps player names, clears scores)
+- `n` — next player (resets per-player timer)
+- `.` — next phrase (resets played flags)
+- `A`–`Z` — guess letters
+- `q` — quit
+
+The PyGame implementation is intentionally compact and focused on recreating the gameplay without any PySide6 dependencies. Use it as a starting point if you prefer a lightweight, SDL-based frontend.
+
 ## Contributing
 
 - Follow the existing coding style: small focused modules, use of Qt signals/slots, and minimal UI logic in widgets.

@@ -1,0 +1,146 @@
+{
+  "phrases": [
+    {
+      "phrase": "You are in good hands",
+      "category": "TV Commercial"
+    },
+    {
+      "phrase": "Snap Crackle Pop",
+      "category": "Food slogan"
+    },
+    {
+      "phrase": "Finger licking good",
+      "category": "Food slogan"
+    },
+    {
+      "phrase": "if you have no critics you will have no success",
+      "category": "Malcolm X Quote"
+    },
+    {
+      "phrase": "You can never clean a toilet enough times",
+      "category": "Proverbs (Cy)"
+    },
+    {
+      "phrase": "The quicker picker upper",
+      "category": "TV Commercial"
+    },
+    {
+      "phrase": "The Good the Bad and the Ugly",
+      "category": "Movie"
+    },
+    {
+      "phrase": "Rudolph the red nosed reindeer",
+      "category": "Christmas"
+    },
+    {
+      "phrase": "Actions speak louder than words",
+      "category": "Proverbs"
+    },
+    {
+      "phrase": "A picture is worth a thousand words",
+      "category": "Proverbs"
+    },
+    {
+      "phrase": "The early bird catches the worm",
+      "category": "Proverbs"
+    },
+    {
+      "phrase": "Blood is thicker than water",
+      "category": "Proverbs"
+    },
+    {
+      "phrase": "We Wish You a Merry Christmas",
+      "category": "Christmas"
+    },
+    {
+      "phrase": "Santa Claus is Coming to Town",
+      "category": "Christmas"
+    },
+    {
+      "phrase": "I Saw Mommy Kissing Santa Claus",
+      "category": "Christmas"
+    },
+    {
+      "phrase": "A drunk man says what a sober man thinks",
+      "category": "Proverbs"
+    },
+    {
+      "phrase": "jack and jill went up a hill",
+      "category": "Nursery Rhyme"
+    },
+    {
+      "phrase": "Being poor can be fixed but Being stupid cannot",
+      "category": "Proverbs"
+    },
+    {
+      "phrase": "The happiest place on Earth",
+      "category": "Disney slogan"
+    },
+    {
+      "phrase": "float like a butterfly sting like a bee",
+      "category": "Famous Quote"
+    },
+    {
+      "phrase": "Joy to the world the lord is come",
+      "category": "Christmas"
+    },
+    {
+      "phrase": "mashed potatoes and gravy",
+      "category": "Thanksgiving"
+    },
+    {
+      "phrase": "Deck the halls with boughs of holly",
+      "category": "Christmas"
+    },
+    {
+      "phrase": "A man who stands for nothing will fall for anything",
+      "category": "Malcolm X Quote"
+    },
+    {
+      "phrase": "the grinch who stole christmas",
+      "category": "Christmas"
+    },
+    {
+      "phrase": "Bad Bunny Superbowl Halftime Show",
+      "category": "Most Watched TV Event"
+    },
+    {
+      "phrase": "i know why the caged bird sings",
+      "category": "famous book title"
+    },
+    {
+      "phrase": "The fresh prince of bel air",
+      "category": "TV Show"
+    }
+  ],
+  "points": {
+    "A": 1,
+    "B": 5,
+    "C": 5,
+    "D": 5,
+    "E": 1,
+    "F": 5,
+    "G": 5,
+    "H": 5,
+    "I": 1,
+    "J": 10,
+    "K": 5,
+    "L": 5,
+    "M": 5,
+    "N": 5,
+    "O": 1,
+    "P": 5,
+    "Q": 10,
+    "R": 5,
+    "S": 5,
+    "T": 5,
+    "U": 1,
+    "V": 10,
+    "W": 5,
+    "X": 10,
+    "Y": 5,
+    "Z": 10
+  }
+  ,
+  "time_limit": 20
+}
