@@ -1,0 +1,10 @@
+{
+	"folders": [
+		{
+			"path": "../PySide6/Games"
+		}
+	],
+	"settings": {
+		"python.defaultInterpreterPath": "C:\\PythonVenv\\py311\\Scripts\\python.exe"
+	}
+}

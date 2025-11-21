@@ -33,21 +33,35 @@ class MainWindow(QMainWindow):
         self.player_input.setPlaceholderText('Enter player name')
         self.add_player_btn = QPushButton('Add Player')
         self.add_player_btn.setEnabled(False)
+        # enable button when there's text
         self.player_input.textChanged.connect(lambda text: self.add_player_btn.setEnabled(bool(text.strip())))
-        self.add_player_btn.clicked.connect(lambda: (self.leaderboard_model.add_player(self.player_input.text().strip()), self.player_input.clear()))
+
+        # centralize add-player behavior so it can be triggered by button or Enter key
+        def do_add_player():
+            name = self.player_input.text().strip()
+            if not name:
+                return
+            self.leaderboard_model.add_player(name)
+            self.player_input.clear()
+            self.player_input.setFocus()
+
+        self.add_player_btn.clicked.connect(do_add_player)
+        # allow pressing Enter in the input to add the player
+        self.player_input.returnPressed.connect(do_add_player)
         left_v.addWidget(self.player_input)
         left_v.addWidget(self.add_player_btn)
         left_v.addWidget(self.table)
 
-        # Add Current Player label
+        # Current Player label (kept as attribute but not shown in leaderboard)
+        # The visible current player is displayed in the Game Window above the phrase grid,
+        # so keep the attribute for programmatic updates but do not add it to the leaderboard layout.
         self.current_player_label = QLabel("Current Player: None")
-        left_v.addWidget(self.current_player_label)
 
         left_widget = QWidget()
         left_widget.setLayout(left_v)
 
-        # right: game
-        self.game = GameWindow()
+        # right: game (pass shared leaderboard model so scores update in the table)
+        self.game = GameWindow(self.leaderboard_model, self)
 
         h.addWidget(left_widget, 3)
         h.addWidget(self.game, 7)
@@ -55,16 +69,51 @@ class MainWindow(QMainWindow):
         # Connect row selection → GameWindow
         self.table.selectionModel().selectionChanged.connect(self.on_player_selected)
 
+        # Keep reference to left widget for potential future use
+        self.left_widget = left_widget
+
     def on_player_selected(self, selected, deselected):
         if selected.indexes():
             row = selected.indexes()[0].row()
             player = self.leaderboard_model.players()[row]['player']
-            self.game.set_current_player(player)
-            self.current_player_label.setText(f"Current Player: {player}")
+            # centralize setting current player so other code can call this
+            self.set_current_player(player)
+            # move keyboard focus to the letters grid when a player is chosen
+            try:
+                self.game.letters.setFocus()
+            except Exception:
+                pass
+
+    def set_current_player(self, player: str):
+        """Set the current player in the UI and model selection."""
+        self.current_player_label.setText(f"Current Player: {player}")
+        # ensure leaderboard model selection matches — block selection signals
+        try:
+            players = self.leaderboard_model.players()
+            for i, p in enumerate(players):
+                if p.get('player') == player:
+                    sm = self.table.selectionModel()
+                    if sm is not None:
+                        sm.blockSignals(True)
+                    self.table.selectRow(i)
+                    if sm is not None:
+                        sm.blockSignals(False)
+                    break
+        except Exception:
+            pass
+        # inform GameWindow of current player (no recursion from selection change)
+        try:
+            if hasattr(self, 'game') and self.game is not None:
+                self.game.set_current_player(player)
+        except Exception:
+            pass
+
+    def on_focus_changed(self, old, new):
+        pass
 
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     w = MainWindow()
-    w.show()
+    w.showMaximized()
     sys.exit(app.exec())

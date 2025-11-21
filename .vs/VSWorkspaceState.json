@@ -1,8 +1,10 @@
 {
   "ExpandedNodes": [
     "",
-    "\\Zaniah"
+    "\\PySide6",
+    "\\PySide6\\Games",
+    "\\PySide6\\Games\\Thanksgiving"
   ],
-  "SelectedNode": "\\Zaniah\\20230923 Flower Bed - tkinter - grid Layout.py",
+  "SelectedNode": "\\PySide6\\Games\\Thanksgiving\\game_window.py",
   "PreviewInSolutionExplorer": false
 }
