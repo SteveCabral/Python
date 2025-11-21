@@ -55,7 +55,7 @@ class GameWindow(QWidget):
         timer_font = QFont('Consolas', 36)
         self.current_player_label.setFont(player_font)
         self.timer_label.setFont(timer_font)
-        self.timer_label.setStyleSheet('color: red; font-family: "Consolas", "Courier New", monospace; font-weight: bold; font-size: 36px;')
+        self.timer_label.setStyleSheet('color: red; font-family: "Consolas", "Courier New", monospace; font-weight: normal; font-size: 36px;')
         header_layout.addWidget(self.timer_label)
         layout.addWidget(header)
 
@@ -163,6 +163,7 @@ class GameWindow(QWidget):
         self.current_player = None
 
     def next_player(self):
+        self.letter_info_label.setText('')  # reset last letter info
         players = self.model.players()
         if not players:
             QMessageBox.information(self, 'No players', 'No players available. Add players first.')
@@ -322,6 +323,7 @@ class GameWindow(QWidget):
         self.letters.reset()
         # disable Next until phrase is solved
         self.next_btn.setEnabled(False)
+
         # move keyboard focus to the letters grid so A-Z presses map to letters
         try:
             self.letters.setFocus()
