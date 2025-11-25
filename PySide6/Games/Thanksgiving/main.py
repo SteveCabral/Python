@@ -9,7 +9,7 @@ from PySide6.QtWidgets import QTableView, QHeaderView, QVBoxLayout, QSizePolicy
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('Thanksgiving Family Game')
+        self.setWindowTitle('Thanksgiving Family Game V1.2')
         self.resize(1200, 720)
 
         central = QWidget()
