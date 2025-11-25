@@ -103,7 +103,7 @@ class GameWindow(QWidget):
 
         # Letter Selected Information Grid: shows last letter selection result
         self.letter_info_label = QLabel('')
-        self.letter_info_label.setStyleSheet('background-color: #FFFFFF; color: black;')
+        self.letter_info_label.setStyleSheet('background-color: #E0E0E0; color: black;')
 
         # set info font to 16pt
         try:
@@ -137,7 +137,26 @@ class GameWindow(QWidget):
         self.next_player_btn = QPushButton('Next Player')
 
         # Style: light blue background, black text
-        btn_style = 'background-color: #ADD8E6; color: black; font-weight: bold; border-radius: 6px;'
+        #btn_style = #'background-color: #ADD8E6; color: black; font-weight: bold; border-radius: 6px;'
+        btn_style = (
+            """
+                QPushButton {
+                    background-color: #d2b2f4; /* Dark gray background */
+                    color: black; /* Light gray text */
+                    border: 1px solid #555555; /* Slightly lighter border for subtle definition */
+                    padding: 4px 8px;
+                    border-radius: 5px;
+                }
+                QPushButton:hover {
+                    background-color: #444444; /* Slightly lighter on hover */
+                }
+                QPushButton:pressed {
+                    background-color: #a88ec3; /* Slightly darker when pressed */
+                }
+            """
+        )
+
+
         # Double height and half width (approximate values)
         btn_height = 32
         btn_width = 120
@@ -275,6 +294,20 @@ class GameWindow(QWidget):
 
         # Load the first phrase
         self.next_phrase()
+        # After starting, select the top-ranked player as the current player (if any)
+        try:
+            players = None
+            if hasattr(self.model, 'players'):
+                players = self.model.players()
+            if players:
+                top_player = players[0].get('player')
+                parent = self.parent()
+                if parent is not None and hasattr(parent, 'set_current_player'):
+                    parent.set_current_player(top_player)
+                else:
+                    self.set_current_player(top_player)
+        except Exception:
+            pass
         # ensure GameWindow has focus so keyboard presses are captured
         self.setFocus()
 
