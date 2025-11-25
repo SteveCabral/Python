@@ -32,8 +32,32 @@ class MainWindow(QMainWindow):
         from PySide6.QtWidgets import QLineEdit, QPushButton
         self.player_input = QLineEdit()
         self.player_input.setPlaceholderText('Enter player name')
+        self.player_input.setStyleSheet("""
+            QLineEdit {
+                border-style: none;
+            }
+            QLineEdit:focus { /* Style when the QLineEdit is in focus */
+                border-style: solid;
+                border-color: green;
+            }
+        """)
         self.add_player_btn = QPushButton('Add Player')
         self.add_player_btn.setEnabled(False)
+        self.add_player_btn.setStyleSheet("""
+            QPushButton {
+                background-color: #d2b2f4; /* Dark gray background */
+                color: black; /* Light gray text */
+                border: 1px solid #555555; /* Slightly lighter border for subtle definition */
+                padding: 4px 8px;
+                border-radius: 5px;
+            }
+            QPushButton:hover {
+                background-color: #444444; /* Slightly lighter on hover */
+            }
+            QPushButton:pressed {
+                background-color: #a88ec3; /* Slightly darker when pressed */
+            }
+        """)
         # enable button when there's text
         self.player_input.textChanged.connect(lambda text: self.add_player_btn.setEnabled(bool(text.strip())))
 
@@ -74,7 +98,18 @@ class MainWindow(QMainWindow):
         add_layout.setSpacing(8)
         add_container.setLayout(add_layout)
         try:
-            add_container.setStyleSheet('border: 1px solid #CCCCCC; padding: 4px; border-radius: 4px;')
+            add_container.setStyleSheet("""
+                QWidget {
+                    border-width: 1px;
+                    border-style: solid;
+                    border-color: #CCCCCC;
+                    border-radius: 4px; /* Optional: for rounded corners */
+                    padding: 4px;
+                }
+                QWidget:focus { /* Style when the QLineEdit is in focus */
+                    border-color: green;
+                }
+            """)
         except Exception:
             pass
         add_layout.addWidget(self.player_input)

@@ -13,10 +13,6 @@
       "category": "Food slogan"
     },
     {
-      "phrase": "if you have no critics you will have no success",
-      "category": "Malcolm X Quote"
-    },
-    {
       "phrase": "You can never clean a toilet enough times",
       "category": "Proverbs (Cy)"
     },
@@ -25,8 +21,28 @@
       "category": "TV Commercial"
     },
     {
-      "phrase": "The Good the Bad and the Ugly",
-      "category": "Movie"
+      "phrase": "Dwan make a good macaroni and cheese",
+      "category": "Thanksgiving"
+    },
+    {
+      "phrase": "Bad Bunny Superbowl Halftime Show",
+      "category": "Most Watched TV Event"
+    },
+    {
+      "phrase": "mashed potatoes and gravy",
+      "category": "Thanksgiving"
+    },
+    {
+      "phrase": "float like a butterfly sting like a bee",
+      "category": "Famous Quote"
+    },
+    {
+      "phrase": "the grinch who stole christmas",
+      "category": "Christmas"
+    },
+    {
+      "phrase": "i know why the caged bird sings",
+      "category": "famous book title"
     },
     {
       "phrase": "Rudolph the red nosed reindeer",
@@ -77,37 +93,25 @@
       "category": "Disney slogan"
     },
     {
-      "phrase": "float like a butterfly sting like a bee",
-      "category": "Famous Quote"
-    },
-    {
       "phrase": "Joy to the world the lord is come",
       "category": "Christmas"
-    },
-    {
-      "phrase": "mashed potatoes and gravy",
-      "category": "Thanksgiving"
     },
     {
       "phrase": "Deck the halls with boughs of holly",
       "category": "Christmas"
     },
     {
+      "phrase": "The Good the Bad and the Ugly",
+      "category": "Movie"
+    },
+    {
       "phrase": "A man who stands for nothing will fall for anything",
       "category": "Malcolm X Quote"
     },
     {
-      "phrase": "the grinch who stole christmas",
-      "category": "Christmas"
-    },
-    {
-      "phrase": "Bad Bunny Superbowl Halftime Show",
-      "category": "Most Watched TV Event"
-    },
-    {
-      "phrase": "i know why the caged bird sings",
-      "category": "famous book title"
-    },
+      "phrase": "if you have no critics you will have no success",
+      "category": "Malcolm X Quote"
+    },    
     {
       "phrase": "The fresh prince of bel air",
       "category": "TV Show"
