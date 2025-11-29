@@ -37,7 +37,29 @@ class LetterButtonsWidget(QWidget):
                 btn.setToolTip(f"Points = {pts}")
             except Exception:
                 pass
-            btn.clicked.connect(lambda checked, ch=L: self._on_click(ch))
+            # Apply dark mode styling with clear disabled state
+            btn.setStyleSheet("""
+                QPushButton {
+                    background-color: #3a3a3a;
+                    color: #ffffff;
+                    border: 1px solid #555555;
+                    border-radius: 4px;
+                    padding: 4px;
+                }
+                QPushButton:hover {
+                    background-color: #4a4a4a;
+                    border: 1px solid #666666;
+                }
+                QPushButton:pressed {
+                    background-color: #2a2a2a;
+                }
+                QPushButton:disabled {
+                    background-color: #1a1a1a;
+                    color: #555555;
+                    border: 1px solid #333333;
+                }
+            """)
+            btn.clicked.connect(lambda checked=False, ch=L: self._on_click(ch))
             self.buttons[L] = btn
             self.grid.addWidget(btn, i // COLS, i % COLS)
 
