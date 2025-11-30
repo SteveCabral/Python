@@ -11,6 +11,32 @@ class MainWindow(QMainWindow):
         super().__init__()
         self.setWindowTitle('Thanksgiving Family Game V1.2')
         self.resize(1200, 720)
+        
+        # Apply dark mode styling to the main window
+        self.setStyleSheet("""
+            QMainWindow {
+                background-color: #2b2b2b;
+            }
+            QWidget {
+                background-color: #2b2b2b;
+                color: #ffffff;
+            }
+            QLabel {
+                color: #ffffff;
+            }
+            QTableView {
+                background-color: #3a3a3a;
+                color: #ffffff;
+                gridline-color: #555555;
+                selection-background-color: #4a4a4a;
+            }
+            QHeaderView::section {
+                background-color: #2b2b2b;
+                color: #ffffff;
+                border: 1px solid #555555;
+                padding: 4px;
+            }
+        """)
 
         central = QWidget()
         self.setCentralWidget(central)
@@ -20,7 +46,15 @@ class MainWindow(QMainWindow):
         self.leaderboard_model = LeaderboardModel([])
         self.table = QTableView()
         self.table.setModel(self.leaderboard_model)
-        self.table.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        
+        # Set column resize modes: fixed width for Rank, stretch for others
+        self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)  # Rank column
+        self.table.horizontalHeader().setSectionResizeMode(1, QHeaderView.Stretch)  # Player column
+        self.table.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)  # Score column
+        self.table.horizontalHeader().setSectionResizeMode(3, QHeaderView.Stretch)  # Played column
+        
+        # Hide the vertical header (row numbers) so only the 4 data columns appear
+        self.table.verticalHeader().setVisible(False)
 
         # Highlight the whole row when clicked
         self.table.setSelectionBehavior(QTableView.SelectRows)
@@ -34,11 +68,14 @@ class MainWindow(QMainWindow):
         self.player_input.setPlaceholderText('Enter player name')
         self.player_input.setStyleSheet("""
             QLineEdit {
-                border-style: none;
+                background-color: #3a3a3a;
+                color: #ffffff;
+                border: 1px solid #555555;
+                border-radius: 4px;
+                padding: 4px;
             }
-            QLineEdit:focus { /* Style when the QLineEdit is in focus */
-                border-style: solid;
-                border-color: green;
+            QLineEdit:focus {
+                border: 2px solid #4CAF50;
             }
         """)
         self.add_player_btn = QPushButton('Add Player')
@@ -100,14 +137,10 @@ class MainWindow(QMainWindow):
         try:
             add_container.setStyleSheet("""
                 QWidget {
-                    border-width: 1px;
-                    border-style: solid;
-                    border-color: #CCCCCC;
-                    border-radius: 4px; /* Optional: for rounded corners */
+                    background-color: #3a3a3a;
+                    border: 1px solid #555555;
+                    border-radius: 4px;
                     padding: 4px;
-                }
-                QWidget:focus { /* Style when the QLineEdit is in focus */
-                    border-color: green;
                 }
             """)
         except Exception:

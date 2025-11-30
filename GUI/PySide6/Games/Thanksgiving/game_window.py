@@ -15,6 +15,15 @@ from config import load_config
 class GameWindow(QWidget):
     def __init__(self, leaderboard_model=None, parent=None):
         super().__init__(parent)
+        
+        # Apply dark mode styling
+        self.setStyleSheet("""
+            QWidget {
+                background-color: #2b2b2b;
+                color: #ffffff;
+            }
+        """)
+        
         self.config = load_config()
         self.phrase_manager = PhraseManager(self.config.get('phrases', []))
         self.points_map = self.config.get('points', {})
@@ -90,7 +99,7 @@ class GameWindow(QWidget):
 
         # category label
         self.category_label = QLabel('')
-        self.category_label.setStyleSheet('background-color: #3498DB; color: black; font-weight: bold;')
+        self.category_label.setStyleSheet('background-color: #1e5a8e; color: #ffffff; font-weight: bold; padding: 4px;')
 
         # set category font to 16pt
         try:
@@ -103,7 +112,7 @@ class GameWindow(QWidget):
 
         # Letter Selected Information Grid: shows last letter selection result
         self.letter_info_label = QLabel('')
-        self.letter_info_label.setStyleSheet('background-color: #E0E0E0; color: black;')
+        self.letter_info_label.setStyleSheet('background-color: #3a3a3a; color: #ffffff; padding: 4px;')
 
         # set info font to 16pt
         try:
