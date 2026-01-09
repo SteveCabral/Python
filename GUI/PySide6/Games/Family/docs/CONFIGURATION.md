@@ -20,7 +20,7 @@ A professional JSON-based configuration system has been integrated into the Fami
    - Runtime updates and persistence
    - Configuration reload capability
 
-3. **test_config.py** - Validation test script demonstrating all configuration features
+3. **tests/test_config.py** - Validation test script demonstrating all configuration features
 
 4. **config_examples.py** - Advanced usage patterns including:
    - Feature flags
@@ -32,7 +32,13 @@ A professional JSON-based configuration system has been integrated into the Fami
 
 5. **.gitignore** - Recommended ignore patterns for config variants and log files
 
-6. **config/user_preferences.py** - User data manager for high scores, statistics, and preferences
+6. **config/user_preferences.py** - User preferences manager (lightweight UI/user state + optional extension patterns)
+
+## Note on Scoring vs. Preferences
+
+- **Configuration** (this document) is about shared app/game settings in `config/config.json`.
+- **Scoring/leaderboards** are handled by `scores/score_manager.py` and persisted in `scores.json`.
+- **User preferences** (`config/user_preferences.py` → `user_prefs.json`) are used for lightweight user/UI state (for example, the currently selected player) and optional extension patterns.
 
 ## Files Modified
 
@@ -126,14 +132,14 @@ Edit `config/config.json`:
 Run the test script to verify configuration:
 ```powershell
 cd "GUI\PySide6\Games\Family"
-& C:\PythonVenv\py311\Scripts\python.exe test_config.py
+& C:\PythonVenv\py311\Scripts\python.exe -m tests.test_config
 ```
 
 Expected output shows all configuration values properly loaded and accessible.
 
 ## Next Steps (Optional Enhancements)
 
-1. **User Preferences**: Create `user_prefs.json` for high scores, last played game, etc.
+1. **User Preferences**: Extend `user_prefs.json` usage (extra UI state, stats, achievements, etc.)
 2. **Config Validation**: Add jsonschema validation on startup
 3. **Hot Reload**: Watch config.json and reload when it changes (development mode)
 4. **Environment Support**: Load different configs based on `APP_ENV` variable
@@ -167,5 +173,5 @@ class Game(QWidget):
 - Manager implementation: [config/config_manager.py](../config/config_manager.py)
 - User preferences: [config/user_preferences.py](../config/user_preferences.py)
 - Usage examples: [config_examples.py](../config_examples.py)
-- Test validation: [test_config.py](../test_config.py)
+- Test validation: [tests/test_config.py](../tests/test_config.py)
 - Updated README: [README.md](../README.md)

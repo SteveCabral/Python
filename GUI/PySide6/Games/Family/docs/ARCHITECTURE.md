@@ -15,6 +15,8 @@
 │                       MainWindow (QWidget)                      │
 │  - QListWidget (navigation)   ┃   QStackedWidget (game area)   │
 │  - Loads games via game_loader                                  │
+│  - Built-in screens: Leaderboard + Players                       │
+│  - Records scores via ScoreManager                               │
 │  - Switches between game widgets                                │
 └────────────────┬────────────────────────────────────────────────┘
                  │
@@ -40,8 +42,10 @@
                                 │
                                 ▼
                  ┌──────────────────────────────────────────┐
-                 │  Each game accesses configuration:       │
-                 │  config.get_game_config("game1")         │
+                 │  Games receive optional kwargs:          │
+                 │  - game_config (dict)                    │
+                 │  - score_reporter (callable)             │
+                 │  - game_id (str)                         │
                  └──────────────────────────────────────────┘
 ```
 
@@ -57,29 +61,41 @@
 ┌────────────────────────────────┐  ┌───────────────────────────┐
 │   config_manager.py (Singleton)│  │ user_preferences.py       │
 │                                │  │ (Singleton)               │
-│  - get(key_path, default)      │  │ - High scores             │
-│  - get_app_config()            │  │ - Game statistics         │
-│  - get_game_config(name)       │  │ - UI preferences          │
-│  - get_enabled_games()         │  │ - Achievements            │
-│  - update(key, value)          │  │ - Play history            │
-│  - save_config()               │  │                           │
-│  - reload()                    │  │ Methods:                  │
-└────────────────┬───────────────┘  │ - set_high_score()        │
-                 │                  │ - record_game_played()    │
-                 ▼                  │ - unlock_achievement()    │
-┌────────────────────────────────┐  └───────────────┬───────────┘
-│       config.json              │                  │
-│                                │                  ▼
-│  {                             │  ┌───────────────────────────┐
-│    "app": {...},               │  │   user_prefs.json         │
-│    "games": {                  │  │   (Auto-generated)        │
-│      "enabled": [...],         │  │                           │
-│      "game1": {...},           │  │  {                        │
-│      "game2": {...}            │  │    "high_scores": {...},  │
-│    },                          │  │    "game_statistics": ... │
-│    "logging": {...}            │  │  }                        │
-│  }                             │  │                           │
-└────────────────────────────────┘  └───────────────────────────┘
+│  - get(key_path, default)      │  │ - Small user/UI state     │
+│  - get_app_config()            │  │   (e.g., current player)  │
+│  - get_game_config(name)       │  │                           │
+│  - get_enabled_games()         │  │ Note: scoring persistence │
+│  - update(key, value)          │  │ lives in ScoreManager     │
+│  - save_config()               │  │ (scores.json).            │
+│  - reload()                    │  │                           │
+└────────────────┬───────────────┘  └───────────────┬───────────┘
+                 │                                   │
+                 ▼                                   ▼
+┌────────────────────────────────┐      ┌───────────────────────────┐
+│       config.json              │      │   user_prefs.json         │
+│                                │      │   (Auto-generated)        │
+│  {                             │      │                           │
+│    "app": {...},               │      │  {                        │
+│    "games": {                  │      │    "current_player_id":… │
+│      "enabled": [...],         │      │    "players_locked":…    │
+│      "game1": {...},           │      │    ...                    │
+│      "game2": {...}            │      │  }                        │
+│    },                          │      │                           │
+│    "logging": {...}            │      └───────────────────────────┘
+│  }                             │
+└────────────────────────────────┘
+
+┌────────────────────────────────┐
+│ score_manager.py (Service)     │
+│  - players + scores persistence│
+│  - leaderboards                │
+└────────────────┬───────────────┘
+                 │
+                 ▼
+┌────────────────────────────────┐
+│            scores.json          │
+│   (Auto-generated, runtime)     │
+└────────────────────────────────┘
 ```
 
 ## Data Flow: Loading a Game
@@ -102,6 +118,7 @@
    └─> For each game:
        ├─> Add to QListWidget (navigation)
        └─> Instantiate Game widget and add to QStackedWidget
+            (optionally passing game_config / score_reporter / game_id)
 
 3. User clicks game in list
    └─> QStackedWidget switches to selected game widget
@@ -203,7 +220,7 @@ The architecture makes it easy to add:
 2. **Localization**: Load language strings from config
 3. **Multiplayer**: Add network settings to config
 4. **Analytics**: Track usage via user_preferences
-5. **Achievements**: Already supported in user_preferences
+5. **Achievements**: Optional patterns can live in user_preferences
 6. **Cloud Sync**: Sync user_prefs.json to cloud storage
 7. **Modding**: Load community-created games from mods/
 8. **A/B Testing**: Use config to enable experimental features

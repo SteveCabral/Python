@@ -1,3 +1,7 @@
+from __future__ import annotations
+
+from typing import Any, Callable, Optional
+
 from PySide6.QtWidgets import QWidget, QLabel, QVBoxLayout, QPushButton
 from PySide6.QtCore import Qt
 from config.config_manager import config
@@ -5,13 +9,22 @@ from config.config_manager import config
 GAME_NAME = "Game Three"
 
 class Game(QWidget):
-    def __init__(self, game_config: dict | None = None):
+    def __init__(
+        self,
+        game_config: dict | None = None,
+        score_reporter: Optional[Callable[[str, int, Optional[dict[str, Any]]], None]] = None,
+        game_id: str | None = None,
+    ):
         super().__init__()
         layout = QVBoxLayout(self)
         layout.setSpacing(20)
         layout.setContentsMargins(40, 40, 40, 40)
 
         game_config = game_config or config.get_game_config("game3")
+
+        # Optional scoring callback (wired by main app)
+        self._score_reporter = score_reporter
+        self._game_id = game_id or "game3"
 
         title_label = QLabel("GAME 3")
         title_label.setProperty("title", True)

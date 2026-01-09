@@ -398,7 +398,7 @@ theme_manager.apply_theme(QApplication.instance())
 
 Run the theme test script:
 ```powershell
-& C:\PythonVenv\py311\Scripts\python.exe test_themes.py
+& C:\PythonVenv\py311\Scripts\python.exe -m tests.test_themes
 ```
 
 This validates:

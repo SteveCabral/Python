@@ -458,6 +458,41 @@ QProgressBar::chunk {{
     background-color: {colors.get('primary', '#1976D2')};
     border-radius: {borders.get('radius_small', '4px')};
 }}
+
+/* Table Widgets */
+QTableView, QTableWidget {{
+    background-color: {colors.get('surface', '#FFFFFF')};
+    alternate-background-color: {colors.get('background_light', '#FAFAFA')};
+    color: {colors.get('text_primary', '#000000')};
+    gridline-color: {colors.get('divider', '#E0E0E0')};
+    border: {borders.get('width_thin', '1px')} solid {colors.get('border', '#E0E0E0')};
+    border-radius: {borders.get('radius_small', '4px')};
+    selection-background-color: {colors.get('selected', '#1976D2')};
+    selection-color: {colors.get('selected_text', '#FFFFFF')};
+    outline: none;
+}}
+
+QTableView::item, QTableWidget::item {{
+    padding: {spacing.get('sm', '8px')};
+    border: none;
+}}
+
+QTableView::item:hover, QTableWidget::item:hover {{
+    background-color: {colors.get('hover', '#F5F5F5')};
+}}
+
+QHeaderView::section {{
+    background-color: {colors.get('surface_elevated', '#FAFAFA')};
+    color: {colors.get('text_secondary', '#757575')};
+    padding: {spacing.get('sm', '8px')} {spacing.get('md', '12px')};
+    border: none;
+    border-bottom: {borders.get('width_thin', '1px')} solid {colors.get('divider', '#E0E0E0')};
+}}
+
+QTableCornerButton::section {{
+    background-color: {colors.get('surface_elevated', '#FAFAFA')};
+    border: none;
+}}
 """
         
         return stylesheet

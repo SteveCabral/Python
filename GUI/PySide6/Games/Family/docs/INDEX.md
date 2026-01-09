@@ -28,15 +28,25 @@ New to the project? Start here:
   - Data flow visualization
   - Professional patterns and best practices
 
+- **[SCORING.md](SCORING.md)** - Scoring & leaderboards
+  - Per-game best scores
+  - Overall leaderboard (sum of best-per-game)
+
+- **[MIGRATION.md](MIGRATION.md)** - Folder reorganization notes
+  - What moved and why
+  - Pointers to updated imports and docs
+
 ## File Structure
 
 ```
 Family/
 ├── config/                  # Configuration files
+│   ├── __init__.py          # Package exports
 │   ├── config.json         # App and game settings
 │   ├── config_manager.py   # Configuration API
 │   └── user_preferences.py # User data manager
 ├── themes/                  # Theme system
+│   ├── __init__.py          # Package exports
 │   ├── theme_manager.py    # Theme API
 │   ├── dark.json           # Dark theme
 │   └── light.json          # Light theme
@@ -45,16 +55,30 @@ Family/
 │   ├── QUICKSTART.md       # Quick reference
 │   ├── CONFIGURATION.md    # Config guide
 │   ├── THEMES.md           # Theme guide
-│   └── ARCHITECTURE.md     # Architecture guide
+│   ├── ARCHITECTURE.md     # Architecture guide
+│   └── MIGRATION.md        # Folder reorganization notes
 ├── games/                   # Game plugins
+│   ├── __init__.py
 │   ├── game1.py
 │   ├── game2.py
 │   └── game3.py
+├── players/                 # Players screen (select active player)
+│   ├── __init__.py
+│   └── players_widget.py
+├── scores/                  # Scoring & leaderboards
+│   ├── __init__.py
+│   ├── score_manager.py
+│   └── leaderboard_widget.py
+├── tests/                   # Runnable test/demo scripts
+│   ├── __init__.py
+│   ├── test_config.py
+│   ├── test_themes.py
+│   └── test_scores.py
 ├── main.py                  # Application entry point
 ├── game_loader.py           # Dynamic game loader
-├── test_config.py           # Configuration tests
-├── test_themes.py           # Theme tests
-└── config_examples.py       # Advanced config examples
+├── config_examples.py       # Advanced config examples
+├── user_prefs.json          # Auto-generated UI/user state
+└── scores.json              # Auto-generated scores + players
 ```
 
 ## Development Guides
@@ -88,10 +112,13 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for:
 
 ```powershell
 # Test configuration system
-& C:\PythonVenv\py311\Scripts\python.exe test_config.py
+& C:\PythonVenv\py311\Scripts\python.exe -m tests.test_config
 
 # Test theme system
-& C:\PythonVenv\py311\Scripts\python.exe test_themes.py
+& C:\PythonVenv\py311\Scripts\python.exe -m tests.test_themes
+
+# Test scoring system
+& C:\PythonVenv\py311\Scripts\python.exe -m tests.test_scores
 
 # Test user preferences
 & C:\PythonVenv\py311\Scripts\python.exe -c "from config.user_preferences import user_prefs; print(user_prefs.get('total_games_played', 0))"
@@ -101,19 +128,20 @@ See [ARCHITECTURE.md](ARCHITECTURE.md) for:
 
 - **config_examples.py** - Advanced configuration patterns
 - **.gitignore** - Recommended ignore patterns
-- **user_prefs.json** - Auto-generated user data (don't edit manually)
+- **user_prefs.json** - Auto-generated UI/user state (don't edit manually)
+- **scores.json** - Auto-generated scores + players (don't edit manually)
 
 ## Support
 
 For questions or issues:
 1. Check the relevant documentation file above
 2. Review code examples in `config_examples.py`
-3. Run `test_config.py` to verify your setup
+3. Run `python -m tests.test_config` to verify your setup
 
 ## Contributing
 
 When adding new features or games:
 1. Update relevant documentation files
 2. Add examples to README or QUICKSTART
-3. Test thoroughly with `test_config.py`
+3. Test thoroughly with `python -m tests.test_config`
 4. Update this index if adding new docs

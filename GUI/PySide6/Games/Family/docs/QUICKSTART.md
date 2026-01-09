@@ -13,7 +13,17 @@ GUI/PySide6/Games/Family/
 │   └── QUICKSTART.md        # This file
 ├── games/
 │   └── game1.py             # Accesses game-specific config
-├── user_prefs.json          # User-specific data (auto-generated)
+├── players/                 # Players screen (select active player)
+│   └── players_widget.py
+├── scores/                  # Scoring + leaderboards
+│   ├── score_manager.py
+│   └── leaderboard_widget.py
+├── tests/                   # Runnable test/demo scripts
+│   ├── test_config.py
+│   ├── test_themes.py
+│   └── test_scores.py
+├── user_prefs.json          # UI/user state (auto-generated)
+├── scores.json              # Scores + players (auto-generated)
 ├── main.py                  # Entry point
 └── game_loader.py           # Filters games by config
 ```
@@ -67,18 +77,19 @@ game_cfg = config.get_game_config("game1")
 difficulty = game_cfg.get("difficulty", "easy")
 ```
 
-### 5. Track High Scores
+### 5. User Preferences (Optional)
 ```python
 from config.user_preferences import user_prefs
 
-# Save high score
-user_prefs.set_high_score("game1", 150)
+"""UserPreferences is optional.
 
-# Get high score
-score = user_prefs.get_high_score("game1")
+The main app currently uses user_prefs primarily for lightweight UI/user state
+(e.g., which player is currently selected on the Players screen).
+"""
 
-# Record game played (updates stats automatically)
-user_prefs.record_game_played("game1", score=150, duration_seconds=60)
+# Example: store/retrieve a simple preference
+user_prefs.set("ui_preferences.sound_enabled", True)
+enabled = user_prefs.get("ui_preferences.sound_enabled", True)
 ```
 
 ### 6. Update Config at Runtime
@@ -101,14 +112,18 @@ from config.config_manager import config
 GAME_NAME = "My Game"
 
 class Game(QWidget):
-    def __init__(self):
+    def __init__(self, game_config=None, score_reporter=None, game_id=None):
         super().__init__()
-        
-        # Access config
-        cfg = config.get_game_config("my_game")
-        
+
+        # Access config (either injected by the loader, or fetched directly)
+        cfg = game_config or config.get_game_config("my_game")
+
         layout = QVBoxLayout(self)
         layout.addWidget(QLabel(f"Welcome to {cfg.get('display_name')}!"))
+
+        # Optional: report a score when a round finishes
+        if score_reporter and game_id:
+            score_reporter(game_id, 10, meta={"note": "example"})
 ```
 
 ### Step 2: Add to config/config.json
@@ -145,11 +160,8 @@ Your game appears in the list automatically!
 **✓ Commit to git** - shared across all users
 
 ### user_prefs.json (User Data)
-- High scores
-- Game statistics
-- UI preferences
-- Achievements
-- Play history
+- UI/user state (e.g., current player selection)
+- Optional extension patterns (if you choose to store more user-specific data)
 
 **✗ Don't commit** - personal to each user
 
@@ -160,7 +172,10 @@ Your game appears in the list automatically!
 3. **Document settings**: Add comments in JSON (or use schema)
 4. **Version config**: Track changes in git
 5. **Separate concerns**: App config vs. user preferences
-6. **Test changes**: Run `test_config.py` after editing
+6. **Test changes**: Run `python -m tests.test_config` after editing
+
+  Prefer running tests as modules:
+  - `python -m tests.test_config`
 
 ## Troubleshooting
 
@@ -194,10 +209,13 @@ See `config_examples.py` for:
 
 ```powershell
 # Test configuration system
-& C:\PythonVenv\py311\Scripts\python.exe test_config.py
+& C:\PythonVenv\py311\Scripts\python.exe -m tests.test_config
 
 # Test user preferences
 & C:\PythonVenv\py311\Scripts\python.exe config/user_preferences.py
+
+# Test scoring system
+& C:\PythonVenv\py311\Scripts\python.exe -m tests.test_scores
 ```
 
 ## Documentation

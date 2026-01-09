@@ -14,27 +14,56 @@ This is the same structure used in modular Qt applications and game engines.
 ## Project Structure
 
 ```
-word_games/
-    main.py                 # Entry point
-    game_loader.py          # Dynamic game module loader
-    config/
-        config.json         # Configuration file (app & game settings)
-        config_manager.py   # Configuration management singleton
-        user_preferences.py # User data and preferences
-    themes/
-        theme_manager.py    # Theme management system
-        dark.json           # Dark theme colors and styles
-        light.json          # Light theme colors and styles
-    games/
-        __init__.py
-        game1.py
-        game2.py
-        game3.py
-    docs/
-        ARCHITECTURE.md     # System architecture documentation
-        CONFIGURATION.md    # Detailed configuration guide
-        THEMES.md           # Theme system guide
-        QUICKSTART.md       # Quick reference guide
+Family/
+  .gitignore              # Ignore patterns for local artifacts
+  README.md               # Project overview (this file)
+  main.py                 # Entry point
+  game_loader.py          # Dynamic game module loader
+  config_examples.py      # Configuration usage examples
+  user_prefs.json         # Auto-generated user/UI state (runtime data)
+  scores.json             # Auto-generated scores + players (runtime data)
+
+  tests/                  # Runnable test/demo scripts
+    __init__.py
+    test_config.py         # Configuration system tests
+    test_themes.py         # Theme system tests
+    test_scores.py         # Scoring / leaderboard demo
+
+  config/                 # Configuration package
+    __init__.py         # Package exports
+    config.json         # App & game settings
+    config_manager.py   # Configuration management singleton
+    user_preferences.py # User data and preferences API
+
+  themes/                 # Theme system
+    __init__.py         # Package exports
+    theme_manager.py    # Theme management system
+    dark.json           # Dark theme colors and styles
+    light.json          # Light theme colors and styles
+
+  games/                  # Game plugins
+    __init__.py
+    game1.py
+    game2.py
+    game3.py
+
+  players/                # Players screen (select active player)
+    __init__.py
+    players_widget.py
+
+  scores/                 # Scoring + leaderboards
+    __init__.py
+    score_manager.py
+    leaderboard_widget.py
+
+  docs/                   # Documentation
+    INDEX.md            # Documentation index
+    QUICKSTART.md       # Quick reference guide
+    CONFIGURATION.md    # Detailed configuration guide
+    THEMES.md           # Theme system guide
+    ARCHITECTURE.md     # System architecture documentation
+    MIGRATION.md        # Folder reorganization notes
+    SCORING.md          # Scoring & leaderboards
 ```
 
 ## Configuration System
@@ -140,13 +169,17 @@ from config.config_manager import config
 GAME_NAME = "Game Four"
 
 class Game(QWidget):
-  def __init__(self, game_config=None):
-        super().__init__()
-        layout = QVBoxLayout(self)
-        
-        # Access game config
-    game_config = game_config or config.get_game_config("game4")
-        layout.addWidget(QLabel(game_config.get("description", "Game 4")))
+  def __init__(self, game_config=None, score_reporter=None, game_id=None):
+    super().__init__()
+    layout = QVBoxLayout(self)
+
+    # Access game config (either injected, or fetched directly)
+    cfg = game_config or config.get_game_config("game4")
+    layout.addWidget(QLabel(cfg.get("description", "Game 4")))
+
+    # Optional: report a score when a round finishes
+    if score_reporter and game_id:
+      score_reporter(game_id, 10, meta={"note": "example"})
 ```
 
 2. Add to `config/config.json`:
@@ -171,6 +204,7 @@ For detailed information, see:
 - **[docs/INDEX.md](docs/INDEX.md)** - Documentation index and navigation
 - **[docs/QUICKSTART.md](docs/QUICKSTART.md)** - Quick reference for common tasks
 - **[docs/CONFIGURATION.md](docs/CONFIGURATION.md)** - Comprehensive configuration guide
+- **[docs/SCORING.md](docs/SCORING.md)** - Scoring & leaderboards
 - **[docs/THEMES.md](docs/THEMES.md)** - Complete theme system documentation
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System architecture and design patterns
 
@@ -183,12 +217,17 @@ Run the application:
 
 Test the configuration system:
 ```powershell
-& C:\PythonVenv\py311\Scripts\python.exe test_config.py
+& C:\PythonVenv\py311\Scripts\python.exe -m tests.test_config
 ```
 
 Test the theme system:
 ```powershell
-& C:\PythonVenv\py311\Scripts\python.exe test_themes.py
+& C:\PythonVenv\py311\Scripts\python.exe -m tests.test_themes
+```
+
+Test the scoring system:
+```powershell
+& C:\PythonVenv\py311\Scripts\python.exe -m tests.test_scores
 ```
 
 See advanced examples:

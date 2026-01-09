@@ -3,6 +3,13 @@ Test script to validate the configuration system.
 Run this to verify config_manager.py works correctly.
 """
 
+from __future__ import annotations
+
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
 from config.config_manager import config
 
 

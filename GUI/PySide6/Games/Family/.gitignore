@@ -5,6 +5,7 @@
 config/config.local.json
 config/config.user.json
 user_prefs.json
+scores.json
 
 # Environment-specific configs (only commit templates)
 config/config.dev.json
