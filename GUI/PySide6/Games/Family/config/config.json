@@ -1,0 +1,42 @@
+{
+  "app": {
+    "title": "Family Game Collection",
+    "window_width": 1000,
+    "window_height": 600,
+    "nav_list_width": 200,
+    "theme": "dark"
+  },
+  "games": {
+    "enabled": [
+      "game1",
+      "game2",
+      "game3"
+    ],
+    "game1": {
+      "display_name": "Word Scramble",
+      "description": "Unscramble the letters to form words",
+      "difficulty": "easy",
+      "max_score": 100,
+      "time_limit": 60
+    },
+    "game2": {
+      "display_name": "Math Challenge",
+      "description": "Solve math problems quickly",
+      "difficulty": "medium",
+      "max_score": 150,
+      "time_limit": 90
+    },
+    "game3": {
+      "display_name": "Memory Match",
+      "description": "Find matching pairs",
+      "difficulty": "hard",
+      "max_score": 200,
+      "time_limit": 120
+    }
+  },
+  "logging": {
+    "enabled": true,
+    "level": "INFO",
+    "log_file": "game_app.log"
+  }
+}
