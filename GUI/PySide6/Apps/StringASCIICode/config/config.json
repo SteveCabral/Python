@@ -1,0 +1,9 @@
+{
+    "app": {
+        "title": "String ASCII Code Viewer",
+        "window_width": 860,
+        "window_height": 640,
+        "max_chars": 255,
+        "theme": "dark"
+    }
+}
