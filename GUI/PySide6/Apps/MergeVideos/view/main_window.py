@@ -233,6 +233,11 @@ class MainWindow(QMainWindow):
         # Remember this directory so the next Add-Files call opens here.
         self._last_add_dir = Path(paths[0]).parent
 
+        # Auto-populate the output filename from the first file in the list.
+        first = Path(self._list.item(0).text())
+        suggested = first.parent / (first.stem + "_target" + first.suffix)
+        self._output_edit.setText(str(suggested))
+
         self._update_merge_btn_state()
         self._update_file_btn_states()
         self.statusBar().showMessage(f"{self._list.count()} file(s) in list.")
