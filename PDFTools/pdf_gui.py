@@ -8,7 +8,7 @@ from PySide6.QtWidgets import (
 )
 from PySide6.QtGui import QPixmap, QImage, QIcon, QPainter
 from PySide6.QtCore import Qt, QSize
-from PySide6.QtPrintSupport import QPrinter, QPrintDialog
+from PySide6.QtPrintSupport import QPrinter, QPrintDialog, QPrintPreviewDialog
 
 LETTER = (612, 792)
 LEGAL = (612, 1008)
@@ -33,7 +33,15 @@ class PDFViewer(QWidget):
         self.btn_filter_all = QPushButton("Show All Pages")
         self.btn_print = QPushButton("Print Page")
         btn_layout.addWidget(self.btn_print)
-        self.btn_print.clicked.connect(self.print_page)
+        self.btn_print.clicked.connect(self.print_pdf)
+        self.btn_preview = QPushButton("Print Preview")
+        btn_layout.addWidget(self.btn_preview)
+        self.btn_preview.clicked.connect(self.print_preview)
+        self.btn_print = QPushButton("Print")
+        btn_layout.addWidget(self.btn_print)
+        self.btn_print.clicked.connect(self.print_pdf)
+
+
 
 
         btn_layout.addWidget(self.btn_open)
@@ -201,25 +209,92 @@ class PDFViewer(QWidget):
         )
         self.image_label.setPixmap(scaled)
 
-    def print_page(self):
-        if not hasattr(self, "current_pixmap"):
-            QMessageBox.warning(self, "No Page Selected", "Select a page to print.")
+    def print_pdf(self):
+        if not self.doc:
+            QMessageBox.warning(self, "No PDF Loaded", "Open a PDF first.")
             return
 
         printer = QPrinter(QPrinter.HighResolution)
-
         dialog = QPrintDialog(printer, self)
+
         if dialog.exec() != QPrintDialog.Accepted:
             return
 
         painter = QPainter(printer)
-        rect = painter.viewport()
 
-        pix = self.current_pixmap
-        scaled = pix.scaled(rect.size(), Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        # Determine page range from dialog
+        from_page = printer.fromPage() - 1
+        to_page = printer.toPage() - 1
 
-        painter.drawPixmap(0, 0, scaled)
+        # If user selects "All Pages"
+        if from_page < 0 or to_page < 0:
+            from_page = 0
+            to_page = len(self.doc) - 1
+
+        for i in range(from_page, to_page + 1):
+            if i > from_page:
+                printer.newPage()
+
+            page = self.doc[i]
+            pix = page.get_pixmap(dpi=300)
+
+            img = QImage(
+                pix.samples, pix.width, pix.height, pix.stride,
+                QImage.Format_RGBA8888 if pix.alpha else QImage.Format_RGB888
+            ).copy()
+
+            pixmap = QPixmap.fromImage(img)
+
+            rect = painter.viewport()
+            scaled = pixmap.scaled(
+                rect.size(),
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation
+            )
+
+            painter.drawPixmap(0, 0, scaled)
+
         painter.end()
+
+
+    def print_preview(self):
+        if not self.doc:
+            QMessageBox.warning(self, "No PDF Loaded", "Open a PDF first.")
+            return
+
+        printer = QPrinter(QPrinter.HighResolution)
+        preview = QPrintPreviewDialog(printer, self)
+        preview.paintRequested.connect(self.render_for_print)
+        preview.exec()
+
+    def render_for_print(self, printer):
+        painter = QPainter(printer)
+
+        # Render ALL pages (user will choose page range in dialog)
+        for i, page in enumerate(self.doc):
+            if i > 0:
+                printer.newPage()
+
+            pix = page.get_pixmap(dpi=300)
+            img = QImage(
+                pix.samples, pix.width, pix.height, pix.stride,
+                QImage.Format_RGBA8888 if pix.alpha else QImage.Format_RGB888
+            ).copy()
+
+            pixmap = QPixmap.fromImage(img)
+
+            rect = painter.viewport()
+            scaled = pixmap.scaled(
+                rect.size(),
+                Qt.KeepAspectRatio,
+                Qt.SmoothTransformation
+            )
+
+            painter.drawPixmap(0, 0, scaled)
+
+        painter.end()
+
+
 
 
 def main():
