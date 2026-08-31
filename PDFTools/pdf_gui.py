@@ -1,14 +1,12 @@
 import sys
-import os
 import pymupdf as fitz
 from PySide6.QtWidgets import (
     QApplication, QWidget, QVBoxLayout, QPushButton, QFileDialog,
     QLabel, QListWidget, QListWidgetItem, QHBoxLayout, QMessageBox,
     QSlider
 )
-from PySide6.QtGui import QPixmap, QImage, QIcon, QPainter
+from PySide6.QtGui import QPixmap, QImage, QIcon
 from PySide6.QtCore import Qt, QSize
-from PySide6.QtPrintSupport import QPrinter, QPrintDialog, QPrintPreviewDialog
 
 LETTER = (612, 792)
 LEGAL = (612, 1008)
@@ -31,18 +29,6 @@ class PDFViewer(QWidget):
         self.btn_filter_letter = QPushButton("Show Letter Pages")
         self.btn_filter_legal = QPushButton("Show Legal Pages")
         self.btn_filter_all = QPushButton("Show All Pages")
-        self.btn_print = QPushButton("Print Page")
-        btn_layout.addWidget(self.btn_print)
-        self.btn_print.clicked.connect(self.print_pdf)
-        self.btn_preview = QPushButton("Print Preview")
-        btn_layout.addWidget(self.btn_preview)
-        self.btn_preview.clicked.connect(self.print_preview)
-        self.btn_print = QPushButton("Print")
-        btn_layout.addWidget(self.btn_print)
-        self.btn_print.clicked.connect(self.print_pdf)
-
-
-
 
         btn_layout.addWidget(self.btn_open)
         btn_layout.addWidget(self.btn_filter_letter)
@@ -134,19 +120,16 @@ class PDFViewer(QWidget):
                 page = self.doc[index]
                 pix = page.get_pixmap(dpi=30)  # low DPI for thumbnails
 
-                # Determine correct aspect ratio
-                w = pix.width
-                h = pix.height
-
-                # Scale height based on actual page size
-                # Legal is 1008 tall, Letter is 792 tall → Letter is ~78% height
+                # Determine correct aspect ratio scaling
                 if size == "Letter":
                     scale = 0.78
                 elif size == "Legal":
                     scale = 1.0
                 else:
-                    scale = 0.9  # fallback for Other sizes
+                    scale = 0.9
 
+                w = pix.width
+                h = pix.height
                 thumb_h = int(160 * scale)
                 thumb_w = int((w / h) * thumb_h)
 
@@ -168,7 +151,6 @@ class PDFViewer(QWidget):
                 item.setData(Qt.UserRole, index)
                 self.thumbnail_list.addItem(item)
 
-
     def show_page(self, item):
         index = item.data(Qt.UserRole)
         page = self.doc[index]
@@ -176,20 +158,13 @@ class PDFViewer(QWidget):
         pix = page.get_pixmap(dpi=150)
 
         if pix.alpha:
-            img = QImage(
-                pix.samples, pix.width, pix.height, pix.stride,
-                QImage.Format_RGBA8888
-            )
+            img = QImage(pix.samples, pix.width, pix.height, pix.stride, QImage.Format_RGBA8888)
         else:
-            img = QImage(
-                pix.samples, pix.width, pix.height, pix.stride,
-                QImage.Format_RGB888
-            )
+            img = QImage(pix.samples, pix.width, pix.height, pix.stride, QImage.Format_RGB888)
 
-        img = img.copy()  # detach
+        img = img.copy()
         self.current_pixmap = QPixmap.fromImage(img)
         self.apply_zoom()
-
 
     def update_zoom(self, value):
         self.zoom_factor = value / 100.0
@@ -208,94 +183,6 @@ class PDFViewer(QWidget):
             Qt.SmoothTransformation
         )
         self.image_label.setPixmap(scaled)
-
-    def print_pdf(self):
-        if not self.doc:
-            QMessageBox.warning(self, "No PDF Loaded", "Open a PDF first.")
-            return
-
-        printer = QPrinter(QPrinter.HighResolution)
-        dialog = QPrintDialog(printer, self)
-
-        if dialog.exec() != QPrintDialog.Accepted:
-            return
-
-        painter = QPainter(printer)
-
-        # Determine page range from dialog
-        from_page = printer.fromPage() - 1
-        to_page = printer.toPage() - 1
-
-        # If user selects "All Pages"
-        if from_page < 0 or to_page < 0:
-            from_page = 0
-            to_page = len(self.doc) - 1
-
-        for i in range(from_page, to_page + 1):
-            if i > from_page:
-                printer.newPage()
-
-            page = self.doc[i]
-            pix = page.get_pixmap(dpi=300)
-
-            img = QImage(
-                pix.samples, pix.width, pix.height, pix.stride,
-                QImage.Format_RGBA8888 if pix.alpha else QImage.Format_RGB888
-            ).copy()
-
-            pixmap = QPixmap.fromImage(img)
-
-            rect = painter.viewport()
-            scaled = pixmap.scaled(
-                rect.size(),
-                Qt.KeepAspectRatio,
-                Qt.SmoothTransformation
-            )
-
-            painter.drawPixmap(0, 0, scaled)
-
-        painter.end()
-
-
-    def print_preview(self):
-        if not self.doc:
-            QMessageBox.warning(self, "No PDF Loaded", "Open a PDF first.")
-            return
-
-        printer = QPrinter(QPrinter.HighResolution)
-        preview = QPrintPreviewDialog(printer, self)
-        preview.paintRequested.connect(self.render_for_print)
-        preview.exec()
-
-    def render_for_print(self, printer):
-        painter = QPainter(printer)
-
-        # Render ALL pages (user will choose page range in dialog)
-        for i, page in enumerate(self.doc):
-            if i > 0:
-                printer.newPage()
-
-            pix = page.get_pixmap(dpi=300)
-            img = QImage(
-                pix.samples, pix.width, pix.height, pix.stride,
-                QImage.Format_RGBA8888 if pix.alpha else QImage.Format_RGB888
-            ).copy()
-
-            pixmap = QPixmap.fromImage(img)
-
-            rect = painter.viewport()
-            scaled = pixmap.scaled(
-                rect.size(),
-                Qt.KeepAspectRatio,
-                Qt.SmoothTransformation
-            )
-
-            painter.drawPixmap(0, 0, scaled)
-
-        painter.end()
-
-
-
 
 def main():
     app = QApplication(sys.argv)
