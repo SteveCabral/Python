@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Python Collection Types Reference</title>
+  <style>
+    :root { color-scheme: light dark; }
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14.5px;
+      line-height: 1.65;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 24px 72px;
+      color: light-dark(#1f2937, #e2e8f0);
+      background: light-dark(#ffffff, #0f172a);
+    }
+
+    /* ── Doc header ── */
+    .doc-header {
+      border-left: 5px solid light-dark(#2563eb, #60a5fa);
+      padding: 18px 22px;
+      background: light-dark(#eff6ff, #1e293b);
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 36px;
+    }
+    .doc-header h1 {
+      margin: 0 0 10px;
+      font-size: 1.45rem;
+      color: light-dark(#1e40af, #93c5fd);
+    }
+    .doc-header .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 4px 24px;
+      font-size: 0.85rem;
+      color: light-dark(#4b5563, #94a3b8);
+    }
+    .doc-header .meta-grid span strong { color: light-dark(#374151, #cbd5e1); }
+    .doc-header code {
+      background: light-dark(#dbeafe, #1e3a5f);
+      color: light-dark(#1e40af, #93c5fd);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.82rem;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    /* ── Section nav ── */
+    .toc {
+      background: light-dark(#f8fafc, #1e293b);
+      border: 1px solid light-dark(#e2e8f0, #334155);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+      font-size: 0.875rem;
+    }
+    .toc h3 { margin: 0 0 10px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: light-dark(#6b7280, #64748b); }
+    .toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 24px; }
+    .toc li { margin-bottom: 4px; break-inside: avoid; }
+    .toc a { color: light-dark(#2563eb, #60a5fa); text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+
+    /* ── Headings ── */
+    h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: light-dark(#111827, #f1f5f9);
+      border-bottom: 1px solid light-dark(#e5e7eb, #334155);
+      padding-bottom: 6px;
+      margin: 40px 0 14px;
+    }
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: light-dark(#374151, #cbd5e1);
+      margin: 28px 0 10px;
+    }
+    h4 { font-size: 0.9rem; color: light-dark(#6b7280, #94a3b8); margin: 18px 0 8px; font-weight: 600; }
+
+    p { margin: 0 0 12px; }
+    a { color: light-dark(#2563eb, #60a5fa); }
+
+    /* ── Code ── */
+    pre {
+      background: light-dark(#f8fafc, #1e293b);
+      border: 1px solid light-dark(#e2e8f0, #334155);
+      border-radius: 6px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      margin: 10px 0 16px;
+    }
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+    p code, li code, td code, th code, h2 code, h4 code {
+      background: light-dark(#f1f5f9, #1e293b);
+      border: 1px solid light-dark(#e2e8f0, #334155);
+      color: light-dark(#0f172a, #e2e8f0);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.84em;
+    }
+    .code-comment { color: light-dark(#6b7280, #64748b); }
+
+    /* ── Tables ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.865rem;
+      margin: 10px 0 20px;
+    }
+    thead tr { background: light-dark(#f1f5f9, #1e293b); }
+    th {
+      text-align: left;
+      font-weight: 600;
+      padding: 8px 12px;
+      border: 1px solid light-dark(#d1d5db, #334155);
+      color: light-dark(#374151, #cbd5e1);
+      white-space: nowrap;
+    }
+    td {
+      padding: 7px 12px;
+      border: 1px solid light-dark(#e5e7eb, #334155);
+      vertical-align: top;
+    }
+    tbody tr:nth-child(even) { background: light-dark(#f9fafb, #1a2332); }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 12px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .pass    { background: light-dark(#dcfce7, #14532d); color: light-dark(#15803d, #4ade80); }
+    .fail    { background: light-dark(#fee2e2, #450a0a); color: light-dark(#b91c1c, #fca5a5); }
+    .null-v  { background: light-dark(#f3f4f6, #1e293b); color: light-dark(#6b7280, #94a3b8); font-weight: 400; font-style: italic; }
+    .zero    { background: light-dark(#dcfce7, #14532d); color: light-dark(#15803d, #4ade80); font-size: 0.9rem; padding: 2px 12px; }
+    .key-val { background: light-dark(#dbeafe, #1e3a5f); color: light-dark(#1e40af, #93c5fd); font-weight: 700; padding: 1px 7px; }
+
+    /* ── Callouts ── */
+    .callout {
+      border-radius: 6px;
+      padding: 12px 18px;
+      margin: 14px 0 18px;
+      border-left: 4px solid;
+      font-size: 0.9rem;
+    }
+    .callout-pass    { background: light-dark(#f0fdf4, #14532d); border-color: light-dark(#22c55e, #4ade80); }
+    .callout-info    { background: light-dark(#eff6ff, #1e3a5f); border-color: light-dark(#3b82f6, #60a5fa); }
+    .callout-warn    { background: light-dark(#fffbeb, #422006); border-color: light-dark(#f59e0b, #fcd34d); }
+    .callout strong  { display: block; margin-bottom: 3px; font-size: 0.92rem; }
+
+    /* ── Result row highlight ── */
+    .result-highlight td { background: light-dark(#f0fdf4, #14532d) !important; font-weight: 600; }
+
+    /* ── Summary table ── */
+    .summary-table td:first-child { white-space: nowrap; font-weight: 700; }
+    .summary-table td:last-child  { text-align: center; }
+
+    /* ── Notable observations ── */
+    .obs-list { list-style: none; padding: 0; margin: 0; }
+    .obs-list li {
+      padding: 10px 14px 10px 44px;
+      position: relative;
+      border-left: 3px solid light-dark(#e5e7eb, #334155);
+      margin-bottom: 10px;
+      background: light-dark(#f9fafb, #1a2332);
+      border-radius: 0 6px 6px 0;
+      font-size: 0.9rem;
+    }
+    .obs-list li::before {
+      content: attr(data-n);
+      position: absolute;
+      left: 12px;
+      font-weight: 700;
+      color: light-dark(#9ca3af, #64748b);
+    }
+
+    hr { border: none; border-top: 1px solid light-dark(#e5e7eb, #334155); margin: 32px 0; }
+    ul, ol { padding-left: 22px; margin: 8px 0 12px; }
+    li { margin-bottom: 4px; }
+    strong { color: light-dark(#111827, #f1f5f9); }
+  </style>
+</head>
+<body>
+
+  <!-- ── Doc header ── -->
+  <div class="doc-header">
+    <h1>Python Collection Types Reference</h1>
+    <div class="meta-grid">
+      <span><strong>Topic:</strong> Collection data structures</span>
+      <span><strong>Language:</strong> Python</span>
+      <span><strong>Type:</strong> Language reference</span>
+      <span><strong>Focus:</strong> Built-in and <code>collections</code> types</span>
+    </div>
+  </div>
+
+  <!-- ── TOC ── -->
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#overview">What Collection Types Are</a></li>
+      <li><a href="#comparison">Quick Comparison</a></li>
+      <li><a href="#list">list</a></li>
+      <li><a href="#tuple">tuple</a></li>
+      <li><a href="#dict">dict</a></li>
+      <li><a href="#set">set</a></li>
+      <li><a href="#frozenset">frozenset</a></li>
+      <li><a href="#range">range</a></li>
+      <li><a href="#str">str (text sequence)</a></li>
+      <li><a href="#bytes">bytes and bytearray</a></li>
+      <li><a href="#deque">deque</a></li>
+      <li><a href="#namedtuple">namedtuple</a></li>
+      <li><a href="#defaultdict">defaultdict</a></li>
+      <li><a href="#counter">Counter</a></li>
+      <li><a href="#ordereddict">OrderedDict</a></li>
+      <li><a href="#chainmap">ChainMap</a></li>
+      <li><a href="#choose">How to Choose</a></li>
+      <li><a href="#summary">Summary</a></li>
+    </ol>
+  </div>
+
+  <!-- ── Overview ── -->
+  <h2 id="overview">What Collection Types Are</h2>
+  <p>
+    A <strong>collection</strong> is a data structure that holds a group of items.
+    Python&rsquo;s built-in collection types fall into three families:
+  </p>
+  <ul>
+    <li><strong>Sequences</strong> &mdash; ordered items accessed by index (<code>list</code>, <code>tuple</code>, <code>range</code>, <code>str</code>)</li>
+    <li><strong>Mappings</strong> &mdash; key-to-value lookup (<code>dict</code>)</li>
+    <li><strong>Sets</strong> &mdash; unique, unordered items (<code>set</code>, <code>frozenset</code>)</li>
+  </ul>
+  <p>
+    The four types you will use most often are <code>list</code>, <code>tuple</code>,
+    <code>dict</code>, and <code>set</code>. Python also provides
+    <code>frozenset</code>, <code>range</code>, text and binary sequences, and extra
+    types in the <code>collections</code> module.
+  </p>
+
+  <div class="callout callout-info">
+    <strong>Shared behavior</strong>
+    All of these support <code>len()</code>, <code>in</code> / <code>not in</code>,
+    and iteration with <code>for</code>. That is what makes them collections.
+  </div>
+
+  <hr />
+
+  <!-- ── Comparison ── -->
+  <h2 id="comparison">Quick Comparison</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>Family</th>
+        <th>Ordered?</th>
+        <th>Mutable?</th>
+        <th>Duplicates?</th>
+        <th>Typical use</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>list</code></td>
+        <td>sequence</td>
+        <td><span class="badge pass">YES</span></td>
+        <td><span class="badge pass">YES</span></td>
+        <td><span class="badge pass">YES</span></td>
+        <td>Growing / changing sequences</td>
+      </tr>
+      <tr>
+        <td><code>tuple</code></td>
+        <td>sequence</td>
+        <td><span class="badge pass">YES</span></td>
+        <td><span class="badge fail">NO</span></td>
+        <td><span class="badge pass">YES</span></td>
+        <td>Fixed records, dict keys</td>
+      </tr>
+      <tr>
+        <td><code>dict</code></td>
+        <td>mapping</td>
+        <td><span class="badge pass">YES</span> <span class="null-v">(insertion)</span></td>
+        <td><span class="badge pass">YES</span></td>
+        <td>keys unique</td>
+        <td>Lookup by name / key</td>
+      </tr>
+      <tr>
+        <td><code>set</code></td>
+        <td>set</td>
+        <td><span class="badge fail">NO</span></td>
+        <td><span class="badge pass">YES</span></td>
+        <td><span class="badge fail">NO</span></td>
+        <td>Membership, uniqueness</td>
+      </tr>
+      <tr>
+        <td><code>frozenset</code></td>
+        <td>set</td>
+        <td><span class="badge fail">NO</span></td>
+        <td><span class="badge fail">NO</span></td>
+        <td><span class="badge fail">NO</span></td>
+        <td>Immutable set; can be a dict key</td>
+      </tr>
+      <tr>
+        <td><code>range</code></td>
+        <td>sequence</td>
+        <td><span class="badge pass">YES</span></td>
+        <td><span class="badge fail">NO</span></td>
+        <td>n/a</td>
+        <td>Integer sequences, loops</td>
+      </tr>
+      <tr>
+        <td><code>str</code></td>
+        <td>sequence</td>
+        <td><span class="badge pass">YES</span></td>
+        <td><span class="badge fail">NO</span></td>
+        <td><span class="badge pass">YES</span></td>
+        <td>Text</td>
+      </tr>
+      <tr>
+        <td><code>deque</code></td>
+        <td>sequence</td>
+        <td><span class="badge pass">YES</span></td>
+        <td><span class="badge pass">YES</span></td>
+        <td><span class="badge pass">YES</span></td>
+        <td>Fast add/remove at both ends</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr />
+
+  <!-- ── list ── -->
+  <h2 id="list"><code>list</code></h2>
+  <p>
+    A <code>list</code> is an ordered, mutable sequence. Use it when you need
+    a collection that can grow, shrink, or change in place.
+  </p>
+  <h4>Code</h4>
+  <pre><code>numbers = [4, 7, 9, 3]
+names = ["Ada", "Grace", "Linus"]
+empty = []
+
+numbers.append(8)
+numbers.insert(0, 1)
+first = numbers[0]
+last = numbers[-1]
+slice_of = numbers[1:4]
+names[1] = "Alan"
+removed = numbers.pop()
+
+print(numbers)
+print(first, last, slice_of)
+print(names)
+print(removed)
+print(len(names), "Ada" in names)</code></pre>
+  <h4>Output</h4>
+  <pre><code>[1, 4, 7, 9, 3]
+1 8 [4, 7, 9]
+['Ada', 'Alan', 'Linus']
+8
+3 True</code></pre>
+  <p>Common operations:</p>
+  <ul>
+    <li><code>append</code>, <code>insert</code>, <code>extend</code> &mdash; add items</li>
+    <li><code>pop</code>, <code>remove</code>, <code>del</code> &mdash; remove items</li>
+    <li><code>sort</code>, <code>reverse</code> &mdash; reorder in place</li>
+    <li>indexing and slicing &mdash; read or replace a range</li>
+  </ul>
+
+  <hr />
+
+  <!-- ── tuple ── -->
+  <h2 id="tuple"><code>tuple</code></h2>
+  <p>
+    A <code>tuple</code> is an ordered, immutable sequence. Use it for fixed
+    groups of values, return values, or as a dict key when the contents are hashable.
+  </p>
+  <h4>Code</h4>
+  <pre><code>point = (10, 20)
+rgb = (255, 128, 0)
+single = (7,)          <span class="code-comment"># comma is required for a 1-item tuple</span>
+also_a_tuple = 1, 2, 3 <span class="code-comment"># parentheses are optional</span>
+empty = ()
+
+x, y = point           <span class="code-comment"># unpacking</span>
+print(point[0], point[-1])
+print(single, also_a_tuple)
+print(x, y)
+print(len(rgb), 128 in rgb)</code></pre>
+  <h4>Output</h4>
+  <pre><code>10 20
+(7,) (1, 2, 3)
+10 20
+3 True</code></pre>
+
+  <div class="callout callout-warn">
+    <strong>One-item tuples need a comma</strong>
+    <code>(7)</code> is just the integer <code>7</code>.
+    <code>(7,)</code> is a tuple containing <code>7</code>.
+  </div>
+
+  <p>
+    Tuples cannot be changed after creation. Methods like <code>append</code>
+    do not exist. You can still concatenate to make a <em>new</em> tuple:
+  </p>
+  <pre><code>point = (10, 20)
+moved = point + (5,)
+print(moved)   <span class="code-comment"># (10, 20, 5)</span></code></pre>
+
+  <hr />
+
+  <!-- ── dict ── -->
+  <h2 id="dict"><code>dict</code></h2>
+  <p>
+    A <code>dict</code> maps unique keys to values. Lookup by key is the usual
+    reason to use one. Since Python 3.7, dicts keep insertion order.
+  </p>
+  <h4>Code</h4>
+  <pre><code>person = {"name": "Ada", "year": 1815}
+person["field"] = "computing"
+person["year"] = 1815
+
+print(person["name"])
+print(person.get("city", "unknown"))
+print(list(person.keys()))
+print(list(person.values()))
+
+for key, value in person.items():
+    print(key, "=", value)
+
+del person["field"]
+print("field" in person)</code></pre>
+  <h4>Output</h4>
+  <pre><code>Ada
+unknown
+['name', 'year', 'field']
+['Ada', 1815, 'computing']
+name = Ada
+year = 1815
+field = computing
+False</code></pre>
+
+  <div class="callout callout-info">
+    <strong>Keys must be hashable</strong>
+    Numbers, strings, and tuples of hashable values can be keys.
+    Lists, dicts, and sets cannot.
+  </div>
+
+  <h4>Empty <code>{}</code> is a dict, not a set</h4>
+  <pre><code>empty_dict = {}
+empty_set = set()
+print(type(empty_dict), type(empty_set))</code></pre>
+  <pre><code>&lt;class 'dict'&gt; &lt;class 'set'&gt;</code></pre>
+
+  <hr />
+
+  <!-- ── set ── -->
+  <h2 id="set"><code>set</code></h2>
+  <p>
+    A <code>set</code> is an unordered collection of unique, hashable items.
+    Use it for membership tests, removing duplicates, and set math
+    (union, intersection, difference).
+  </p>
+  <h4>Code</h4>
+  <pre><code>tags = {"python", "sql", "git", "python"}
+primes = {2, 3, 5, 7}
+
+tags.add("linux")
+tags.discard("sql")
+
+print(tags)
+print("git" in tags)
+print({1, 2, 2, 3, 3, 3})   <span class="code-comment"># duplicates dropped</span>
+
+a = {1, 2, 3, 4}
+b = {3, 4, 5}
+print(a | b)   <span class="code-comment"># union</span>
+print(a &amp; b)   <span class="code-comment"># intersection</span>
+print(a - b)   <span class="code-comment"># difference</span>
+print(a ^ b)   <span class="code-comment"># symmetric difference</span></code></pre>
+  <h4>Output</h4>
+  <pre><code>{'linux', 'python', 'git'}
+True
+{1, 2, 3}
+{1, 2, 3, 4, 5}
+{3, 4}
+{1, 2}
+{1, 2, 5}</code></pre>
+
+  <div class="callout callout-warn">
+    <strong>Sets are unordered</strong>
+    Do not rely on print order. Use a set when identity and uniqueness matter,
+    not position. Items must be hashable, so a set cannot contain a list.
+  </div>
+
+  <hr />
+
+  <!-- ── frozenset ── -->
+  <h2 id="frozenset"><code>frozenset</code></h2>
+  <p>
+    A <code>frozenset</code> is an immutable set. Once created, you cannot
+    add or remove items. That makes it usable as a dict key or as a member
+    of another set.
+  </p>
+  <h4>Code</h4>
+  <pre><code>permissions = frozenset({"read", "write"})
+print(permissions)
+print("read" in permissions)
+
+<span class="code-comment"># frozenset can be a dict key; set cannot</span>
+roles = {
+    frozenset({"read"}): "viewer",
+    frozenset({"read", "write"}): "editor",
+}
+print(roles[frozenset({"read", "write"})])</code></pre>
+  <h4>Output</h4>
+  <pre><code>frozenset({'write', 'read'})
+True
+editor</code></pre>
+  <p>
+    Union and intersection still work; they return a new <code>frozenset</code>
+    instead of changing the original.
+  </p>
+
+  <hr />
+
+  <!-- ── range ── -->
+  <h2 id="range"><code>range</code></h2>
+  <p>
+    A <code>range</code> is an immutable sequence of integers. It does not store
+    every number; it stores start, stop, and step, so large ranges stay cheap.
+    It is the usual way to loop a fixed number of times.
+  </p>
+  <h4>Code</h4>
+  <pre><code>print(list(range(5)))
+print(list(range(2, 8)))
+print(list(range(0, 10, 2)))
+print(list(range(5, 0, -1)))
+
+for i in range(3):
+    print("tick", i)
+
+r = range(10, 20)
+print(len(r), r[0], r[-1], 15 in r)</code></pre>
+  <h4>Output</h4>
+  <pre><code>[0, 1, 2, 3, 4]
+[2, 3, 4, 5, 6, 7]
+[0, 2, 4, 6, 8]
+[5, 4, 3, 2, 1]
+tick 0
+tick 1
+tick 2
+10 10 19 True</code></pre>
+
+  <div class="callout callout-info">
+    <strong>Stop is exclusive</strong>
+    <code>range(5)</code> is <code>0, 1, 2, 3, 4</code> &mdash; it does not include <code>5</code>.
+  </div>
+
+  <hr />
+
+  <!-- ── str ── -->
+  <h2 id="str"><code>str</code> (text sequence)</h2>
+  <p>
+    A string is an immutable sequence of Unicode characters. It is a collection
+    of characters, so indexing, slicing, <code>in</code>, and <code>len()</code> work
+    the same way they do for lists and tuples.
+  </p>
+  <h4>Code</h4>
+  <pre><code>text = "Python"
+print(text[0], text[-1], text[0:3])
+print("th" in text)
+print(list(text))
+print("-".join(["A", "B", "C"]))
+print(text.upper(), text.replace("Py", "Jy"))</code></pre>
+  <h4>Output</h4>
+  <pre><code>P n Pyt
+True
+['P', 'y', 't', 'h', 'o', 'n']
+A-B-C
+PYTHON Jython</code></pre>
+  <p>
+    Because strings are immutable, methods such as <code>upper()</code> and
+    <code>replace()</code> return a new string. They do not change the original.
+  </p>
+
+  <hr />
+
+  <!-- ── bytes ── -->
+  <h2 id="bytes"><code>bytes</code> and <code>bytearray</code></h2>
+  <p>
+    These are sequences of integers in the range 0&ndash;255. Use them for binary
+    data (files, network payloads), not ordinary text.
+  </p>
+  <ul>
+    <li><code>bytes</code> &mdash; immutable</li>
+    <li><code>bytearray</code> &mdash; mutable version of the same idea</li>
+  </ul>
+  <h4>Code</h4>
+  <pre><code>raw = b"ABC"
+mutable = bytearray(b"ABC")
+mutable[0] = 90   <span class="code-comment"># 90 is 'Z'</span>
+
+print(raw, list(raw))
+print(mutable)
+print(raw.decode("ascii"))</code></pre>
+  <h4>Output</h4>
+  <pre><code>b'ABC' [65, 66, 67]
+bytearray(b'ZBC')
+ABC</code></pre>
+
+  <hr />
+
+  <!-- ── deque ── -->
+  <h2 id="deque"><code>deque</code></h2>
+  <p>
+    <code>collections.deque</code> (double-ended queue) is a mutable sequence
+    optimized for adding and removing items at <em>both</em> ends.
+    A list is fast at the right end, but slow at the left end.
+  </p>
+  <h4>Code</h4>
+  <pre><code>from collections import deque
+
+q = deque(["b", "c"])
+q.append("d")       <span class="code-comment"># right</span>
+q.appendleft("a")   <span class="code-comment"># left</span>
+print(q)
+
+print(q.pop())       <span class="code-comment"># right</span>
+print(q.popleft())   <span class="code-comment"># left</span>
+print(q)</code></pre>
+  <h4>Output</h4>
+  <pre><code>deque(['a', 'b', 'c', 'd'])
+d
+a
+deque(['b', 'c'])</code></pre>
+  <p>Use a deque for queues, sliding windows, and any &ldquo;work from both ends&rdquo; pattern.</p>
+
+  <hr />
+
+  <!-- ── namedtuple ── -->
+  <h2 id="namedtuple"><code>namedtuple</code></h2>
+  <p>
+    A named tuple is an immutable tuple whose fields have names.
+    You still get index access, plus <code>point.x</code> style attributes.
+  </p>
+  <h4>Code</h4>
+  <pre><code>from collections import namedtuple
+
+Point = namedtuple("Point", ["x", "y"])
+p = Point(10, 20)
+
+print(p)
+print(p.x, p.y)
+print(p[0], p[1])
+print(p._asdict())</code></pre>
+  <h4>Output</h4>
+  <pre><code>Point(x=10, y=20)
+10 20
+10 20
+{'x': 10, 'y': 20}</code></pre>
+  <p>
+    <code>typing.NamedTuple</code> is the typed variant of the same idea.
+    Both remain tuples underneath: immutable, unpackable, usable as dict keys.
+  </p>
+
+  <hr />
+
+  <!-- ── defaultdict ── -->
+  <h2 id="defaultdict"><code>defaultdict</code></h2>
+  <p>
+    A <code>defaultdict</code> is a dict that creates a default value when you
+    first access a missing key, instead of raising <code>KeyError</code>.
+  </p>
+  <h4>Code</h4>
+  <pre><code>from collections import defaultdict
+
+groups = defaultdict(list)
+pairs = [("fruit", "apple"), ("color", "red"), ("fruit", "pear")]
+
+for kind, item in pairs:
+    groups[kind].append(item)
+
+print(dict(groups))
+print(groups["missing"])   <span class="code-comment"># creates [] automatically</span></code></pre>
+  <h4>Output</h4>
+  <pre><code>{'fruit': ['apple', 'pear'], 'color': ['red']}
+[]</code></pre>
+  <p>
+    Common factories: <code>list</code>, <code>set</code>, <code>int</code>
+    (starts at <code>0</code>, useful for counting).
+  </p>
+
+  <hr />
+
+  <!-- ── Counter ── -->
+  <h2 id="counter"><code>Counter</code></h2>
+  <p>
+    A <code>Counter</code> is a dict specialized for counting hashable items.
+  </p>
+  <h4>Code</h4>
+  <pre><code>from collections import Counter
+
+counts = Counter("banana")
+print(counts)
+print(counts.most_common(2))
+print(counts["a"], counts["z"])   <span class="code-comment"># missing keys are 0, not KeyError</span>
+
+counts.update("apple")
+print(counts)</code></pre>
+  <h4>Output</h4>
+  <pre><code>Counter({'a': 3, 'n': 2, 'b': 1})
+[('a', 3), ('n', 2)]
+3 0
+Counter({'a': 4, 'n': 2, 'p': 2, 'b': 1, 'l': 1, 'e': 1})</code></pre>
+
+  <hr />
+
+  <!-- ── OrderedDict ── -->
+  <h2 id="ordereddict"><code>OrderedDict</code></h2>
+  <p>
+    Before Python 3.7, a regular <code>dict</code> did not guarantee order.
+    <code>OrderedDict</code> existed to keep insertion order and to support
+    extra methods such as <code>move_to_end</code>.
+  </p>
+  <p>
+    For new code, a plain <code>dict</code> is usually enough. Reach for
+    <code>OrderedDict</code> when you need those extra reordering methods,
+    or when order equality should matter (<code>OrderedDict</code> compares
+    both keys/values <em>and</em> order; a regular dict compares only keys/values).
+  </p>
+  <h4>Code</h4>
+  <pre><code>from collections import OrderedDict
+
+od = OrderedDict([("a", 1), ("b", 2), ("c", 3)])
+od.move_to_end("a")
+print(list(od.items()))
+
+print({"a": 1, "b": 2} == {"b": 2, "a": 1})
+print(OrderedDict(a=1, b=2) == OrderedDict(b=2, a=1))</code></pre>
+  <h4>Output</h4>
+  <pre><code>[('b', 2), ('c', 3), ('a', 1)]
+True
+False</code></pre>
+
+  <hr />
+
+  <!-- ── ChainMap ── -->
+  <h2 id="chainmap"><code>ChainMap</code></h2>
+  <p>
+    A <code>ChainMap</code> groups several dicts into one lookup view.
+    Search starts at the first mapping and continues until the key is found.
+    Writes go to the first mapping only.
+  </p>
+  <h4>Code</h4>
+  <pre><code>from collections import ChainMap
+
+defaults = {"color": "blue", "size": "M"}
+user = {"size": "L"}
+settings = ChainMap(user, defaults)
+
+print(settings["color"])   <span class="code-comment"># from defaults</span>
+print(settings["size"])    <span class="code-comment"># from user (first match wins)</span>
+settings["color"] = "red"  <span class="code-comment"># writes into user</span>
+print(user)
+print(defaults)</code></pre>
+  <h4>Output</h4>
+  <pre><code>blue
+L
+{'size': 'L', 'color': 'red'}
+{'color': 'blue', 'size': 'M'}</code></pre>
+  <p>Useful for layered config: command-line overrides, then env, then defaults.</p>
+
+  <hr />
+
+  <!-- ── How to choose ── -->
+  <h2 id="choose">How to Choose</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>If you need&hellip;</th>
+        <th>Start with</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="result-highlight">
+        <td>A sequence you will change</td>
+        <td><code>list</code></td>
+      </tr>
+      <tr>
+        <td>A fixed record or dict key</td>
+        <td><code>tuple</code> or <code>namedtuple</code></td>
+      </tr>
+      <tr>
+        <td>Lookup by name / identifier</td>
+        <td><code>dict</code></td>
+      </tr>
+      <tr>
+        <td>Uniqueness or set math</td>
+        <td><code>set</code></td>
+      </tr>
+      <tr>
+        <td>An immutable set (as a key)</td>
+        <td><code>frozenset</code></td>
+      </tr>
+      <tr>
+        <td>A numeric loop or slice of integers</td>
+        <td><code>range</code></td>
+      </tr>
+      <tr>
+        <td>Text</td>
+        <td><code>str</code></td>
+      </tr>
+      <tr>
+        <td>Binary data</td>
+        <td><code>bytes</code> / <code>bytearray</code></td>
+      </tr>
+      <tr>
+        <td>Fast add/remove at both ends</td>
+        <td><code>deque</code></td>
+      </tr>
+      <tr>
+        <td>Grouping into lists without <code>setdefault</code></td>
+        <td><code>defaultdict(list)</code></td>
+      </tr>
+      <tr>
+        <td>Tallies / frequencies</td>
+        <td><code>Counter</code></td>
+      </tr>
+      <tr>
+        <td>Layered lookups across several dicts</td>
+        <td><code>ChainMap</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr />
+
+  <!-- ── Summary ── -->
+  <h2 id="summary">Summary</h2>
+  <p>
+    Collection types hold groups of items. Pick the family first
+    (sequence, mapping, or set), then mutability.
+  </p>
+
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th>Family</th>
+        <th>Built-in types</th>
+        <th>Main extra types</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Sequence</td>
+        <td><code>list</code>, <code>tuple</code>, <code>range</code>, <code>str</code>, <code>bytes</code></td>
+        <td><code>deque</code>, <code>namedtuple</code></td>
+      </tr>
+      <tr>
+        <td>Mapping</td>
+        <td><code>dict</code></td>
+        <td><code>defaultdict</code>, <code>Counter</code>, <code>OrderedDict</code>, <code>ChainMap</code></td>
+      </tr>
+      <tr>
+        <td>Set</td>
+        <td><code>set</code>, <code>frozenset</code></td>
+        <td>&mdash;</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Notable Observations</h3>
+  <ul class="obs-list">
+    <li data-n="1">
+      <strong><code>list</code>, <code>tuple</code>, <code>dict</code>, and <code>set</code> are the everyday four.</strong>
+      Learn those first. The others are specialized versions of the same three families.
+    </li>
+    <li data-n="2">
+      <strong>Mutability is the usual list-vs-tuple and set-vs-frozenset split.</strong>
+      Immutable collections can be dict keys (if their contents are hashable).
+    </li>
+    <li data-n="3">
+      <strong><code>{}</code> is an empty dict, not an empty set.</strong>
+      Write <code>set()</code> for an empty set and <code>frozenset()</code> for an empty frozenset.
+    </li>
+    <li data-n="4">
+      <strong>Import extras from <code>collections</code>.</strong>
+      <code>deque</code>, <code>namedtuple</code>, <code>defaultdict</code>,
+      <code>Counter</code>, <code>OrderedDict</code>, and <code>ChainMap</code>
+      are not built-in names; they live in the standard library.
+    </li>
+  </ul>
+
+</body>
+</html>

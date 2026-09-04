@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Python Exceptions Reference</title>
+  <style>
+    :root { color-scheme: light dark; }
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14.5px;
+      line-height: 1.65;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 24px 72px;
+      color: light-dark(#1f2937, #e2e8f0);
+      background: light-dark(#ffffff, #0f172a);
+    }
+
+    /* ── Doc header ── */
+    .doc-header {
+      border-left: 5px solid light-dark(#2563eb, #60a5fa);
+      padding: 18px 22px;
+      background: light-dark(#eff6ff, #1e293b);
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 36px;
+    }
+    .doc-header h1 {
+      margin: 0 0 10px;
+      font-size: 1.45rem;
+      color: light-dark(#1e40af, #93c5fd);
+    }
+    .doc-header .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 4px 24px;
+      font-size: 0.85rem;
+      color: light-dark(#4b5563, #94a3b8);
+    }
+    .doc-header .meta-grid span strong { color: light-dark(#374151, #cbd5e1); }
+    .doc-header code {
+      background: light-dark(#dbeafe, #1e3a5f);
+      color: light-dark(#1e40af, #93c5fd);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.82rem;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    /* ── Section nav ── */
+    .toc {
+      background: light-dark(#f8fafc, #1e293b);
+      border: 1px solid light-dark(#e2e8f0, #334155);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+      font-size: 0.875rem;
+    }
+    .toc h3 { margin: 0 0 10px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: light-dark(#6b7280, #64748b); }
+    .toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 24px; }
+    .toc li { margin-bottom: 4px; break-inside: avoid; }
+    .toc a { color: light-dark(#2563eb, #60a5fa); text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+
+    /* ── Headings ── */
+    h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: light-dark(#111827, #f1f5f9);
+      border-bottom: 1px solid light-dark(#e5e7eb, #334155);
+      padding-bottom: 6px;
+      margin: 40px 0 14px;
+    }
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: light-dark(#374151, #cbd5e1);
+      margin: 28px 0 10px;
+    }
+    h4 { font-size: 0.9rem; color: light-dark(#6b7280, #94a3b8); margin: 18px 0 8px; font-weight: 600; }
+
+    p { margin: 0 0 12px; }
+    a { color: light-dark(#2563eb, #60a5fa); }
+
+    /* ── Code ── */
+    pre {
+      background: light-dark(#f8fafc, #1e293b);
+      border: 1px solid light-dark(#e2e8f0, #334155);
+      border-radius: 6px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      margin: 10px 0 16px;
+    }
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+    p code, li code, td code, th code, h2 code, h4 code {
+      background: light-dark(#f1f5f9, #1e293b);
+      border: 1px solid light-dark(#e2e8f0, #334155);
+      color: light-dark(#0f172a, #e2e8f0);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.84em;
+    }
+    .code-comment { color: light-dark(#6b7280, #64748b); }
+
+    /* ── Tables ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.865rem;
+      margin: 10px 0 20px;
+    }
+    thead tr { background: light-dark(#f1f5f9, #1e293b); }
+    th {
+      text-align: left;
+      font-weight: 600;
+      padding: 8px 12px;
+      border: 1px solid light-dark(#d1d5db, #334155);
+      color: light-dark(#374151, #cbd5e1);
+      white-space: nowrap;
+    }
+    td {
+      padding: 7px 12px;
+      border: 1px solid light-dark(#e5e7eb, #334155);
+      vertical-align: top;
+    }
+    tbody tr:nth-child(even) { background: light-dark(#f9fafb, #1a2332); }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 12px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .pass    { background: light-dark(#dcfce7, #14532d); color: light-dark(#15803d, #4ade80); }
+    .fail    { background: light-dark(#fee2e2, #450a0a); color: light-dark(#b91c1c, #fca5a5); }
+    .null-v  { background: light-dark(#f3f4f6, #1e293b); color: light-dark(#6b7280, #94a3b8); font-weight: 400; font-style: italic; }
+    .zero    { background: light-dark(#dcfce7, #14532d); color: light-dark(#15803d, #4ade80); font-size: 0.9rem; padding: 2px 12px; }
+    .key-val { background: light-dark(#dbeafe, #1e3a5f); color: light-dark(#1e40af, #93c5fd); font-weight: 700; padding: 1px 7px; }
+
+    /* ── Callouts ── */
+    .callout {
+      border-radius: 6px;
+      padding: 12px 18px;
+      margin: 14px 0 18px;
+      border-left: 4px solid;
+      font-size: 0.9rem;
+    }
+    .callout-pass    { background: light-dark(#f0fdf4, #14532d); border-color: light-dark(#22c55e, #4ade80); }
+    .callout-info    { background: light-dark(#eff6ff, #1e3a5f); border-color: light-dark(#3b82f6, #60a5fa); }
+    .callout-warn    { background: light-dark(#fffbeb, #422006); border-color: light-dark(#f59e0b, #fcd34d); }
+    .callout strong  { display: block; margin-bottom: 3px; font-size: 0.92rem; }
+
+    /* ── Result row highlight ── */
+    .result-highlight td { background: light-dark(#f0fdf4, #14532d) !important; font-weight: 600; }
+
+    /* ── Summary table ── */
+    .summary-table td:first-child { white-space: nowrap; font-weight: 700; }
+    .summary-table td:last-child  { text-align: center; }
+
+    /* ── Notable observations ── */
+    .obs-list { list-style: none; padding: 0; margin: 0; }
+    .obs-list li {
+      padding: 10px 14px 10px 44px;
+      position: relative;
+      border-left: 3px solid light-dark(#e5e7eb, #334155);
+      margin-bottom: 10px;
+      background: light-dark(#f9fafb, #1a2332);
+      border-radius: 0 6px 6px 0;
+      font-size: 0.9rem;
+    }
+    .obs-list li::before {
+      content: attr(data-n);
+      position: absolute;
+      left: 12px;
+      font-weight: 700;
+      color: light-dark(#9ca3af, #64748b);
+    }
+
+    hr { border: none; border-top: 1px solid light-dark(#e5e7eb, #334155); margin: 32px 0; }
+    ul, ol { padding-left: 22px; margin: 8px 0 12px; }
+    li { margin-bottom: 4px; }
+    strong { color: light-dark(#111827, #f1f5f9); }
+  </style>
+</head>
+<body>
+
+  <!-- ── Doc header ── -->
+  <div class="doc-header">
+    <h1>Python Exceptions Reference</h1>
+    <div class="meta-grid">
+      <span><strong>Topic:</strong> Exceptions</span>
+      <span><strong>Language:</strong> Python</span>
+      <span><strong>Level:</strong> Beginner</span>
+      <span><strong>Focus:</strong> Errors, <code>try/except</code>, and common exception types</span>
+    </div>
+  </div>
+
+  <!-- ── TOC ── -->
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#overview">What Exceptions Are</a></li>
+      <li><a href="#try-except">Handling with <code>try/except</code></a></li>
+      <li><a href="#else-finally"><code>else</code> and <code>finally</code></a></li>
+      <li><a href="#raise">Raising Exceptions</a></li>
+      <li><a href="#common">Common Exception Types</a></li>
+      <li><a href="#summary">Summary</a></li>
+    </ol>
+  </div>
+
+  <!-- ── Overview ── -->
+  <h2 id="overview">What Exceptions Are</h2>
+  <p>
+    An <strong>exception</strong> is an error that happens while a program is running.
+    When Python hits a problem it cannot continue past, it <strong>raises</strong>
+    an exception. If you do not handle it, the program stops and prints a
+    traceback (error message).
+  </p>
+  <p>Examples of things that raise exceptions:</p>
+  <ul>
+    <li>Dividing by zero</li>
+    <li>Using a variable that does not exist</li>
+    <li>Accessing a list index that is out of range</li>
+    <li>Passing the wrong type to an operation</li>
+  </ul>
+
+  <div class="callout callout-info">
+    <strong>Exception vs syntax error</strong>
+    A <strong>syntax error</strong> means the code is written incorrectly and Python
+    refuses to run it at all. An <strong>exception</strong> happens during execution
+    when something goes wrong at runtime.
+  </div>
+
+  <p>Basic flow:</p>
+  <ol>
+    <li>Python runs code in the <code>try</code> block</li>
+    <li>If an exception occurs, Python jumps to the matching <code>except</code> block</li>
+    <li>If no exception occurs, the <code>except</code> block is skipped</li>
+  </ol>
+
+  <hr />
+
+  <!-- ── try/except ── -->
+  <h2 id="try-except">Handling with <code>try/except</code></h2>
+  <p>
+    Use <code>try/except</code> to catch an exception and respond gracefully
+    instead of crashing.
+  </p>
+  <h4>Code</h4>
+  <pre><code>try:
+    result = 10 / 0
+except ZeroDivisionError:
+    print("Cannot divide by zero")</code></pre>
+  <h4>Output</h4>
+  <pre><code>Cannot divide by zero</code></pre>
+
+  <h3>Catching the Exception Object</h3>
+  <p>
+    You can capture the exception in a variable with <code>as</code> to read
+    the error message.
+  </p>
+  <h4>Code</h4>
+  <pre><code>try:
+    value = int("abc")
+except ValueError as error:
+    print("Conversion failed:", error)</code></pre>
+  <h4>Output</h4>
+  <pre><code>Conversion failed: invalid literal for int() with base 10: 'abc'</code></pre>
+
+  <h3>Multiple <code>except</code> Blocks</h3>
+  <p>Handle different exception types with separate blocks:</p>
+  <h4>Code</h4>
+  <pre><code>def safe_divide(a, b):
+    try:
+        return a / b
+    except ZeroDivisionError:
+        print("Error: division by zero")
+    except TypeError:
+        print("Error: numbers required")
+
+print(safe_divide(10, 0))
+print(safe_divide(10, "2"))</code></pre>
+  <h4>Output</h4>
+  <pre><code>Error: division by zero
+None
+Error: numbers required
+None</code></pre>
+
+  <div class="callout callout-warn">
+    <strong>Only catch exceptions you can handle</strong>
+    Do not use a bare <code>except:</code> to silence every error. Catch specific
+    types so real bugs are not hidden.
+  </div>
+
+  <hr />
+
+  <!-- ── else/finally ── -->
+  <h2 id="else-finally"><code>else</code> and <code>finally</code></h2>
+  <p>
+    A full exception block can have up to four parts:
+    <code>try</code>, <code>except</code>, <code>else</code>, and <code>finally</code>.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Block</th>
+        <th>Runs when</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>try</code></td>
+        <td>Always first &mdash; code that might fail</td>
+      </tr>
+      <tr>
+        <td><code>except</code></td>
+        <td>An exception was raised in <code>try</code></td>
+      </tr>
+      <tr>
+        <td><code>else</code></td>
+        <td>No exception was raised in <code>try</code></td>
+      </tr>
+      <tr class="result-highlight">
+        <td><code>finally</code></td>
+        <td>Always &mdash; whether or not an exception occurred</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h4>Code</h4>
+  <pre><code>def divide(a, b):
+    return a / b
+
+try:
+    result = divide(10, 2)
+except ZeroDivisionError:
+    print("Cannot divide by zero")
+else:
+    print("Result:", result)
+finally:
+    print("Done")</code></pre>
+  <h4>Output</h4>
+  <pre><code>Result: 5.0
+Done</code></pre>
+  <p>
+    Use <code>finally</code> for cleanup that must run no matter what, such as
+    closing a file or releasing a resource.
+  </p>
+
+  <hr />
+
+  <!-- ── raise ── -->
+  <h2 id="raise">Raising Exceptions</h2>
+  <p>
+    You can create your own exception with the <code>raise</code> keyword.
+    This is useful when input is invalid or a rule is broken.
+  </p>
+  <h4>Code</h4>
+  <pre><code>def set_age(age):
+    if age &lt; 0:
+        raise ValueError("Age must be positive")
+    print("Age set to", age)
+
+try:
+    set_age(-1)
+except ValueError as error:
+    print("Caught:", error)</code></pre>
+  <h4>Output</h4>
+  <pre><code>Caught: Age must be positive</code></pre>
+
+  <div class="callout callout-info">
+    <strong>Raise what fits</strong>
+    Pick an exception type that matches the problem. Use <code>ValueError</code>
+    for bad values, <code>TypeError</code> for wrong types, and so on.
+  </div>
+
+  <hr />
+
+  <!-- ── Common exceptions ── -->
+  <h2 id="common">Common Exception Types</h2>
+  <p>
+    Python has many built-in exception types. These are the ones beginners
+    encounter most often:
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Exception</th>
+        <th>Typical cause</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>ZeroDivisionError</code></td>
+        <td>Dividing by zero</td>
+      </tr>
+      <tr>
+        <td><code>ValueError</code></td>
+        <td>Right type, but invalid value (e.g. <code>int("abc")</code>)</td>
+      </tr>
+      <tr>
+        <td><code>TypeError</code></td>
+        <td>Operation on the wrong type (e.g. <code>"a" + 1</code>)</td>
+      </tr>
+      <tr>
+        <td><code>IndexError</code></td>
+        <td>List/tuple index out of range</td>
+      </tr>
+      <tr>
+        <td><code>KeyError</code></td>
+        <td>Dictionary key does not exist</td>
+      </tr>
+      <tr>
+        <td><code>NameError</code></td>
+        <td>Variable or name is not defined</td>
+      </tr>
+      <tr>
+        <td><code>AttributeError</code></td>
+        <td>Object has no such attribute or method</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3><code>ZeroDivisionError</code></h3>
+  <h4>Code</h4>
+  <pre><code>try:
+    print(10 / 0)
+except ZeroDivisionError as error:
+    print(error)</code></pre>
+  <h4>Output</h4>
+  <pre><code>division by zero</code></pre>
+
+  <h3><code>ValueError</code></h3>
+  <h4>Code</h4>
+  <pre><code>try:
+    number = int("abc")
+except ValueError as error:
+    print(error)</code></pre>
+  <h4>Output</h4>
+  <pre><code>invalid literal for int() with base 10: 'abc'</code></pre>
+
+  <h3><code>TypeError</code></h3>
+  <h4>Code</h4>
+  <pre><code>try:
+    message = "hello" + 5
+except TypeError as error:
+    print(error)</code></pre>
+  <h4>Output</h4>
+  <pre><code>can only concatenate str (not "int") to str</code></pre>
+
+  <h3><code>IndexError</code></h3>
+  <h4>Code</h4>
+  <pre><code>try:
+    nums = [1, 2, 3]
+    print(nums[10])
+except IndexError as error:
+    print(error)</code></pre>
+  <h4>Output</h4>
+  <pre><code>list index out of range</code></pre>
+
+  <h3><code>KeyError</code></h3>
+  <h4>Code</h4>
+  <pre><code>try:
+    user = {"name": "Ada"}
+    print(user["email"])
+except KeyError as error:
+    print(error)</code></pre>
+  <h4>Output</h4>
+  <pre><code>'email'</code></pre>
+
+  <h3><code>NameError</code></h3>
+  <h4>Code</h4>
+  <pre><code>try:
+    print(undefined_var)
+except NameError as error:
+    print(error)</code></pre>
+  <h4>Output</h4>
+  <pre><code>name 'undefined_var' is not defined</code></pre>
+
+  <h3><code>AttributeError</code></h3>
+  <h4>Code</h4>
+  <pre><code>try:
+    count = 5
+    count.append(1)
+except AttributeError as error:
+    print(error)</code></pre>
+  <h4>Output</h4>
+  <pre><code>'int' object has no attribute 'append'</code></pre>
+
+  <div class="callout callout-pass">
+    <strong>Tip: avoid some errors before they happen</strong>
+    Use <code>dict.get("key")</code> instead of <code>dict["key"]</code> when a
+    missing key is normal. Check <code>len(items)</code> before indexing when possible.
+  </div>
+
+  <hr />
+
+  <!-- ── Summary ── -->
+  <h2 id="summary">Summary</h2>
+  <p>
+    Exceptions report runtime problems. Use <code>try/except</code> to handle them,
+    <code>raise</code> to signal errors yourself, and learn common types so error
+    messages make sense.
+  </p>
+
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th>Concept</th>
+        <th>One-line meaning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Exception</td>
+        <td>Runtime error that stops normal flow unless handled</td>
+      </tr>
+      <tr>
+        <td><code>try</code></td>
+        <td>Run code that might fail</td>
+      </tr>
+      <tr>
+        <td><code>except</code></td>
+        <td>Handle a specific exception type</td>
+      </tr>
+      <tr>
+        <td><code>else</code></td>
+        <td>Runs if <code>try</code> succeeded with no exception</td>
+      </tr>
+      <tr>
+        <td><code>finally</code></td>
+        <td>Always runs (cleanup)</td>
+      </tr>
+      <tr>
+        <td><code>raise</code></td>
+        <td>Trigger an exception on purpose</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Notable Observations</h3>
+  <ul class="obs-list">
+    <li data-n="1">
+      <strong>Unhandled exceptions crash the program.</strong>
+      Wrap risky code in <code>try/except</code> when you know how to recover or
+      show a helpful message.
+    </li>
+    <li data-n="2">
+      <strong>Exception names usually end in <code>Error</code>.</strong>
+      The name tells you what went wrong: <code>ZeroDivisionError</code>,
+      <code>ValueError</code>, <code>TypeError</code>, and so on.
+    </li>
+    <li data-n="3">
+      <strong><code>as error</code> gives you the message.</strong>
+      Printing the caught exception object shows why Python raised it.
+    </li>
+    <li data-n="4">
+      <strong>Read the error message.</strong>
+      Python&rsquo;s traceback tells you the exception type, the message, and
+      which line caused the problem &mdash; that is often the fastest way to debug.
+    </li>
+  </ul>
+
+</body>
+</html>

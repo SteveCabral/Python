@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Python Generators Reference</title>
+  <style>
+    :root { color-scheme: light dark; }
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14.5px;
+      line-height: 1.65;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 24px 72px;
+      color: light-dark(#1f2937, #e2e8f0);
+      background: light-dark(#ffffff, #0f172a);
+    }
+
+    /* ── Doc header ── */
+    .doc-header {
+      border-left: 5px solid light-dark(#2563eb, #60a5fa);
+      padding: 18px 22px;
+      background: light-dark(#eff6ff, #1e293b);
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 36px;
+    }
+    .doc-header h1 {
+      margin: 0 0 10px;
+      font-size: 1.45rem;
+      color: light-dark(#1e40af, #93c5fd);
+    }
+    .doc-header .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 4px 24px;
+      font-size: 0.85rem;
+      color: light-dark(#4b5563, #94a3b8);
+    }
+    .doc-header .meta-grid span strong { color: light-dark(#374151, #cbd5e1); }
+    .doc-header code {
+      background: light-dark(#dbeafe, #1e3a5f);
+      color: light-dark(#1e40af, #93c5fd);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.82rem;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    /* ── Section nav ── */
+    .toc {
+      background: light-dark(#f8fafc, #1e293b);
+      border: 1px solid light-dark(#e2e8f0, #334155);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+      font-size: 0.875rem;
+    }
+    .toc h3 { margin: 0 0 10px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: light-dark(#6b7280, #64748b); }
+    .toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 24px; }
+    .toc li { margin-bottom: 4px; break-inside: avoid; }
+    .toc a { color: light-dark(#2563eb, #60a5fa); text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+
+    /* ── Headings ── */
+    h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: light-dark(#111827, #f1f5f9);
+      border-bottom: 1px solid light-dark(#e5e7eb, #334155);
+      padding-bottom: 6px;
+      margin: 40px 0 14px;
+    }
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: light-dark(#374151, #cbd5e1);
+      margin: 28px 0 10px;
+    }
+    h4 { font-size: 0.9rem; color: light-dark(#6b7280, #94a3b8); margin: 18px 0 8px; font-weight: 600; }
+
+    p { margin: 0 0 12px; }
+    a { color: light-dark(#2563eb, #60a5fa); }
+
+    /* ── Code ── */
+    pre {
+      background: light-dark(#f8fafc, #1e293b);
+      border: 1px solid light-dark(#e2e8f0, #334155);
+      border-radius: 6px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      margin: 10px 0 16px;
+    }
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+    p code, li code, td code, th code, h2 code, h4 code {
+      background: light-dark(#f1f5f9, #1e293b);
+      border: 1px solid light-dark(#e2e8f0, #334155);
+      color: light-dark(#0f172a, #e2e8f0);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.84em;
+    }
+    .code-comment { color: light-dark(#6b7280, #64748b); }
+
+    /* ── Tables ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.865rem;
+      margin: 10px 0 20px;
+    }
+    thead tr { background: light-dark(#f1f5f9, #1e293b); }
+    th {
+      text-align: left;
+      font-weight: 600;
+      padding: 8px 12px;
+      border: 1px solid light-dark(#d1d5db, #334155);
+      color: light-dark(#374151, #cbd5e1);
+      white-space: nowrap;
+    }
+    td {
+      padding: 7px 12px;
+      border: 1px solid light-dark(#e5e7eb, #334155);
+      vertical-align: top;
+    }
+    tbody tr:nth-child(even) { background: light-dark(#f9fafb, #1a2332); }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 12px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .pass    { background: light-dark(#dcfce7, #14532d); color: light-dark(#15803d, #4ade80); }
+    .fail    { background: light-dark(#fee2e2, #450a0a); color: light-dark(#b91c1c, #fca5a5); }
+    .null-v  { background: light-dark(#f3f4f6, #1e293b); color: light-dark(#6b7280, #94a3b8); font-weight: 400; font-style: italic; }
+    .zero    { background: light-dark(#dcfce7, #14532d); color: light-dark(#15803d, #4ade80); font-size: 0.9rem; padding: 2px 12px; }
+    .key-val { background: light-dark(#dbeafe, #1e3a5f); color: light-dark(#1e40af, #93c5fd); font-weight: 700; padding: 1px 7px; }
+
+    /* ── Callouts ── */
+    .callout {
+      border-radius: 6px;
+      padding: 12px 18px;
+      margin: 14px 0 18px;
+      border-left: 4px solid;
+      font-size: 0.9rem;
+    }
+    .callout-pass    { background: light-dark(#f0fdf4, #14532d); border-color: light-dark(#22c55e, #4ade80); }
+    .callout-info    { background: light-dark(#eff6ff, #1e3a5f); border-color: light-dark(#3b82f6, #60a5fa); }
+    .callout-warn    { background: light-dark(#fffbeb, #422006); border-color: light-dark(#f59e0b, #fcd34d); }
+    .callout strong  { display: block; margin-bottom: 3px; font-size: 0.92rem; }
+
+    /* ── Result row highlight ── */
+    .result-highlight td { background: light-dark(#f0fdf4, #14532d) !important; font-weight: 600; }
+
+    /* ── Summary table ── */
+    .summary-table td:first-child { white-space: nowrap; font-weight: 700; }
+    .summary-table td:last-child  { text-align: center; }
+
+    /* ── Notable observations ── */
+    .obs-list { list-style: none; padding: 0; margin: 0; }
+    .obs-list li {
+      padding: 10px 14px 10px 44px;
+      position: relative;
+      border-left: 3px solid light-dark(#e5e7eb, #334155);
+      margin-bottom: 10px;
+      background: light-dark(#f9fafb, #1a2332);
+      border-radius: 0 6px 6px 0;
+      font-size: 0.9rem;
+    }
+    .obs-list li::before {
+      content: attr(data-n);
+      position: absolute;
+      left: 12px;
+      font-weight: 700;
+      color: light-dark(#9ca3af, #64748b);
+    }
+
+    hr { border: none; border-top: 1px solid light-dark(#e5e7eb, #334155); margin: 32px 0; }
+    ul, ol { padding-left: 22px; margin: 8px 0 12px; }
+    li { margin-bottom: 4px; }
+    strong { color: light-dark(#111827, #f1f5f9); }
+  </style>
+</head>
+<body>
+
+  <!-- ── Doc header ── -->
+  <div class="doc-header">
+    <h1>Python Generators Reference</h1>
+    <div class="meta-grid">
+      <span><strong>Topic:</strong> Generators</span>
+      <span><strong>Language:</strong> Python</span>
+      <span><strong>Level:</strong> Beginner</span>
+      <span><strong>Focus:</strong> <code>yield</code>, lazy iteration, and <code>return</code></span>
+    </div>
+  </div>
+
+  <!-- ── TOC ── -->
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#overview">What Generators Are</a></li>
+      <li><a href="#creating">Creating a Generator with <code>yield</code></a></li>
+      <li><a href="#yield-vs-return"><code>yield</code> vs <code>return</code></a></li>
+      <li><a href="#pause">How <code>yield</code> Pauses</a></li>
+      <li><a href="#using">Using a Generator</a></li>
+      <li><a href="#lazy">Lazy vs All-at-Once</a></li>
+      <li><a href="#expressions">Generator Expressions</a></li>
+      <li><a href="#summary">Summary</a></li>
+    </ol>
+  </div>
+
+  <!-- ── Overview ── -->
+  <h2 id="overview">What Generators Are</h2>
+  <p>
+    A <strong>generator</strong> is a special kind of iterator that produces values
+    <strong>one at a time</strong> instead of building a full list in memory.
+    Generators are created by functions that use the <code>yield</code> keyword.
+  </p>
+  <p>Think of the difference this way:</p>
+  <ul>
+    <li>A normal function with <code>return</code> finishes and gives back one result (often a list)</li>
+    <li>A generator with <code>yield</code> can produce many results over time, pausing between each one</li>
+  </ul>
+
+  <div class="callout callout-info">
+    <strong>Generator = function + yield</strong>
+    Any function that contains <code>yield</code> becomes a generator function.
+    Calling it does not run the body immediately &mdash; it returns a generator object.
+  </div>
+
+  <hr />
+
+  <!-- ── Creating ── -->
+  <h2 id="creating">Creating a Generator with <code>yield</code></h2>
+  <p>
+    Use <code>yield</code> inside a function to send out a value and pause.
+    The function remembers where it stopped and can continue later.
+  </p>
+  <h4>Code</h4>
+  <pre><code>def count_up_to(n):
+    current = 1
+    while current &lt;= n:
+        yield current
+        current += 1
+
+gen = count_up_to(3)
+print(type(gen))
+print(next(gen))
+print(next(gen))
+print(next(gen))</code></pre>
+  <h4>Output</h4>
+  <pre><code>&lt;class 'generator'&gt;
+1
+2
+3</code></pre>
+  <p>
+    <code>count_up_to(3)</code> does not return <code>[1, 2, 3]</code>.
+    It returns a generator object. Each call to <code>next()</code> runs the function
+    until the next <code>yield</code>, then pauses.
+  </p>
+
+  <hr />
+
+  <!-- ── yield vs return ── -->
+  <h2 id="yield-vs-return"><code>yield</code> vs <code>return</code></h2>
+  <p>
+    Both keywords send a value out of a function, but they behave very differently.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th></th>
+        <th><code>return</code></th>
+        <th><code>yield</code></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Ends the function?</strong></td>
+        <td><span class="badge pass">YES</span> &mdash; immediately</td>
+        <td><span class="badge fail">NO</span> &mdash; pauses and can resume</td>
+      </tr>
+      <tr>
+        <td><strong>How many values?</strong></td>
+        <td>One return value per call</td>
+        <td>Many values, one per <code>yield</code></td>
+      </tr>
+      <tr>
+        <td><strong>What calling returns</strong></td>
+        <td>The returned value (e.g. a list)</td>
+        <td>A generator object</td>
+      </tr>
+      <tr>
+        <td><strong>State preserved?</strong></td>
+        <td><span class="badge fail">NO</span></td>
+        <td><span class="badge pass">YES</span> &mdash; local variables kept between yields</td>
+      </tr>
+      <tr>
+        <td><strong>Memory</strong></td>
+        <td>Often builds everything at once</td>
+        <td>Produces values lazily, one at a time</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Same Idea, Two Approaches</h3>
+  <h4>With <code>return</code> (builds a list)</h4>
+  <pre><code>def return_numbers(n):
+    result = []
+    for i in range(1, n + 1):
+        result.append(i)
+    return result
+
+print(return_numbers(3))
+print(type(return_numbers(3)))</code></pre>
+  <h4>Output</h4>
+  <pre><code>[1, 2, 3]
+&lt;class 'list'&gt;</code></pre>
+
+  <h4>With <code>yield</code> (yields one at a time)</h4>
+  <pre><code>def yield_numbers(n):
+    for i in range(1, n + 1):
+        yield i
+
+print(list(yield_numbers(3)))
+print(type(yield_numbers(3)))</code></pre>
+  <h4>Output</h4>
+  <pre><code>[1, 2, 3]
+&lt;class 'generator'&gt;</code></pre>
+
+  <div class="callout callout-info">
+    <strong>Same final values, different process</strong>
+    <code>list(yield_numbers(3))</code> collects all yielded values into a list.
+    Without <code>list()</code>, the generator produces values on demand, one at a time.
+  </div>
+
+  <hr />
+
+  <!-- ── Pause ── -->
+  <h2 id="pause">How <code>yield</code> Pauses</h2>
+  <p>
+    When Python hits <code>yield</code>, it sends out a value and <strong>freezes</strong>
+    the function in place. The next time you ask for a value, execution resumes right
+    after that <code>yield</code> line.
+  </p>
+  <h4>Code</h4>
+  <pre><code>def demo():
+    print("start")
+    yield 1
+    print("middle")
+    yield 2
+    print("end")
+
+g = demo()
+print("created")
+print(next(g))
+print(next(g))</code></pre>
+  <h4>Output</h4>
+  <pre><code>created
+start
+1
+middle
+2</code></pre>
+  <p>
+    Notice that <code>"end"</code> never prints. The function paused after the second
+    <code>yield</code> and has not finished yet. If you called <code>next(g)</code> again,
+    it would print <code>end</code> and then raise <code>StopIteration</code>.
+  </p>
+
+  <div class="callout callout-warn">
+    <strong><code>return</code> inside a generator ends it</strong>
+    If a generator function hits a plain <code>return</code> (with or without a value),
+    the generator stops. No more values are produced.
+  </div>
+
+  <hr />
+
+  <!-- ── Using ── -->
+  <h2 id="using">Using a Generator</h2>
+
+  <h3>With a <code>for</code> Loop</h3>
+  <p>
+    The most common way to consume a generator is a <code>for</code> loop.
+    Python calls <code>next()</code> for you until the generator is exhausted.
+  </p>
+  <h4>Code</h4>
+  <pre><code>def count_up_to(n):
+    current = 1
+    while current &lt;= n:
+        yield current
+        current += 1
+
+for num in count_up_to(3):
+    print(num)</code></pre>
+  <h4>Output</h4>
+  <pre><code>1
+2
+3</code></pre>
+
+  <h3>With <code>next()</code></h3>
+  <p>
+    You can pull values manually. When there are no more values, Python raises
+    <code>StopIteration</code>.
+  </p>
+  <h4>Code</h4>
+  <pre><code>gen = count_up_to(2)
+print(next(gen))
+print(next(gen))
+print(next(gen))   <span class="code-comment"># StopIteration</span></code></pre>
+  <p>
+    The third <code>next()</code> raises
+    <code>StopIteration</code> because the generator has no more values to give.
+  </p>
+
+  <h3>Squares Example</h3>
+  <h4>Code</h4>
+  <pre><code>def squares(limit):
+    for i in range(1, limit + 1):
+        yield i * i
+
+for value in squares(4):
+    print(value)</code></pre>
+  <h4>Output</h4>
+  <pre><code>1
+4
+9
+16</code></pre>
+
+  <hr />
+
+  <!-- ── Lazy ── -->
+  <h2 id="lazy">Lazy vs All-at-Once</h2>
+  <p>
+    A generator is <strong>lazy</strong>: it computes the next value only when you
+    ask for it. A function that returns a list builds the entire result in memory first.
+  </p>
+  <p>Why that matters:</p>
+  <ul>
+    <li>Generators use less memory for large sequences</li>
+    <li>You can start processing the first value before all values are ready</li>
+    <li>You can represent infinite or very long sequences (e.g. counting forever)</li>
+  </ul>
+
+  <div class="callout callout-pass">
+    <strong>When to reach for a generator</strong>
+    Use one when you need to loop over many values and do not need the full collection
+    in memory at the same time.
+  </div>
+
+  <hr />
+
+  <!-- ── Generator expressions ── -->
+  <h2 id="expressions">Generator Expressions</h2>
+  <p>
+    A generator expression is a compact way to create a generator, similar to a
+    list comprehension but with parentheses instead of square brackets.
+  </p>
+  <h4>Code</h4>
+  <pre><code>squares = (x * x for x in range(1, 5))
+print(type(squares))
+print(list(squares))</code></pre>
+  <h4>Output</h4>
+  <pre><code>&lt;class 'generator'&gt;
+[1, 4, 9, 16]</code></pre>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Syntax</th>
+        <th>Creates</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>[x * x for x in range(5)]</code></td>
+        <td>List (all values at once)</td>
+      </tr>
+      <tr class="result-highlight">
+        <td><code>(x * x for x in range(5))</code></td>
+        <td>Generator (lazy, one at a time)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr />
+
+  <!-- ── Summary ── -->
+  <h2 id="summary">Summary</h2>
+  <p>
+    Generators produce a stream of values using <code>yield</code>.
+    They pause between values, remember their state, and work well with
+    <code>for</code> loops and <code>next()</code>.
+  </p>
+
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th>Concept</th>
+        <th>One-line meaning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Generator</td>
+        <td>Iterator that yields values one at a time</td>
+      </tr>
+      <tr>
+        <td><code>yield</code></td>
+        <td>Produces a value and pauses the function</td>
+      </tr>
+      <tr>
+        <td><code>return</code></td>
+        <td>Ends the function and sends back one final value</td>
+      </tr>
+      <tr>
+        <td>Generator function</td>
+        <td>Any function containing <code>yield</code></td>
+      </tr>
+      <tr>
+        <td><code>next()</code></td>
+        <td>Gets the next value from a generator</td>
+      </tr>
+      <tr>
+        <td><code>StopIteration</code></td>
+        <td>Raised when a generator has no more values</td>
+      </tr>
+      <tr>
+        <td>Lazy</td>
+        <td>Values are produced on demand, not all upfront</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Notable Observations</h3>
+  <ul class="obs-list">
+    <li data-n="1">
+      <strong>Calling a generator function returns a generator object.</strong>
+      The function body does not run until you iterate or call <code>next()</code>.
+    </li>
+    <li data-n="2">
+      <strong><code>yield</code> pauses; <code>return</code> exits.</strong>
+      A function can <code>yield</code> many times. <code>return</code> ends the function
+      on the spot.
+    </li>
+    <li data-n="3">
+      <strong>A <code>for</code> loop handles <code>StopIteration</code> for you.</strong>
+      That is why <code>for num in count_up_to(3)</code> stops cleanly after the last value.
+    </li>
+    <li data-n="4">
+      <strong>Parentheses create a generator expression; brackets create a list.</strong>
+      <code>(x for x in range(5))</code> is lazy. <code>[x for x in range(5)]</code> is not.
+    </li>
+  </ul>
+
+</body>
+</html>

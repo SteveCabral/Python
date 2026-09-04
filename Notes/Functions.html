@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Python Functions Reference</title>
+  <style>
+    :root { color-scheme: light dark; }
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14.5px;
+      line-height: 1.65;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 24px 72px;
+      color: light-dark(#1f2937, #e2e8f0);
+      background: light-dark(#ffffff, #0f172a);
+    }
+
+    /* ── Doc header ── */
+    .doc-header {
+      border-left: 5px solid light-dark(#2563eb, #60a5fa);
+      padding: 18px 22px;
+      background: light-dark(#eff6ff, #1e293b);
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 36px;
+    }
+    .doc-header h1 {
+      margin: 0 0 10px;
+      font-size: 1.45rem;
+      color: light-dark(#1e40af, #93c5fd);
+    }
+    .doc-header .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 4px 24px;
+      font-size: 0.85rem;
+      color: light-dark(#4b5563, #94a3b8);
+    }
+    .doc-header .meta-grid span strong { color: light-dark(#374151, #cbd5e1); }
+    .doc-header code {
+      background: light-dark(#dbeafe, #1e3a5f);
+      color: light-dark(#1e40af, #93c5fd);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.82rem;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    /* ── Section nav ── */
+    .toc {
+      background: light-dark(#f8fafc, #1e293b);
+      border: 1px solid light-dark(#e2e8f0, #334155);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+      font-size: 0.875rem;
+    }
+    .toc h3 { margin: 0 0 10px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: light-dark(#6b7280, #64748b); }
+    .toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 24px; }
+    .toc li { margin-bottom: 4px; break-inside: avoid; }
+    .toc a { color: light-dark(#2563eb, #60a5fa); text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+
+    /* ── Headings ── */
+    h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: light-dark(#111827, #f1f5f9);
+      border-bottom: 1px solid light-dark(#e5e7eb, #334155);
+      padding-bottom: 6px;
+      margin: 40px 0 14px;
+    }
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: light-dark(#374151, #cbd5e1);
+      margin: 28px 0 10px;
+    }
+    h4 { font-size: 0.9rem; color: light-dark(#6b7280, #94a3b8); margin: 18px 0 8px; font-weight: 600; }
+
+    p { margin: 0 0 12px; }
+    a { color: light-dark(#2563eb, #60a5fa); }
+
+    /* ── Code ── */
+    pre {
+      background: light-dark(#f8fafc, #1e293b);
+      border: 1px solid light-dark(#e2e8f0, #334155);
+      border-radius: 6px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      margin: 10px 0 16px;
+    }
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+    p code, li code, td code, th code, h2 code, h4 code {
+      background: light-dark(#f1f5f9, #1e293b);
+      border: 1px solid light-dark(#e2e8f0, #334155);
+      color: light-dark(#0f172a, #e2e8f0);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.84em;
+    }
+    .code-comment { color: light-dark(#6b7280, #64748b); }
+
+    /* ── Tables ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.865rem;
+      margin: 10px 0 20px;
+    }
+    thead tr { background: light-dark(#f1f5f9, #1e293b); }
+    th {
+      text-align: left;
+      font-weight: 600;
+      padding: 8px 12px;
+      border: 1px solid light-dark(#d1d5db, #334155);
+      color: light-dark(#374151, #cbd5e1);
+      white-space: nowrap;
+    }
+    td {
+      padding: 7px 12px;
+      border: 1px solid light-dark(#e5e7eb, #334155);
+      vertical-align: top;
+    }
+    tbody tr:nth-child(even) { background: light-dark(#f9fafb, #1a2332); }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 12px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .pass    { background: light-dark(#dcfce7, #14532d); color: light-dark(#15803d, #4ade80); }
+    .fail    { background: light-dark(#fee2e2, #450a0a); color: light-dark(#b91c1c, #fca5a5); }
+    .null-v  { background: light-dark(#f3f4f6, #1e293b); color: light-dark(#6b7280, #94a3b8); font-weight: 400; font-style: italic; }
+    .zero    { background: light-dark(#dcfce7, #14532d); color: light-dark(#15803d, #4ade80); font-size: 0.9rem; padding: 2px 12px; }
+    .key-val { background: light-dark(#dbeafe, #1e3a5f); color: light-dark(#1e40af, #93c5fd); font-weight: 700; padding: 1px 7px; }
+
+    /* ── Callouts ── */
+    .callout {
+      border-radius: 6px;
+      padding: 12px 18px;
+      margin: 14px 0 18px;
+      border-left: 4px solid;
+      font-size: 0.9rem;
+    }
+    .callout-pass    { background: light-dark(#f0fdf4, #14532d); border-color: light-dark(#22c55e, #4ade80); }
+    .callout-info    { background: light-dark(#eff6ff, #1e3a5f); border-color: light-dark(#3b82f6, #60a5fa); }
+    .callout-warn    { background: light-dark(#fffbeb, #422006); border-color: light-dark(#f59e0b, #fcd34d); }
+    .callout strong  { display: block; margin-bottom: 3px; font-size: 0.92rem; }
+
+    /* ── Result row highlight ── */
+    .result-highlight td { background: light-dark(#f0fdf4, #14532d) !important; font-weight: 600; }
+
+    /* ── Summary table ── */
+    .summary-table td:first-child { white-space: nowrap; font-weight: 700; }
+    .summary-table td:last-child  { text-align: center; }
+
+    /* ── Notable observations ── */
+    .obs-list { list-style: none; padding: 0; margin: 0; }
+    .obs-list li {
+      padding: 10px 14px 10px 44px;
+      position: relative;
+      border-left: 3px solid light-dark(#e5e7eb, #334155);
+      margin-bottom: 10px;
+      background: light-dark(#f9fafb, #1a2332);
+      border-radius: 0 6px 6px 0;
+      font-size: 0.9rem;
+    }
+    .obs-list li::before {
+      content: attr(data-n);
+      position: absolute;
+      left: 12px;
+      font-weight: 700;
+      color: light-dark(#9ca3af, #64748b);
+    }
+
+    hr { border: none; border-top: 1px solid light-dark(#e5e7eb, #334155); margin: 32px 0; }
+    ul, ol { padding-left: 22px; margin: 8px 0 12px; }
+    li { margin-bottom: 4px; }
+    strong { color: light-dark(#111827, #f1f5f9); }
+  </style>
+</head>
+<body>
+
+  <!-- ── Doc header ── -->
+  <div class="doc-header">
+    <h1>Python Functions Reference</h1>
+    <div class="meta-grid">
+      <span><strong>Topic:</strong> Functions</span>
+      <span><strong>Language:</strong> Python</span>
+      <span><strong>Level:</strong> Beginner</span>
+      <span><strong>Focus:</strong> Define, call, and understand scope</span>
+    </div>
+  </div>
+
+  <!-- ── TOC ── -->
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#overview">What Functions Are</a></li>
+      <li><a href="#creating">Creating a Function</a></li>
+      <li><a href="#calling">Calling a Function</a></li>
+      <li><a href="#return">Return Values</a></li>
+      <li><a href="#parameters">Parameters</a></li>
+      <li><a href="#default-parameters">Default Parameter Values</a></li>
+      <li><a href="#arguments">Arguments</a></li>
+      <li><a href="#kwargs">The <code>**</code> Parameter (Keyword Dict)</a></li>
+      <li><a href="#scope">Local vs Global Variables</a></li>
+      <li><a href="#shadowing">Variable Shadowing</a></li>
+      <li><a href="#summary">Summary</a></li>
+    </ol>
+  </div>
+
+  <!-- ── Overview ── -->
+  <h2 id="overview">What Functions Are</h2>
+  <p>
+    A <strong>function</strong> is a named block of code that performs a specific task.
+    Instead of writing the same logic over and over, you define it once and run it whenever you need it.
+  </p>
+  <p>Functions help you:</p>
+  <ul>
+    <li><strong>Reuse code</strong> &mdash; write once, use many times</li>
+    <li><strong>Organize code</strong> &mdash; break a big program into smaller pieces</li>
+    <li><strong>Make code easier to read</strong> &mdash; a good name explains what the code does</li>
+  </ul>
+  <p>
+    Python already includes many built-in functions, such as <code>print()</code>,
+    <code>len()</code>, and <code>input()</code>. You can also create your own
+    with the <code>def</code> keyword.
+  </p>
+
+  <div class="callout callout-info">
+    <strong>Think of a function like a recipe</strong>
+    The recipe (definition) says what steps to follow. Each time you cook (call the function),
+    you run those steps again.
+  </div>
+
+  <hr />
+
+  <!-- ── Creating ── -->
+  <h2 id="creating">Creating a Function</h2>
+  <p>
+    Use <code>def</code> to define a function, then give it a name and a block of indented code.
+    The parentheses after the name are required, even when the function takes no input.
+  </p>
+  <h4>Code</h4>
+  <pre><code>def greet():
+    print("Hello!")
+
+greet()</code></pre>
+  <h4>Output</h4>
+  <pre><code>Hello!</code></pre>
+
+  <p>Parts of a function definition:</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Part</th>
+        <th>Example</th>
+        <th>Meaning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Keyword</td>
+        <td><code>def</code></td>
+        <td>Starts the function definition</td>
+      </tr>
+      <tr>
+        <td>Name</td>
+        <td><code>greet</code></td>
+        <td>What you call later</td>
+      </tr>
+      <tr>
+        <td>Parentheses</td>
+        <td><code>()</code></td>
+        <td>Hold parameters (can be empty)</td>
+      </tr>
+      <tr>
+        <td>Colon</td>
+        <td><code>:</code></td>
+        <td>Starts the function body</td>
+      </tr>
+      <tr>
+        <td>Body</td>
+        <td>indented lines</td>
+        <td>Code that runs when called</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-warn">
+    <strong>Defining is not the same as running</strong>
+    When Python reads <code>def greet():</code>, it stores the function.
+    Nothing prints until you actually call it: <code>greet()</code>.
+  </div>
+
+  <hr />
+
+  <!-- ── Calling ── -->
+  <h2 id="calling">Calling a Function</h2>
+  <p>
+    To <strong>call</strong> (or <strong>invoke</strong>) a function, write its name
+    followed by parentheses. Python jumps to the function body, runs it, then comes back.
+  </p>
+  <h4>Code</h4>
+  <pre><code>def show_message():
+    print("Function running")
+
+show_message()
+show_message()   <span class="code-comment"># can call it again</span></code></pre>
+  <h4>Output</h4>
+  <pre><code>Function running
+Function running</code></pre>
+
+  <hr />
+
+  <!-- ── Return ── -->
+  <h2 id="return">Return Values</h2>
+  <p>
+    Use <code>return</code> to send a value back to the caller.
+    Without <code>return</code>, a function finishes with <code>None</code>.
+  </p>
+  <h4>Code</h4>
+  <pre><code>def add(a, b):
+    return a + b
+
+result = add(3, 5)
+print(result)
+print(add(10, 2))
+
+def no_return():
+    print("running")
+
+value = no_return()
+print("value:", value)</code></pre>
+  <h4>Output</h4>
+  <pre><code>8
+12
+running
+value: None</code></pre>
+
+  <div class="callout callout-info">
+    <strong><code>print</code> vs <code>return</code></strong>
+    <code>print()</code> shows output on the screen.
+    <code>return</code> gives a value back so you can store it or use it later.
+  </div>
+
+  <hr />
+
+  <!-- ── Parameters ── -->
+  <h2 id="parameters">Parameters</h2>
+  <p>
+    A <strong>parameter</strong> is the variable name listed in the function definition.
+    It is a placeholder that receives data when the function runs.
+  </p>
+  <h4>Code</h4>
+  <pre><code>def greet_name(name):
+    print("Hello,", name)
+
+greet_name("Ada")
+greet_name("Alan")</code></pre>
+  <h4>Output</h4>
+  <pre><code>Hello, Ada
+Hello, Alan</code></pre>
+
+  <p>In <code>def greet_name(name):</code>, <code>name</code> is the parameter.</p>
+
+  <h3>Multiple Parameters</h3>
+  <p>Functions can take more than one parameter, separated by commas.</p>
+  <h4>Code</h4>
+  <pre><code>def describe_pet(animal_type, pet_name):
+    print(animal_type, ":", pet_name)
+
+describe_pet("dog", "Rex")</code></pre>
+  <h4>Output</h4>
+  <pre><code>dog : Rex</code></pre>
+
+  <hr />
+
+  <!-- ── Default parameters ── -->
+  <h2 id="default-parameters">Default Parameter Values</h2>
+  <p>
+    A parameter can have a <strong>default value</strong>. You assign it in the
+    function definition with <code>=</code>. If the caller skips that argument,
+    Python uses the default instead.
+  </p>
+  <p>
+    Parameters with defaults are <strong>optional</strong>. Parameters without
+    defaults are <strong>required</strong> &mdash; the caller must provide them.
+  </p>
+
+  <h4>Basic example</h4>
+  <pre><code>def greet_name(name="Guest"):
+    print("Hello,", name)
+
+greet_name()        <span class="code-comment"># uses default "Guest"</span>
+greet_name("Ada")   <span class="code-comment"># overrides default</span></code></pre>
+  <h4>Output</h4>
+  <pre><code>Hello, Guest
+Hello, Ada</code></pre>
+
+  <p>
+    In <code>def greet_name(name="Guest"):</code>, <code>"Guest"</code> is the
+    default value for the <code>name</code> parameter.
+  </p>
+
+  <h3>Multiple Parameters with Defaults</h3>
+  <p>
+    A function can mix required and optional parameters. Put required parameters
+    first, then optional ones with defaults.
+  </p>
+  <h4>Code</h4>
+  <pre><code>def order_pizza(size, topping="cheese", crust="thin"):
+    print(size, topping, "on", crust, "crust")
+
+order_pizza("large")
+order_pizza("medium", "pepperoni")
+order_pizza("small", crust="thick")
+order_pizza("large", topping="veggie", crust="stuffed")</code></pre>
+  <h4>Output</h4>
+  <pre><code>large cheese on thin crust
+medium pepperoni on thin crust
+small cheese on thick crust
+large veggie on stuffed crust</code></pre>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Call</th>
+        <th><code>size</code></th>
+        <th><code>topping</code></th>
+        <th><code>crust</code></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>order_pizza("large")</code></td>
+        <td><code>"large"</code></td>
+        <td><code>"cheese"</code> <span class="null-v">default</span></td>
+        <td><code>"thin"</code> <span class="null-v">default</span></td>
+      </tr>
+      <tr>
+        <td><code>order_pizza("medium", "pepperoni")</code></td>
+        <td><code>"medium"</code></td>
+        <td><code>"pepperoni"</code></td>
+        <td><code>"thin"</code> <span class="null-v">default</span></td>
+      </tr>
+      <tr>
+        <td><code>order_pizza("small", crust="thick")</code></td>
+        <td><code>"small"</code></td>
+        <td><code>"cheese"</code> <span class="null-v">default</span></td>
+        <td><code>"thick"</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Overriding a Default</h3>
+  <p>You can replace a default in two ways:</p>
+  <ul>
+    <li><strong>Positional</strong> &mdash; pass the value in the matching position</li>
+    <li><strong>Keyword</strong> &mdash; pass <code>name=value</code> to target a specific parameter</li>
+  </ul>
+  <h4>Code</h4>
+  <pre><code>def power(base, exponent=2):
+    return base ** exponent
+
+print(power(3))                    <span class="code-comment"># 3 squared</span>
+print(power(3, 4))                 <span class="code-comment"># override with positional arg</span>
+print(power(base=5, exponent=3))   <span class="code-comment"># override with keyword args</span></code></pre>
+  <h4>Output</h4>
+  <pre><code>9
+81
+125</code></pre>
+
+  <div class="callout callout-warn">
+    <strong>Required parameters must come before optional ones</strong>
+    This is invalid: <code>def bad(topping="cheese", size):</code><br />
+    Python expects: <code>def good(size, topping="cheese"):</code>
+  </div>
+
+  <div class="callout callout-info">
+    <strong>Defaults make functions flexible</strong>
+    Common settings can live in the definition so simple calls stay short,
+    while callers can still customize behavior when needed.
+  </div>
+
+  <hr />
+
+  <!-- ── Arguments ── -->
+  <h2 id="arguments">Arguments</h2>
+  <p>
+    An <strong>argument</strong> is the actual value you pass when you call a function.
+    Parameters are in the definition; arguments are in the call.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Term</th>
+        <th>Where it appears</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="result-highlight">
+        <td>Parameter</td>
+        <td>Function definition</td>
+        <td><code>def add(a, b):</code></td>
+      </tr>
+      <tr>
+        <td>Argument</td>
+        <td>Function call</td>
+        <td><code>add(3, 5)</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-info">
+    <strong>Easy way to remember</strong>
+    Parameters are the empty slots in the recipe.
+    Arguments are the actual ingredients you put in when you cook.
+  </div>
+
+  <h3>Positional Arguments</h3>
+  <p>
+    By default, arguments are matched to parameters by <strong>position</strong>
+    (left to right).
+  </p>
+  <h4>Code</h4>
+  <pre><code>def describe_pet(animal_type, pet_name):
+    print(animal_type, ":", pet_name)
+
+describe_pet("dog", "Rex")</code></pre>
+  <h4>Output</h4>
+  <pre><code>dog : Rex</code></pre>
+  <p>
+    <code>"dog"</code> goes to <code>animal_type</code> and <code>"Rex"</code> goes to
+    <code>pet_name</code> because that is the order they appear.
+  </p>
+
+  <h3>Keyword Arguments</h3>
+  <p>
+    You can pass arguments by name using <code>name=value</code>.
+    Order no longer matters when all arguments are passed by keyword.
+  </p>
+  <h4>Code</h4>
+  <pre><code>def describe_pet(animal_type, pet_name):
+    print(animal_type, ":", pet_name)
+
+describe_pet(pet_name="Luna", animal_type="cat")</code></pre>
+  <h4>Output</h4>
+  <pre><code>cat : Luna</code></pre>
+
+  <div class="callout callout-warn">
+    <strong>Wrong order with positional args causes bugs</strong>
+    <code>describe_pet("Rex", "dog")</code> would print <code>Rex : dog</code>.
+    Use keyword arguments when names make the call clearer.
+  </div>
+
+  <hr />
+
+  <!-- ── **kwargs ── -->
+  <h2 id="kwargs">The <code>**</code> Parameter (Keyword Dict)</h2>
+  <p>
+    A parameter written with two asterisks (<code>**</code>) collects any
+    <strong>extra keyword arguments</strong> into a <strong>dictionary</strong>.
+    The keys are the argument names; the values are the argument values.
+  </p>
+  <p>
+    By convention this parameter is often named <code>kwargs</code> (short for
+    &ldquo;keyword arguments&rdquo;), but you can use any valid name:
+    <code>**info</code>, <code>**options</code>, and so on.
+  </p>
+
+  <h4>Code</h4>
+  <pre><code>def show_profile(name, **info):
+    print("Name:", name)
+    print("Extra info:", info)
+    print("Type:", type(info))
+
+show_profile("Ada", age=36, city="London", role="engineer")</code></pre>
+  <h4>Output</h4>
+  <pre><code>Name: Ada
+Extra info: {'age': 36, 'city': 'London', 'role': 'engineer'}
+Type: &lt;class 'dict'&gt;</code></pre>
+
+  <p>
+    <code>name</code> is a normal parameter. The keyword arguments
+    <code>age=36</code>, <code>city="London"</code>, and <code>role="engineer"</code>
+    are gathered into the <code>info</code> dictionary automatically.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Keyword argument in the call</th>
+        <th>Becomes in the dict</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>age=36</code></td>
+        <td><code>"age": 36</code></td>
+      </tr>
+      <tr>
+        <td><code>city="London"</code></td>
+        <td><code>"city": "London"</code></td>
+      </tr>
+      <tr>
+        <td><code>role="engineer"</code></td>
+        <td><code>"role": "engineer"</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Looping Over the Dictionary</h3>
+  <p>
+    Because <code>**info</code> becomes a regular dict, you can loop over it with
+    <code>.items()</code>.
+  </p>
+  <h4>Code</h4>
+  <pre><code>def build_query(table, **filters):
+    print("Table:", table)
+    for key, value in filters.items():
+        print(key, "=", value)
+
+build_query("users", active=True, role="admin")</code></pre>
+  <h4>Output</h4>
+  <pre><code>Table: users
+active = True
+role = admin</code></pre>
+
+  <h3>No Extra Arguments</h3>
+  <p>
+    If the caller passes no extra keyword arguments, the <code>**</code> parameter
+    becomes an empty dictionary.
+  </p>
+  <h4>Code</h4>
+  <pre><code>def no_extra(**options):
+    print(options)
+
+no_extra()</code></pre>
+  <h4>Output</h4>
+  <pre><code>{}</code></pre>
+
+  <div class="callout callout-info">
+    <strong>Why use <code>**</code>?</strong>
+    It lets a function accept a flexible set of named options without listing
+    every possible parameter in the definition.
+  </div>
+
+  <div class="callout callout-warn">
+    <strong>Placement rule</strong>
+    A <code>**</code> parameter must come <em>after</em> regular parameters.
+    Example: <code>def func(name, **info):</code> &mdash; not
+    <code>def func(**info, name):</code>.
+  </div>
+
+  <hr />
+
+  <!-- ── Scope ── -->
+  <h2 id="scope">Local vs Global Variables</h2>
+  <p>
+    <strong>Scope</strong> means where a variable exists and can be used.
+    The two scopes beginners see most often are <strong>local</strong> and <strong>global</strong>.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Scope</th>
+        <th>Created</th>
+        <th>Visible</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Local</strong></td>
+        <td>Inside a function</td>
+        <td>Only inside that function</td>
+      </tr>
+      <tr>
+        <td><strong>Global</strong></td>
+        <td>Outside all functions</td>
+        <td>Anywhere in the file (unless shadowed)</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Local Variables</h3>
+  <p>
+    A variable created inside a function is <strong>local</strong>.
+    It exists only while that function runs.
+  </p>
+  <h4>Code</h4>
+  <pre><code>def show_local():
+    message = "I am local"
+    print("Inside:", message)
+
+show_local()
+print("Outside:", message)   <span class="code-comment"># NameError</span></code></pre>
+  <p>
+    The last line raises <code>NameError: name 'message' is not defined</code>
+    because <code>message</code> does not exist outside the function.
+  </p>
+
+  <h3>Global Variables</h3>
+  <p>
+    A variable created outside any function is <strong>global</strong>.
+    You can read it inside a function, but assigning to the same name creates a
+    new <em>local</em> variable unless you use the <code>global</code> keyword.
+  </p>
+  <h4>Code</h4>
+  <pre><code>message = "I am global"
+
+def show_scope():
+    message = "I am local"
+    print("Inside:", message)
+
+show_scope()
+print("Outside:", message)</code></pre>
+  <h4>Output</h4>
+  <pre><code>Inside: I am local
+Outside: I am global</code></pre>
+  <p>
+    Inside the function, <code>message = "I am local"</code> creates a local variable.
+    It does not change the global <code>message</code>. This is an example of
+    <strong>shadowing</strong> &mdash; covered in the next section.
+  </p>
+
+  <hr />
+
+  <!-- ── Shadowing ── -->
+  <h2 id="shadowing">Variable Shadowing</h2>
+  <p>
+    <strong>Shadowing</strong> happens when a inner name hides an outer name with the
+    same spelling. Inside the function, Python uses the local version and the outer
+    variable becomes temporarily invisible &mdash; like standing in front of a sign
+    so someone behind you cannot see it.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Outer (global)</th>
+        <th>Inner (local)</th>
+        <th>What happens inside the function</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="result-highlight">
+        <td><code>message = "I am global"</code></td>
+        <td><code>message = "I am local"</code></td>
+        <td>Local <code>message</code> shadows the global one</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Assignment Creates Shadowing</h3>
+  <p>
+    If you assign to a name inside a function, Python treats that name as
+    <strong>local for the entire function</strong>, even on lines before the assignment.
+  </p>
+  <h4>Code</h4>
+  <pre><code>message = "I am global"
+
+def show_scope():
+    message = "I am local"   <span class="code-comment"># shadows the global message</span>
+    print("Inside:", message)
+
+show_scope()
+print("Outside:", message)</code></pre>
+  <h4>Output</h4>
+  <pre><code>Inside: I am local
+Outside: I am global</code></pre>
+  <p>
+    The global <code>message</code> is unchanged. Only the local copy was used inside
+    the function.
+  </p>
+
+  <h3>Reading a Global (No Shadowing)</h3>
+  <p>
+    If you only <em>read</em> a global variable and never assign to that name inside
+    the function, Python uses the global value. No shadowing occurs.
+  </p>
+  <h4>Code</h4>
+  <pre><code>count = 5
+
+def read_global():
+    print("Reading global count:", count)
+
+read_global()
+print("Global count still:", count)</code></pre>
+  <h4>Output</h4>
+  <pre><code>Reading global count: 5
+Global count still: 5</code></pre>
+
+  <h3>Parameters Can Shadow Globals Too</h3>
+  <p>
+    A parameter is a local variable. If it has the same name as a global variable,
+    the parameter shadows the global inside the function.
+  </p>
+  <h4>Code</h4>
+  <pre><code>name = "Global Name"
+
+def greet(name):
+    print("Parameter shadows global:", name)
+
+greet("Ada")
+print("Global unchanged:", name)</code></pre>
+  <h4>Output</h4>
+  <pre><code>Parameter shadows global: Ada
+Global unchanged: Global Name</code></pre>
+
+  <div class="callout callout-warn">
+    <strong>Shadowing trap: assignment makes the name local everywhere</strong>
+    If you assign to a name anywhere in a function, Python treats it as local on
+    <em>every</em> line in that function &mdash; even before the assignment.
+  </div>
+  <h4>Code</h4>
+  <pre><code>x = 10
+
+def broken():
+    print(x)   <span class="code-comment"># UnboundLocalError</span>
+    x = 20</code></pre>
+  <p>
+    Calling <code>broken()</code> raises
+    <code>UnboundLocalError: cannot access local variable 'x' where it is not associated with a value</code>.
+    Python sees <code>x = 20</code> and decides <code>x</code> is local, so
+    <code>print(x)</code> runs before <code>x</code> has a value.
+  </p>
+
+  <div class="callout callout-info">
+    <strong>Avoid shadowing when you can</strong>
+    Use different names inside functions (for example <code>local_message</code> instead
+    of reusing <code>message</code>) to keep code easier to read and debug.
+  </div>
+
+  <hr />
+
+  <!-- ── Modifying global ── -->
+  <h2 id="modifying-global">Modifying a Global Variable</h2>
+  <p>
+    If you truly need to change a global variable from inside a function,
+    declare it with <code>global</code>. Use this sparingly &mdash; returning a value
+    is usually cleaner.
+  </p>
+  <h4>Code</h4>
+  <pre><code>count = 0
+
+def increment():
+    global count
+    count += 1
+
+increment()
+increment()
+print("count:", count)</code></pre>
+  <h4>Output</h4>
+  <pre><code>count: 2</code></pre>
+
+  <div class="callout callout-warn">
+    <strong>Prefer return over <code>global</code></strong>
+    For beginners, it is usually better to pass values in and return results out.
+    Global variables make programs harder to follow and debug.
+  </div>
+
+  <hr />
+
+  <!-- ── Summary ── -->
+  <h2 id="summary">Summary</h2>
+  <p>
+    Functions let you package reusable logic. Define with <code>def</code>,
+    call with parentheses, and use <code>return</code> to send values back.
+  </p>
+
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th>Concept</th>
+        <th>One-line meaning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Function</td>
+        <td>Named block of reusable code</td>
+      </tr>
+      <tr>
+        <td><code>def</code></td>
+        <td>Creates the function</td>
+      </tr>
+      <tr>
+        <td>Call</td>
+        <td>Runs the function</td>
+      </tr>
+      <tr>
+        <td><code>return</code></td>
+        <td>Sends a value back to the caller</td>
+      </tr>
+      <tr>
+        <td>Parameter</td>
+        <td>Variable in the definition</td>
+      </tr>
+      <tr>
+        <td>Default value</td>
+        <td>Fallback used when an argument is omitted</td>
+      </tr>
+      <tr>
+        <td>Argument</td>
+        <td>Value passed in the call</td>
+      </tr>
+      <tr>
+        <td><code>**parameter</code></td>
+        <td>Collects extra keyword arguments into a dict</td>
+      </tr>
+      <tr>
+        <td>Local variable</td>
+        <td>Exists only inside the function</td>
+      </tr>
+      <tr>
+        <td>Global variable</td>
+        <td>Exists at module level</td>
+      </tr>
+      <tr>
+        <td>Shadowing</td>
+        <td>Inner name hides an outer name with the same spelling</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Notable Observations</h3>
+  <ul class="obs-list">
+    <li data-n="1">
+      <strong>Always include parentheses when calling a function.</strong>
+      <code>greet()</code> runs it; <code>greet</code> without parentheses refers to
+      the function object itself.
+    </li>
+    <li data-n="2">
+      <strong>Parameters and arguments are related but not the same word.</strong>
+      Definition uses parameters; the call uses arguments.
+    </li>
+    <li data-n="3">
+      <strong>Default values make parameters optional.</strong>
+      Skip the argument and Python uses the default. Pass a value to override it.
+      Required parameters (no default) must come first in the definition.
+    </li>
+    <li data-n="4">
+      <strong><code>**parameter</code> turns extra keyword arguments into a dict.</strong>
+      Useful when a function needs to accept many optional named values without
+      defining every one ahead of time.
+    </li>
+    <li data-n="5">
+      <strong>Shadowing hides outer names, it does not delete them.</strong>
+      A local variable or parameter with the same name as a global blocks access to
+      the global inside that function. The global still exists when the function ends.
+    </li>
+    <li data-n="6">
+      <strong>Assigning inside a function makes the name local for the whole function.</strong>
+      That is why <code>print(x)</code> can fail before <code>x = 20</code> if Python
+      already treats <code>x</code> as local.
+    </li>
+    <li data-n="7">
+      <strong>Start simple.</strong>
+      Write small functions that do one thing, use clear names, and return values
+      instead of relying on globals.
+    </li>
+  </ul>
+
+</body>
+</html>
