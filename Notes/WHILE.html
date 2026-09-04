@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Python while...else Reference</title>
+  <style>
+    :root { color-scheme: light dark; }
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14.5px;
+      line-height: 1.65;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 24px 72px;
+      color: light-dark(#1f2937, #e2e8f0);
+      background: light-dark(#ffffff, #0f172a);
+    }
+
+    /* ── Doc header ── */
+    .doc-header {
+      border-left: 5px solid light-dark(#2563eb, #60a5fa);
+      padding: 18px 22px;
+      background: light-dark(#eff6ff, #1e293b);
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 36px;
+    }
+    .doc-header h1 {
+      margin: 0 0 10px;
+      font-size: 1.45rem;
+      color: light-dark(#1e40af, #93c5fd);
+    }
+    .doc-header .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 4px 24px;
+      font-size: 0.85rem;
+      color: light-dark(#4b5563, #94a3b8);
+    }
+    .doc-header .meta-grid span strong { color: light-dark(#374151, #cbd5e1); }
+    .doc-header code {
+      background: light-dark(#dbeafe, #1e3a5f);
+      color: light-dark(#1e40af, #93c5fd);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.82rem;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    /* ── Section nav ── */
+    .toc {
+      background: light-dark(#f8fafc, #1e293b);
+      border: 1px solid light-dark(#e2e8f0, #334155);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+      font-size: 0.875rem;
+    }
+    .toc h3 { margin: 0 0 10px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: light-dark(#6b7280, #64748b); }
+    .toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 24px; }
+    .toc li { margin-bottom: 4px; break-inside: avoid; }
+    .toc a { color: light-dark(#2563eb, #60a5fa); text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+
+    /* ── Headings ── */
+    h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: light-dark(#111827, #f1f5f9);
+      border-bottom: 1px solid light-dark(#e5e7eb, #334155);
+      padding-bottom: 6px;
+      margin: 40px 0 14px;
+    }
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: light-dark(#374151, #cbd5e1);
+      margin: 28px 0 10px;
+    }
+    h4 { font-size: 0.9rem; color: light-dark(#6b7280, #94a3b8); margin: 18px 0 8px; font-weight: 600; }
+
+    p { margin: 0 0 12px; }
+    a { color: light-dark(#2563eb, #60a5fa); }
+
+    /* ── Code ── */
+    pre {
+      background: light-dark(#f8fafc, #1e293b);
+      border: 1px solid light-dark(#e2e8f0, #334155);
+      border-radius: 6px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      margin: 10px 0 16px;
+    }
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+    p code, li code, td code, th code, h2 code, h4 code {
+      background: light-dark(#f1f5f9, #1e293b);
+      border: 1px solid light-dark(#e2e8f0, #334155);
+      color: light-dark(#0f172a, #e2e8f0);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.84em;
+    }
+    .code-comment { color: light-dark(#6b7280, #64748b); }
+
+    /* ── Tables ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.865rem;
+      margin: 10px 0 20px;
+    }
+    thead tr { background: light-dark(#f1f5f9, #1e293b); }
+    th {
+      text-align: left;
+      font-weight: 600;
+      padding: 8px 12px;
+      border: 1px solid light-dark(#d1d5db, #334155);
+      color: light-dark(#374151, #cbd5e1);
+      white-space: nowrap;
+    }
+    td {
+      padding: 7px 12px;
+      border: 1px solid light-dark(#e5e7eb, #334155);
+      vertical-align: top;
+    }
+    tbody tr:nth-child(even) { background: light-dark(#f9fafb, #1a2332); }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 12px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .pass    { background: light-dark(#dcfce7, #14532d); color: light-dark(#15803d, #4ade80); }
+    .fail    { background: light-dark(#fee2e2, #450a0a); color: light-dark(#b91c1c, #fca5a5); }
+    .null-v  { background: light-dark(#f3f4f6, #1e293b); color: light-dark(#6b7280, #94a3b8); font-weight: 400; font-style: italic; }
+    .zero    { background: light-dark(#dcfce7, #14532d); color: light-dark(#15803d, #4ade80); font-size: 0.9rem; padding: 2px 12px; }
+    .key-val { background: light-dark(#dbeafe, #1e3a5f); color: light-dark(#1e40af, #93c5fd); font-weight: 700; padding: 1px 7px; }
+
+    /* ── Callouts ── */
+    .callout {
+      border-radius: 6px;
+      padding: 12px 18px;
+      margin: 14px 0 18px;
+      border-left: 4px solid;
+      font-size: 0.9rem;
+    }
+    .callout-pass    { background: light-dark(#f0fdf4, #14532d); border-color: light-dark(#22c55e, #4ade80); }
+    .callout-info    { background: light-dark(#eff6ff, #1e3a5f); border-color: light-dark(#3b82f6, #60a5fa); }
+    .callout-warn    { background: light-dark(#fffbeb, #422006); border-color: light-dark(#f59e0b, #fcd34d); }
+    .callout strong  { display: block; margin-bottom: 3px; font-size: 0.92rem; }
+
+    /* ── Result row highlight ── */
+    .result-highlight td { background: light-dark(#f0fdf4, #14532d) !important; font-weight: 600; }
+
+    /* ── Summary table ── */
+    .summary-table td:first-child { white-space: nowrap; font-weight: 700; }
+    .summary-table td:last-child  { text-align: center; }
+
+    /* ── Notable observations ── */
+    .obs-list { list-style: none; padding: 0; margin: 0; }
+    .obs-list li {
+      padding: 10px 14px 10px 44px;
+      position: relative;
+      border-left: 3px solid light-dark(#e5e7eb, #334155);
+      margin-bottom: 10px;
+      background: light-dark(#f9fafb, #1a2332);
+      border-radius: 0 6px 6px 0;
+      font-size: 0.9rem;
+    }
+    .obs-list li::before {
+      content: attr(data-n);
+      position: absolute;
+      left: 12px;
+      font-weight: 700;
+      color: light-dark(#9ca3af, #64748b);
+    }
+
+    hr { border: none; border-top: 1px solid light-dark(#e5e7eb, #334155); margin: 32px 0; }
+    ul, ol { padding-left: 22px; margin: 8px 0 12px; }
+    li { margin-bottom: 4px; }
+    strong { color: light-dark(#111827, #f1f5f9); }
+  </style>
+</head>
+<body>
+
+  <!-- ── Doc header ── -->
+  <div class="doc-header">
+    <h1>Python <code>while ... else</code> Reference</h1>
+    <div class="meta-grid">
+      <span><strong>Topic:</strong> Loop control flow</span>
+      <span><strong>Language:</strong> Python</span>
+      <span><strong>Type:</strong> Language reference</span>
+      <span><strong>Focus:</strong> When <code>else</code> runs after a <code>while</code> loop</span>
+    </div>
+  </div>
+
+  <!-- ── TOC ── -->
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#overview">What <code>while ... else</code> Means</a></li>
+      <li><a href="#syntax">Basic Syntax</a></li>
+      <li><a href="#use-cases">When It Is Useful</a></li>
+      <li><a href="#example1">Example 1: Searching for a Number</a></li>
+      <li><a href="#example1b">Example 1B: No Negative Number Exists</a></li>
+      <li><a href="#flag">Using a Flag Instead</a></li>
+      <li><a href="#example2">Example 2: Limited Retry Logic</a></li>
+      <li><a href="#example3">Example 3: Waiting for Valid Input</a></li>
+      <li><a href="#break-difference">Why <code>break</code> Matters</a></li>
+      <li><a href="#normal-end">Example Where <code>else</code> Does Run</a></li>
+      <li><a href="#prime-example">Example 4: Finding a Divisor / Prime Check</a></li>
+      <li><a href="#when-to-use">When to Use <code>while ... else</code></a></li>
+      <li><a href="#when-to-avoid">When to Avoid It</a></li>
+      <li><a href="#final-example">Final Example: Guessing Game</a></li>
+      <li><a href="#summary">Summary</a></li>
+    </ol>
+  </div>
+
+  <!-- ── Overview ── -->
+  <h2 id="overview">What <code>while ... else</code> Means</h2>
+  <p>
+    In Python, an <code>else</code> attached to a <code>while</code> loop runs
+    <strong>only if the loop ends normally</strong>.
+  </p>
+  <p>That means the <code>else</code> block runs if:</p>
+  <ul>
+    <li>the <code>while</code> condition becomes <code>False</code>, or</li>
+    <li>the loop never starts because the condition is already <code>False</code></li>
+  </ul>
+  <p>The <code>else</code> block does <strong>not</strong> run if the loop ends because of:</p>
+  <ul>
+    <li><code>break</code></li>
+    <li><code>return</code></li>
+    <li>an exception</li>
+  </ul>
+
+  <div class="callout callout-info">
+    <strong>Key idea</strong>
+    Think of <code>while ... else</code> as:
+    <em>&ldquo;If the loop did not end with <code>break</code>, run the <code>else</code> block.&rdquo;</em>
+  </div>
+
+  <hr />
+
+  <!-- ── Syntax ── -->
+  <h2 id="syntax">Basic Syntax</h2>
+  <h4>Pattern</h4>
+  <pre><code>while condition:
+    # loop body
+else:
+    # runs if loop ended normally</code></pre>
+
+  <hr />
+
+  <!-- ── Use cases ── -->
+  <h2 id="use-cases">When It Is Useful</h2>
+  <p>A <code>while ... else</code> is useful when you are:</p>
+  <ul>
+    <li>searching for something</li>
+    <li>waiting for a condition</li>
+    <li>retrying an operation</li>
+    <li>scanning data</li>
+    <li>trying to stop early if something happens</li>
+  </ul>
+  <p>It is especially useful when:</p>
+  <ul>
+    <li><code>break</code> means &ldquo;found it&rdquo;, &ldquo;success&rdquo;, or &ldquo;stop early&rdquo;</li>
+    <li><code>else</code> means &ldquo;not found&rdquo;, &ldquo;failed&rdquo;, or &ldquo;finished all attempts&rdquo;</li>
+  </ul>
+
+  <hr />
+
+  <!-- ── Example 1 ── -->
+  <h2 id="example1">Example 1 &mdash; Searching for a Number</h2>
+  <p>Suppose you want to search through a list for the first negative number.</p>
+  <h4>Code</h4>
+  <pre><code>numbers = [4, 7, 9, 3, -2, 8]
+
+index = 0
+
+while index &lt; len(numbers):
+    if numbers[index] &lt; 0:
+        print("Found a negative number:", numbers[index])
+        break
+    index += 1
+else:
+    print("No negative numbers found")</code></pre>
+  <p>
+    If a negative number is found, the loop uses <code>break</code>, so the
+    <code>else</code> block is skipped.
+  </p>
+  <h4>Output</h4>
+  <pre><code>Found a negative number: -2</code></pre>
+
+  <hr />
+
+  <!-- ── Example 1B ── -->
+  <h2 id="example1b">Example 1B &mdash; No Negative Number Exists</h2>
+  <h4>Code</h4>
+  <pre><code>numbers = [4, 7, 9, 3, 8]
+
+index = 0
+
+while index &lt; len(numbers):
+    if numbers[index] &lt; 0:
+        print("Found a negative number:", numbers[index])
+        break
+    index += 1
+else:
+    print("No negative numbers found")</code></pre>
+  <p>
+    Since the loop reaches the end of the list without hitting <code>break</code>,
+    the <code>else</code> block runs.
+  </p>
+  <h4>Output</h4>
+  <pre><code>No negative numbers found</code></pre>
+
+  <hr />
+
+  <!-- ── Flag ── -->
+  <h2 id="flag">Using a Flag Instead</h2>
+  <p>You could write the same logic using a flag variable:</p>
+  <h4>Code</h4>
+  <pre><code>numbers = [4, 7, 9, 3, 8]
+
+index = 0
+found = False
+
+while index &lt; len(numbers):
+    if numbers[index] &lt; 0:
+        print("Found a negative number:", numbers[index])
+        found = True
+        break
+    index += 1
+
+if not found:
+    print("No negative numbers found")</code></pre>
+  <div class="callout callout-info">
+    This works, but <code>while ... else</code> can be cleaner because Python already
+    tracks whether the loop ended with <code>break</code>.
+  </div>
+
+  <hr />
+
+  <!-- ── Example 2 ── -->
+  <h2 id="example2">Example 2 &mdash; Limited Retry Logic</h2>
+  <p>A practical use case is retrying something a fixed number of times.</p>
+  <h4>Code</h4>
+  <pre><code>attempts = 0
+max_attempts = 3
+
+while attempts &lt; max_attempts:
+    password = input("Enter password: ")
+
+    if password == "secret123":
+        print("Access granted")
+        break
+
+    print("Incorrect password")
+    attempts += 1
+else:
+    print("Too many failed attempts")</code></pre>
+  <p>
+    If the correct password is entered, <code>break</code> runs and the
+    <code>else</code> does not. If all attempts are used up, the loop ends normally,
+    and the <code>else</code> block runs.
+  </p>
+
+  <hr />
+
+  <!-- ── Example 3 ── -->
+  <h2 id="example3">Example 3 &mdash; Waiting for Valid Input</h2>
+  <h4>Code</h4>
+  <pre><code>tries = 0
+
+while tries &lt; 3:
+    value = input("Type YES: ")
+
+    if value == "YES":
+        print("Thank you")
+        break
+
+    tries += 1
+else:
+    print("You did not type YES in 3 tries")</code></pre>
+  <p>This is a good example because:</p>
+  <ul>
+    <li>success &rarr; <code>break</code></li>
+    <li>failure after all attempts &rarr; <code>else</code></li>
+  </ul>
+
+  <hr />
+
+  <!-- ── Why break matters ── -->
+  <h2 id="break-difference">Why <code>break</code> Matters</h2>
+  <p>
+    A common misunderstanding is to think that <code>else</code> runs simply because
+    the loop condition is no longer true. The more accurate rule is:
+  </p>
+  <div class="callout callout-warn">
+    <strong>Rule</strong>
+    The <code>else</code> block runs only if the loop finishes without <code>break</code>.
+  </div>
+
+  <p>Example where the loop ends with <code>break</code>:</p>
+  <h4>Code</h4>
+  <pre><code>count = 0
+
+while count &lt; 5:
+    print(count)
+    if count == 2:
+        break
+    count += 1
+else:
+    print("Loop ended normally")</code></pre>
+  <h4>Output</h4>
+  <pre><code>0
+1
+2</code></pre>
+  <p>The <code>else</code> block does not run because the loop ended with <code>break</code>.</p>
+
+  <hr />
+
+  <!-- ── Normal end ── -->
+  <h2 id="normal-end">Example Where <code>else</code> Does Run</h2>
+  <h4>Code</h4>
+  <pre><code>count = 0
+
+while count &lt; 3:
+    print(count)
+    count += 1
+else:
+    print("Loop ended normally")</code></pre>
+  <h4>Output</h4>
+  <pre><code>0
+1
+2
+Loop ended normally</code></pre>
+  <p>
+    This time the loop ended because the condition became false, so the
+    <code>else</code> block runs.
+  </p>
+
+  <hr />
+
+  <!-- ── Prime example ── -->
+  <h2 id="prime-example">Example 4 &mdash; Finding a Divisor / Prime Check</h2>
+  <p>One of the best real-world uses of loop <code>else</code> is searching.</p>
+  <h4>Code</h4>
+  <pre><code>n = 21
+divisor = 2
+
+while divisor &lt; n:
+    if n % divisor == 0:
+        print(n, "is not prime; divisible by", divisor)
+        break
+    divisor += 1
+else:
+    print(n, "is prime")</code></pre>
+  <p>This is elegant because:</p>
+  <ul>
+    <li>if a divisor is found, the loop breaks</li>
+    <li>if no divisor is found, the loop finishes normally</li>
+    <li>the <code>else</code> means &ldquo;no divisor was found&rdquo;</li>
+  </ul>
+
+  <hr />
+
+  <!-- ── When to use ── -->
+  <h2 id="when-to-use">When to Use <code>while ... else</code></h2>
+  <p>Use it when:</p>
+  <ul>
+    <li>the loop is performing a search or repeated attempts</li>
+    <li><code>break</code> means success, found, or early termination</li>
+    <li><code>else</code> means never succeeded, never found it, or no early exit occurred</li>
+  </ul>
+  <p>It works best when that meaning is natural and clear.</p>
+
+  <hr />
+
+  <!-- ── When to avoid ── -->
+  <h2 id="when-to-avoid">When to Avoid It</h2>
+  <p>Avoid it when:</p>
+  <ul>
+    <li>the code becomes confusing to readers</li>
+    <li>there is no <code>break</code> in the loop</li>
+    <li>a normal statement after the loop is clearer</li>
+  </ul>
+
+  <p>For example, this works but may be unnecessary:</p>
+  <h4>With <code>else</code> (unnecessary)</h4>
+  <pre><code>count = 0
+
+while count &lt; 3:
+    print(count)
+    count += 1
+else:
+    print("Done")</code></pre>
+
+  <p>Many readers would find this clearer:</p>
+  <h4>Without <code>else</code></h4>
+  <pre><code>count = 0
+
+while count &lt; 3:
+    print(count)
+    count += 1
+
+print("Done")</code></pre>
+
+  <hr />
+
+  <!-- ── Final example ── -->
+  <h2 id="final-example">Final Example &mdash; Guessing Game</h2>
+  <h4>Code</h4>
+  <pre><code>secret = 7
+guess_count = 0
+
+while guess_count &lt; 3:
+    guess = int(input("Guess the number: "))
+
+    if guess == secret:
+        print("Correct!")
+        break
+
+    print("Wrong guess")
+    guess_count += 1
+else:
+    print("You ran out of guesses")</code></pre>
+  <p>Meaning:</p>
+  <ul>
+    <li>guessed correctly &rarr; <code>break</code> &rarr; no <code>else</code></li>
+    <li>used all attempts &rarr; loop ends normally &rarr; <code>else</code> runs</li>
+  </ul>
+
+  <hr />
+
+  <!-- ── Summary ── -->
+  <h2 id="summary">Summary</h2>
+  <p>
+    <code>while ... else</code> means: run the <code>else</code> block if the loop
+    finishes normally; do not run it if the loop exits with <code>break</code>.
+  </p>
+
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th>Situation</th>
+        <th>Loop exit</th>
+        <th><code>else</code> runs?</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Condition becomes <code>False</code></td>
+        <td>Normal end</td>
+        <td><span class="badge pass">YES</span></td>
+      </tr>
+      <tr>
+        <td>Loop never starts</td>
+        <td>Normal end</td>
+        <td><span class="badge pass">YES</span></td>
+      </tr>
+      <tr>
+        <td><code>break</code></td>
+        <td>Early exit</td>
+        <td><span class="badge fail">NO</span></td>
+      </tr>
+      <tr>
+        <td><code>return</code></td>
+        <td>Early exit</td>
+        <td><span class="badge fail">NO</span></td>
+      </tr>
+      <tr>
+        <td>Exception</td>
+        <td>Early exit</td>
+        <td><span class="badge fail">NO</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Notable Observations</h3>
+  <ul class="obs-list">
+    <li data-n="1">
+      <strong>Best use cases:</strong>
+      searching, retries, validation attempts, and loops where <code>break</code>
+      means success or early termination.
+    </li>
+    <li data-n="2">
+      <strong>Best mental model:</strong>
+      <em>If the loop did not break, then do this.</em>
+    </li>
+    <li data-n="3">
+      <strong>Skip it when there is no <code>break</code>.</strong>
+      A statement after the loop is usually clearer than an <code>else</code>
+      that always runs.
+    </li>
+  </ul>
+
+</body>
+</html>

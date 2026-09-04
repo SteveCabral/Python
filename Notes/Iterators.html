@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Python Iterators Reference</title>
+  <style>
+    :root { color-scheme: light dark; }
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14.5px;
+      line-height: 1.65;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 24px 72px;
+      color: light-dark(#1f2937, #e2e8f0);
+      background: light-dark(#ffffff, #0f172a);
+    }
+
+    /* ── Doc header ── */
+    .doc-header {
+      border-left: 5px solid light-dark(#2563eb, #60a5fa);
+      padding: 18px 22px;
+      background: light-dark(#eff6ff, #1e293b);
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 36px;
+    }
+    .doc-header h1 {
+      margin: 0 0 10px;
+      font-size: 1.45rem;
+      color: light-dark(#1e40af, #93c5fd);
+    }
+    .doc-header .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 4px 24px;
+      font-size: 0.85rem;
+      color: light-dark(#4b5563, #94a3b8);
+    }
+    .doc-header .meta-grid span strong { color: light-dark(#374151, #cbd5e1); }
+    .doc-header code {
+      background: light-dark(#dbeafe, #1e3a5f);
+      color: light-dark(#1e40af, #93c5fd);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.82rem;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    /* ── Section nav ── */
+    .toc {
+      background: light-dark(#f8fafc, #1e293b);
+      border: 1px solid light-dark(#e2e8f0, #334155);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+      font-size: 0.875rem;
+    }
+    .toc h3 { margin: 0 0 10px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.05em; color: light-dark(#6b7280, #64748b); }
+    .toc ol { margin: 0; padding-left: 20px; columns: 2; column-gap: 24px; }
+    .toc li { margin-bottom: 4px; break-inside: avoid; }
+    .toc a { color: light-dark(#2563eb, #60a5fa); text-decoration: none; }
+    .toc a:hover { text-decoration: underline; }
+
+    /* ── Headings ── */
+    h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: light-dark(#111827, #f1f5f9);
+      border-bottom: 1px solid light-dark(#e5e7eb, #334155);
+      padding-bottom: 6px;
+      margin: 40px 0 14px;
+    }
+    h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      color: light-dark(#374151, #cbd5e1);
+      margin: 28px 0 10px;
+    }
+    h4 { font-size: 0.9rem; color: light-dark(#6b7280, #94a3b8); margin: 18px 0 8px; font-weight: 600; }
+
+    p { margin: 0 0 12px; }
+    a { color: light-dark(#2563eb, #60a5fa); }
+
+    /* ── Code ── */
+    pre {
+      background: light-dark(#f8fafc, #1e293b);
+      border: 1px solid light-dark(#e2e8f0, #334155);
+      border-radius: 6px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      margin: 10px 0 16px;
+    }
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+    p code, li code, td code, th code, h2 code, h4 code {
+      background: light-dark(#f1f5f9, #1e293b);
+      border: 1px solid light-dark(#e2e8f0, #334155);
+      color: light-dark(#0f172a, #e2e8f0);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.84em;
+    }
+    .code-comment { color: light-dark(#6b7280, #64748b); }
+
+    /* ── Tables ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.865rem;
+      margin: 10px 0 20px;
+    }
+    thead tr { background: light-dark(#f1f5f9, #1e293b); }
+    th {
+      text-align: left;
+      font-weight: 600;
+      padding: 8px 12px;
+      border: 1px solid light-dark(#d1d5db, #334155);
+      color: light-dark(#374151, #cbd5e1);
+      white-space: nowrap;
+    }
+    td {
+      padding: 7px 12px;
+      border: 1px solid light-dark(#e5e7eb, #334155);
+      vertical-align: top;
+    }
+    tbody tr:nth-child(even) { background: light-dark(#f9fafb, #1a2332); }
+
+    /* ── Badges ── */
+    .badge {
+      display: inline-block;
+      padding: 2px 9px;
+      border-radius: 12px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+    .pass    { background: light-dark(#dcfce7, #14532d); color: light-dark(#15803d, #4ade80); }
+    .fail    { background: light-dark(#fee2e2, #450a0a); color: light-dark(#b91c1c, #fca5a5); }
+    .null-v  { background: light-dark(#f3f4f6, #1e293b); color: light-dark(#6b7280, #94a3b8); font-weight: 400; font-style: italic; }
+    .zero    { background: light-dark(#dcfce7, #14532d); color: light-dark(#15803d, #4ade80); font-size: 0.9rem; padding: 2px 12px; }
+    .key-val { background: light-dark(#dbeafe, #1e3a5f); color: light-dark(#1e40af, #93c5fd); font-weight: 700; padding: 1px 7px; }
+
+    /* ── Callouts ── */
+    .callout {
+      border-radius: 6px;
+      padding: 12px 18px;
+      margin: 14px 0 18px;
+      border-left: 4px solid;
+      font-size: 0.9rem;
+    }
+    .callout-pass    { background: light-dark(#f0fdf4, #14532d); border-color: light-dark(#22c55e, #4ade80); }
+    .callout-info    { background: light-dark(#eff6ff, #1e3a5f); border-color: light-dark(#3b82f6, #60a5fa); }
+    .callout-warn    { background: light-dark(#fffbeb, #422006); border-color: light-dark(#f59e0b, #fcd34d); }
+    .callout strong  { display: block; margin-bottom: 3px; font-size: 0.92rem; }
+
+    /* ── Result row highlight ── */
+    .result-highlight td { background: light-dark(#f0fdf4, #14532d) !important; font-weight: 600; }
+
+    /* ── Summary table ── */
+    .summary-table td:first-child { white-space: nowrap; font-weight: 700; }
+    .summary-table td:last-child  { text-align: center; }
+
+    /* ── Notable observations ── */
+    .obs-list { list-style: none; padding: 0; margin: 0; }
+    .obs-list li {
+      padding: 10px 14px 10px 44px;
+      position: relative;
+      border-left: 3px solid light-dark(#e5e7eb, #334155);
+      margin-bottom: 10px;
+      background: light-dark(#f9fafb, #1a2332);
+      border-radius: 0 6px 6px 0;
+      font-size: 0.9rem;
+    }
+    .obs-list li::before {
+      content: attr(data-n);
+      position: absolute;
+      left: 12px;
+      font-weight: 700;
+      color: light-dark(#9ca3af, #64748b);
+    }
+
+    hr { border: none; border-top: 1px solid light-dark(#e5e7eb, #334155); margin: 32px 0; }
+    ul, ol { padding-left: 22px; margin: 8px 0 12px; }
+    li { margin-bottom: 4px; }
+    strong { color: light-dark(#111827, #f1f5f9); }
+  </style>
+</head>
+<body>
+
+  <!-- ── Doc header ── -->
+  <div class="doc-header">
+    <h1>Python Iterators Reference</h1>
+    <div class="meta-grid">
+      <span><strong>Topic:</strong> Iterators</span>
+      <span><strong>Language:</strong> Python</span>
+      <span><strong>Level:</strong> Beginner</span>
+      <span><strong>Focus:</strong> Iterables, <code>iter()</code>, <code>next()</code>, and loops</span>
+    </div>
+  </div>
+
+  <!-- ── TOC ── -->
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#overview">What Iterators Are</a></li>
+      <li><a href="#iterable-vs-iterator">Iterable vs Iterator</a></li>
+      <li><a href="#iter-next"><code>iter()</code> and <code>next()</code></a></li>
+      <li><a href="#for-loops">Iterators and <code>for</code> Loops</a></li>
+      <li><a href="#stopiteration"><code>StopIteration</code></a></li>
+      <li><a href="#common-iterables">Common Iterables</a></li>
+      <li><a href="#custom">Building a Custom Iterator</a></li>
+      <li><a href="#generators">Iterators and Generators</a></li>
+      <li><a href="#summary">Summary</a></li>
+    </ol>
+  </div>
+
+  <!-- ── Overview ── -->
+  <h2 id="overview">What Iterators Are</h2>
+  <p>
+    An <strong>iterator</strong> is an object that lets you walk through a collection
+    of values <strong>one at a time</strong>. Each time you ask for the next item,
+    the iterator gives it to you until there is nothing left.
+  </p>
+  <p>
+    If you have ever used a <code>for</code> loop over a list or string, you have
+    already used iterators &mdash; Python creates and uses them behind the scenes.
+  </p>
+
+  <div class="callout callout-info">
+    <strong>Iterator in plain terms</strong>
+    An iterator is a &ldquo;current position&rdquo; marker moving through a sequence.
+    It remembers where you are and hands you the next value when asked.
+  </div>
+
+  <hr />
+
+  <!-- ── Iterable vs Iterator ── -->
+  <h2 id="iterable-vs-iterator">Iterable vs Iterator</h2>
+  <p>
+    These two words sound similar but mean different things:
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Term</th>
+        <th>What it is</th>
+        <th>Example</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="result-highlight">
+        <td><strong>Iterable</strong></td>
+        <td>Something you <em>can</em> loop over</td>
+        <td><code>[10, 20, 30]</code>, <code>"Python"</code>, <code>{"a": 1}</code></td>
+      </tr>
+      <tr>
+        <td><strong>Iterator</strong></td>
+        <td>The object that <em>does</em> the looping</td>
+        <td><code>iter([10, 20, 30])</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    You start with an <strong>iterable</strong> (the data). Calling
+    <code>iter()</code> on it gives you an <strong>iterator</strong> (the mechanism
+    that produces values one by one).
+  </p>
+
+  <div class="callout callout-info">
+    <strong>Quick check</strong>
+    Iterables have <code>__iter__()</code>. Iterators have both
+    <code>__iter__()</code> and <code>__next__()</code>.
+  </div>
+
+  <hr />
+
+  <!-- ── iter and next ── -->
+  <h2 id="iter-next"><code>iter()</code> and <code>next()</code></h2>
+  <p>
+    <code>iter()</code> creates an iterator from an iterable.
+    <code>next()</code> asks the iterator for the next value.
+  </p>
+  <h4>Code</h4>
+  <pre><code>numbers = [10, 20, 30]
+it = iter(numbers)
+
+print(type(it))
+print(next(it))
+print(next(it))
+print(next(it))
+print(next(it))   <span class="code-comment"># StopIteration</span></code></pre>
+  <h4>Output</h4>
+  <pre><code>&lt;class 'list_iterator'&gt;
+10
+20
+30
+StopIteration</code></pre>
+  <p>
+    The last line raises <code>StopIteration</code> because the iterator has no
+    more values to give.
+  </p>
+
+  <h3>Strings Are Iterables Too</h3>
+  <h4>Code</h4>
+  <pre><code>for ch in "Py":
+    print(ch)
+
+it = iter("Py")
+print(next(it), next(it))</code></pre>
+  <h4>Output</h4>
+  <pre><code>P
+y
+P y</code></pre>
+
+  <hr />
+
+  <!-- ── for loops ── -->
+  <h2 id="for-loops">Iterators and <code>for</code> Loops</h2>
+  <p>
+    A <code>for</code> loop is really shorthand for iterator work. Python roughly
+    does this behind the scenes:
+  </p>
+  <ol>
+    <li>Call <code>iter()</code> on the iterable</li>
+    <li>Repeatedly call <code>next()</code> on the iterator</li>
+    <li>Stop when <code>StopIteration</code> is raised</li>
+  </ol>
+
+  <h4>What you write</h4>
+  <pre><code>for n in [1, 2, 3]:
+    print(n)</code></pre>
+  <h4>Output</h4>
+  <pre><code>1
+2
+3</code></pre>
+
+  <h4>Roughly equivalent manual version</h4>
+  <pre><code>numbers = [1, 2, 3]
+it = iter(numbers)
+
+while True:
+    try:
+        n = next(it)
+        print(n)
+    except StopIteration:
+        break</code></pre>
+  <h4>Output</h4>
+  <pre><code>1
+2
+3</code></pre>
+
+  <div class="callout callout-pass">
+    <strong>Prefer <code>for</code> loops</strong>
+    They are shorter, clearer, and handle <code>StopIteration</code> automatically.
+  </div>
+
+  <hr />
+
+  <!-- ── StopIteration ── -->
+  <h2 id="stopiteration"><code>StopIteration</code></h2>
+  <p>
+    <code>StopIteration</code> is the signal that an iterator is finished.
+    It is not usually an error you need to fix &mdash; it is how Python says
+    &ldquo;no more items.&rdquo;
+  </p>
+  <ul>
+    <li><code>next()</code> raises <code>StopIteration</code> when exhausted</li>
+    <li>A <code>for</code> loop catches it and ends quietly</li>
+    <li>Custom iterators raise it in <code>__next__()</code> when done</li>
+  </ul>
+
+  <hr />
+
+  <!-- ── Common iterables ── -->
+  <h2 id="common-iterables">Common Iterables</h2>
+  <p>Many built-in types are iterables:</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Type</th>
+        <th>What a loop gives you</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>list</code></td>
+        <td>Each item</td>
+      </tr>
+      <tr>
+        <td><code>tuple</code></td>
+        <td>Each item</td>
+      </tr>
+      <tr>
+        <td><code>str</code></td>
+        <td>Each character</td>
+      </tr>
+      <tr>
+        <td><code>dict</code></td>
+        <td>Each key (by default)</td>
+      </tr>
+      <tr>
+        <td><code>set</code></td>
+        <td>Each item (unordered)</td>
+      </tr>
+      <tr>
+        <td><code>range</code></td>
+        <td>Each integer in the range</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <hr />
+
+  <!-- ── Custom iterator ── -->
+  <h2 id="custom">Building a Custom Iterator</h2>
+  <p>
+    You can create your own iterator with a class. It needs two special methods:
+  </p>
+  <ul>
+    <li><code>__iter__()</code> &mdash; returns the iterator object (often <code>self</code>)</li>
+    <li><code>__next__()</code> &mdash; returns the next value, or raises <code>StopIteration</code></li>
+  </ul>
+  <h4>Code</h4>
+  <pre><code>class CountDown:
+    def __init__(self, start):
+        self.current = start
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if self.current &lt;= 0:
+            raise StopIteration
+        value = self.current
+        self.current -= 1
+        return value
+
+for n in CountDown(3):
+    print(n)</code></pre>
+  <h4>Output</h4>
+  <pre><code>3
+2
+1</code></pre>
+  <p>
+    <code>CountDown(3)</code> is both iterable and its own iterator because
+    <code>__iter__</code> returns <code>self</code>.
+  </p>
+
+  <hr />
+
+  <!-- ── Generators ── -->
+  <h2 id="generators">Iterators and Generators</h2>
+  <p>
+    A <strong>generator</strong> is a convenient way to create an iterator.
+    Instead of writing a class with <code>__iter__</code> and <code>__next__</code>,
+    you write a function that uses <code>yield</code>. Python turns that into an
+    iterator automatically.
+  </p>
+  <p>
+    Every generator is an iterator, but not every iterator is a generator.
+    For the full explanation of <code>yield</code>, pausing, and how generators
+    compare to <code>return</code>, see
+    <a href="Generators.html">Generators.html</a>.
+  </p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Approach</th>
+        <th>How you build it</th>
+        <th>Best for</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Custom class</td>
+        <td><code>__iter__</code> + <code>__next__</code></td>
+        <td>Full control, complex state</td>
+      </tr>
+      <tr class="result-highlight">
+        <td><a href="Generators.html">Generator</a></td>
+        <td>Function with <code>yield</code></td>
+        <td>Simple lazy sequences</td>
+      </tr>
+      <tr>
+        <td>Built-in iterable</td>
+        <td><code>list</code>, <code>str</code>, <code>range</code>, etc.</td>
+        <td>Everyday collections</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-info">
+    <strong>Related reference</strong>
+    See <a href="Generators.html">Generators.html</a> for how generator functions
+    work, including <code>yield</code> vs <code>return</code> and generator expressions.
+  </div>
+
+  <hr />
+
+  <!-- ── Summary ── -->
+  <h2 id="summary">Summary</h2>
+  <p>
+    Iterators power looping in Python. An iterable holds data; an iterator
+    walks through it one value at a time.
+  </p>
+
+  <table class="summary-table">
+    <thead>
+      <tr>
+        <th>Concept</th>
+        <th>One-line meaning</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Iterable</td>
+        <td>Object you can loop over</td>
+      </tr>
+      <tr>
+        <td>Iterator</td>
+        <td>Object that produces values one at a time</td>
+      </tr>
+      <tr>
+        <td><code>iter()</code></td>
+        <td>Gets an iterator from an iterable</td>
+      </tr>
+      <tr>
+        <td><code>next()</code></td>
+        <td>Gets the next value from an iterator</td>
+      </tr>
+      <tr>
+        <td><code>StopIteration</code></td>
+        <td>Signals that iteration is finished</td>
+      </tr>
+      <tr>
+        <td><code>for</code> loop</td>
+        <td>Uses an iterator automatically</td>
+      </tr>
+      <tr>
+        <td><a href="Generators.html">Generator</a></td>
+        <td>An easy way to create an iterator with <code>yield</code></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Notable Observations</h3>
+  <ul class="obs-list">
+    <li data-n="1">
+      <strong>Iterable &ne; iterator.</strong>
+      A list is iterable. <code>iter(my_list)</code> gives you the iterator that
+      walks through it.
+    </li>
+    <li data-n="2">
+      <strong>Iterators are consumed.</strong>
+      Once you have walked through an iterator, it is exhausted. To loop again,
+      call <code>iter()</code> on the original iterable to get a fresh iterator.
+    </li>
+    <li data-n="3">
+      <strong><code>for</code> loops hide the iterator machinery.</strong>
+      You rarely need to call <code>next()</code> yourself unless you are doing
+      something manual or advanced.
+    </li>
+    <li data-n="4">
+      <strong>Generators are iterators made easy.</strong>
+      See <a href="Generators.html">Generators.html</a> for the beginner-friendly
+      guide to <code>yield</code> and lazy value production.
+    </li>
+  </ul>
+
+</body>
+</html>
