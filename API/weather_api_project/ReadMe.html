@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Weather API Project - Beginner Guide</title>
+    <style>
+        :root {
+            color-scheme: light dark;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 14.5px;
+            line-height: 1.65;
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 32px 24px 72px;
+            color: light-dark(#1f2937, #e2e8f0);
+            background: light-dark(#ffffff, #0f172a);
+        }
+
+        .doc-header {
+            border-left: 5px solid light-dark(#2563eb, #60a5fa);
+            padding: 18px 22px;
+            background: light-dark(#eff6ff, #1e293b);
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 36px;
+        }
+
+        .doc-header h1 {
+            margin: 0 0 10px;
+            font-size: 1.45rem;
+            color: light-dark(#1e40af, #93c5fd);
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 4px 24px;
+            font-size: 0.85rem;
+            color: light-dark(#4b5563, #94a3b8);
+        }
+
+        .meta-grid strong {
+            color: light-dark(#374151, #cbd5e1);
+        }
+
+        .meta-grid code {
+            background: light-dark(#dbeafe, #1e3a5f);
+            color: light-dark(#1e40af, #93c5fd);
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 0.82rem;
+        }
+
+        .toc {
+            background: light-dark(#f8fafc, #1e293b);
+            border: 1px solid light-dark(#e2e8f0, #334155);
+            border-radius: 8px;
+            padding: 16px 20px;
+            margin-bottom: 32px;
+            font-size: 0.875rem;
+        }
+
+        .toc h3 {
+            margin: 0 0 10px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: light-dark(#6b7280, #64748b);
+        }
+
+        .toc ol {
+            margin: 0;
+            padding-left: 20px;
+            columns: 2;
+            column-gap: 24px;
+        }
+
+        .toc li {
+            margin-bottom: 4px;
+            break-inside: avoid;
+        }
+
+        .toc a,
+        a {
+            color: light-dark(#2563eb, #60a5fa);
+            text-decoration: none;
+        }
+
+        .toc a:hover,
+        a:hover {
+            text-decoration: underline;
+        }
+
+        h2 {
+            font-size: 1.15rem;
+            color: light-dark(#111827, #f1f5f9);
+            border-bottom: 1px solid light-dark(#e5e7eb, #334155);
+            padding-bottom: 6px;
+            margin: 40px 0 14px;
+        }
+
+        h3 {
+            font-size: 1rem;
+            color: light-dark(#374151, #cbd5e1);
+            margin: 28px 0 10px;
+        }
+
+        p {
+            margin: 0 0 12px;
+        }
+
+        ul,
+        ol {
+            padding-left: 22px;
+            margin: 8px 0 12px;
+        }
+
+        li {
+            margin-bottom: 4px;
+        }
+
+        strong {
+            color: light-dark(#111827, #f1f5f9);
+        }
+
+        pre {
+            background: light-dark(#f8fafc, #1e293b);
+            border: 1px solid light-dark(#e2e8f0, #334155);
+            border-radius: 6px;
+            padding: 14px 16px;
+            overflow-x: auto;
+            font-size: 0.82rem;
+            line-height: 1.6;
+            margin: 10px 0 16px;
+        }
+
+        code {
+            font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        }
+
+        p code,
+        li code,
+        td code,
+        th code,
+        h2 code {
+            background: light-dark(#f1f5f9, #1e293b);
+            border: 1px solid light-dark(#e2e8f0, #334155);
+            color: light-dark(#0f172a, #e2e8f0);
+            padding: 1px 5px;
+            border-radius: 3px;
+            font-size: 0.84em;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.865rem;
+            margin: 10px 0 20px;
+        }
+
+        thead tr {
+            background: light-dark(#f1f5f9, #1e293b);
+        }
+
+        th {
+            text-align: left;
+            font-weight: 600;
+            padding: 8px 12px;
+            border: 1px solid light-dark(#d1d5db, #334155);
+            color: light-dark(#374151, #cbd5e1);
+        }
+
+        td {
+            padding: 7px 12px;
+            border: 1px solid light-dark(#e5e7eb, #334155);
+            vertical-align: top;
+        }
+
+        tbody tr:nth-child(even) {
+            background: light-dark(#f9fafb, #1a2332);
+        }
+
+        .callout {
+            border-radius: 6px;
+            padding: 12px 18px;
+            margin: 14px 0 18px;
+            border-left: 4px solid;
+            font-size: 0.9rem;
+        }
+
+        .callout-info {
+            background: light-dark(#eff6ff, #1e3a5f);
+            border-color: light-dark(#3b82f6, #60a5fa);
+        }
+
+        .callout-warn {
+            background: light-dark(#fffbeb, #422006);
+            border-color: light-dark(#f59e0b, #fcd34d);
+        }
+
+        .callout-pass {
+            background: light-dark(#f0fdf4, #14532d);
+            border-color: light-dark(#22c55e, #4ade80);
+        }
+
+        .callout strong {
+            display: block;
+            margin-bottom: 3px;
+        }
+
+        .flow {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 14px 0 20px;
+        }
+
+        .flow div {
+            padding: 12px 14px;
+            border-left: 3px solid light-dark(#93c5fd, #3b82f6);
+            background: light-dark(#f9fafb, #1a2332);
+            border-radius: 0 6px 6px 0;
+        }
+
+        .flow strong {
+            display: block;
+            color: light-dark(#1e40af, #93c5fd);
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid light-dark(#e5e7eb, #334155);
+            margin: 32px 0;
+        }
+
+        @media (max-width: 620px) {
+            body {
+                padding: 20px 16px 48px;
+            }
+
+            .toc ol,
+            .flow {
+                columns: 1;
+                grid-template-columns: 1fr;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="doc-header">
+        <h1>Weather API Project: A Beginner's Guide</h1>
+        <div class="meta-grid">
+            <span><strong>File:</strong> <code>weather.py</code></span>
+            <span><strong>Language:</strong> Python</span>
+            <span><strong>API:</strong> National Weather Service</span>
+            <span><strong>Level:</strong> Beginner</span>
+        </div>
+    </header>
+
+    <nav class="toc" aria-label="Contents">
+        <h3>Contents</h3>
+        <ol>
+            <li><a href="#overview">What the Program Does</a></li>
+            <li><a href="#setup">Setup</a></li>
+            <li><a href="#workflow">The API Workflow</a></li>
+            <li><a href="#walkthrough">Code Walkthrough</a></li>
+            <li><a href="#json">Understanding the JSON</a></li>
+            <li><a href="#errors">Errors and Timeouts</a></li>
+            <li><a href="#run">Run the Program</a></li>
+            <li><a href="#glossary">Beginner Glossary</a></li>
+        </ol>
+    </nav>
+
+    <h2 id="overview">What the Program Does</h2>
+    <p>
+        This project asks the National Weather Service for a live forecast and prints the
+        next six forecast periods in the terminal. Six periods normally represent three
+        day/night pairs, such as daytime, nighttime, and the following day.
+    </p>
+    <p>
+        The program does not contain weather data itself. Instead, it sends an HTTP request
+        to a web API, receives JSON data, selects the useful fields, and displays them.
+    </p>
+
+    <div class="callout callout-info">
+        <strong>The important idea</strong>
+        An API is a program-to-program conversation. This script asks a remote service a
+        question, receives structured data, and uses that data in Python.
+    </div>
+
+    <hr />
+
+    <h2 id="setup">Setup</h2>
+    <h3>1. Use the project virtual environment</h3>
+    <p>This project is configured to run with the Python interpreter below:</p>
+    <pre><code>C:\PythonVenv\py311\Scripts\python.exe</code></pre>
+
+    <h3>2. Install the HTTP library</h3>
+    <p>
+        Python includes many useful modules, but <code>requests</code> is an extra package
+        that makes HTTP calls easier to write. Install it into the same environment:
+    </p>
+    <pre><code>&amp; C:\PythonVenv\py311\Scripts\python.exe -m pip install requests</code></pre>
+
+    <h3>3. Identify the files</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>File</th>
+                <th>Purpose</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>weather.py</code></td>
+                <td>The executable Python program.</td>
+            </tr>
+            <tr>
+                <td><code>api_learning_plan.md</code></td>
+                <td>The learning notes and API concepts behind the project.</td>
+            </tr>
+            <tr>
+                <td><code>ReadMe.html</code></td>
+                <td>This beginner-friendly explanation, viewable in a browser.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2 id="workflow">The API Workflow</h2>
+    <p>The National Weather Service API uses two related requests:</p>
+    <div class="flow">
+        <div><strong>1. Locate the forecast</strong>The <code>/points</code> request converts latitude and longitude
+            into a forecast URL for that location.</div>
+        <div><strong>2. Get the forecast</strong>The forecast URL returns the actual periods, temperatures, wind, and
+            descriptions.</div>
+        <div><strong>3. Read the JSON</strong>Python follows keys such as <code>properties</code> and
+            <code>periods</code> to reach the values.</div>
+        <div><strong>4. Display the results</strong>A <code>for</code> loop prints the first six periods in a readable
+            format.</div>
+    </div>
+    <p>The starting coordinates in this example are Washington, D.C.:</p>
+    <pre><code>https://api.weather.gov/points/38.9072,-77.0369</code></pre>
+
+    <h2 id="walkthrough">Code Walkthrough</h2>
+    <h3>Import the library</h3>
+    <pre><code>import requests</code></pre>
+    <p>
+        <code>import</code> makes code from another module available. Here, the program
+        imports the <code>requests</code> package so it can send web requests.
+    </p>
+
+    <h3>Define a reusable function</h3>
+    <pre><code>def get_weather():</code></pre>
+    <p>
+        A function is a named group of instructions. The function does not run when Python
+        first reads its definition; it runs later when the program calls
+        <code>get_weather()</code>.
+    </p>
+
+    <h3>Prepare request headers</h3>
+    <pre><code>headers = {
+    'User-Agent': 'MyWeatherApp/1.0 (contact@example.com)',
+    'Accept': 'application/geo+json'
+}</code></pre>
+    <p>
+        Headers are extra information sent with a request. The National Weather Service
+        asks clients to identify themselves with a <code>User-Agent</code>. The
+        <code>Accept</code> header says that the program expects GeoJSON, a JSON format
+        commonly used by location-based APIs.
+    </p>
+    <div class="callout callout-warn">
+        <strong>Use your own contact information</strong>
+        Replace <code>contact@example.com</code> with a real email address when you turn
+        this into your own application. It helps the API operator identify your program.
+    </div>
+
+    <h3>Make the points request</h3>
+    <pre><code>points_url = "https://api.weather.gov/points/38.9072,-77.0369"
+response = requests.get(points_url, headers=headers, timeout=10)
+response.raise_for_status()
+data = response.json()</code></pre>
+    <p>
+        <code>requests.get()</code> sends an HTTP GET request. The URL contains the
+        latitude and longitude. <code>timeout=10</code> prevents the program from waiting
+        forever if the service does not respond. <code>raise_for_status()</code> turns an
+        unsuccessful HTTP response into an exception. Finally, <code>json()</code>
+        converts the response body into Python dictionaries and lists.
+    </p>
+
+    <h3>Find the forecast URL</h3>
+    <pre><code>forecast_url = data['properties']['forecast']</code></pre>
+    <p>
+        The first response is metadata: information about where the actual forecast lives.
+        Square brackets access dictionary values by key. This line moves through the
+        <code>properties</code> dictionary and saves its <code>forecast</code> value.
+    </p>
+
+    <h3>Request and read the forecast</h3>
+    <pre><code>forecast_response = requests.get(forecast_url, headers=headers, timeout=10)
+forecast_response.raise_for_status()
+forecast_data = forecast_response.json()
+periods = forecast_data['properties']['periods']</code></pre>
+    <p>
+        The second request uses the URL supplied by the API. Its response contains a list
+        of forecast periods. A list is an ordered collection, so the program can select its
+        first six items.
+    </p>
+
+    <h3>Loop over forecast periods</h3>
+    <pre><code>for period in periods[:6]:
+    name = period['name']
+    temperature = period['temperature']
+    unit = period['temperatureUnit']
+    detailed_forecast = period['detailedForecast']
+
+    print(f"\n{name}: {temperature}°{unit}")
+    print(f"   {detailed_forecast}")</code></pre>
+    <p>
+        <code>periods[:6]</code> is a slice: it means “items from the beginning up to,
+        but not including, index 6.” Each <code>period</code> is a dictionary. The code
+        reads four values and inserts them into formatted strings with an f-string.
+    </p>
+
+    <h3>Choose when the program starts</h3>
+    <pre><code>if __name__ == "__main__":
+    get_weather()</code></pre>
+    <p>
+        This common Python pattern calls the function only when <code>weather.py</code> is
+        run directly. It prevents the request from running automatically if another Python
+        file imports <code>get_weather</code> later.
+    </p>
+
+    <h2 id="json">Understanding the JSON</h2>
+    <p>A simplified version of the API response looks like this:</p>
+    <pre><code>{
+  "properties": {
+    "forecast": "https://api.weather.gov/gridpoints/...",
+    "periods": [
+      {
+        "name": "This Afternoon",
+        "temperature": 85,
+        "temperatureUnit": "F",
+        "detailedForecast": "Mostly sunny..."
+      }
+    ]
+  }
+}</code></pre>
+    <table>
+        <thead>
+            <tr>
+                <th>Python expression</th>
+                <th>Meaning</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><code>data['properties']</code></td>
+                <td>Get the main metadata dictionary.</td>
+            </tr>
+            <tr>
+                <td><code>['forecast']</code></td>
+                <td>Get the URL for the detailed forecast.</td>
+            </tr>
+            <tr>
+                <td><code>forecast_data['properties']['periods']</code></td>
+                <td>Get the list of forecast periods.</td>
+            </tr>
+            <tr>
+                <td><code>period['temperature']</code></td>
+                <td>Get the temperature from one period.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2 id="errors">Errors and Timeouts</h2>
+    <pre><code>try:
+    # Requests and JSON parsing happen here.
+except requests.exceptions.RequestException as error:
+    print(f"Weather API request failed: {error}")
+except ValueError as error:
+    print(f"Weather API returned invalid JSON: {error}")</code></pre>
+    <p>
+        The <code>try</code> block contains operations that can fail. A network error,
+        timeout, or unsuccessful HTTP status is handled by the first <code>except</code>
+        block. Invalid JSON is handled by the <code>ValueError</code> block. Instead of a
+        long traceback, the user receives a short explanation in the terminal.
+    </p>
+    <div class="callout callout-info">
+        <strong>Why the API URL matters</strong>
+        <code>https://weather.gov</code> is a web page and returns HTML. The program must
+        use <code>https://api.weather.gov</code> with a <code>/points</code> path so that
+        <code>response.json()</code> receives structured API data.
+    </div>
+
+    <h2 id="run">Run the Program</h2>
+    <p>From PowerShell, run the file with the project interpreter:</p>
+    <pre><code>&amp; C:\PythonVenv\py311\Scripts\python.exe C:\Repos\Python\API\weather_api_project\weather.py</code></pre>
+    <p>A successful run begins with a connection message and then prints six forecast periods:</p>
+    <pre><code>Connecting to the Weather API...
+
+--- Live 3-Day Weather Forecast ---
+
+This Afternoon: 85°F
+Mostly sunny, with a high near 85...</code></pre>
+    <div class="callout callout-pass">
+        <strong>Expected result</strong>
+        The exact temperatures and descriptions change because the program reads live data.
+    </div>
+
+    <h2 id="glossary">Beginner Glossary</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Term</th>
+                <th>Meaning</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>API</td>
+                <td>A set of rules that lets one program request data from another program.</td>
+            </tr>
+            <tr>
+                <td>HTTP GET</td>
+                <td>A request used to retrieve information from a server.</td>
+            </tr>
+            <tr>
+                <td>URL</td>
+                <td>The web address used to locate a resource.</td>
+            </tr>
+            <tr>
+                <td>JSON</td>
+                <td>Text formatted as objects and arrays so programs can exchange structured data.</td>
+            </tr>
+            <tr>
+                <td>Dictionary</td>
+                <td>A Python collection of key/value pairs, written with curly braces.</td>
+            </tr>
+            <tr>
+                <td>List</td>
+                <td>An ordered Python collection, written with square brackets.</td>
+            </tr>
+            <tr>
+                <td>Exception</td>
+                <td>An event that interrupts normal execution because something went wrong.</td>
+            </tr>
+            <tr>
+                <td>Timeout</td>
+                <td>A limit on how long the program waits for a response.</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+
+</html>
