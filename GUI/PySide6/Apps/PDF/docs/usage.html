@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>PDF Page Size Finder — Usage Guide</title>
+<style>
+  body { font-family: Segoe UI, Arial, sans-serif; max-width: 860px; margin: 2em auto; padding: 0 1em; line-height: 1.55; color: #222; }
+  h1, h2 { border-bottom: 1px solid #ddd; padding-bottom: 0.3em; }
+  code, pre { background: #f4f4f4; border-radius: 4px; padding: 0.15em 0.4em; font-family: Consolas, monospace; }
+  pre { padding: 0.8em; overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+  th, td { border: 1px solid #ccc; padding: 0.5em 0.7em; text-align: left; }
+  th { background: #f0f0f0; }
+  .tip { background: #eef6ff; border-left: 4px solid #3b82f6; padding: 0.6em 1em; margin: 1em 0; }
+</style>
+</head>
+<body>
+<h1>Usage Guide</h1>
+<p>A step-by-step walkthrough of PDF Page Size Finder.</p>
+
+<h2>Prerequisites</h2>
+<ul>
+  <li>Python 3.11 or later</li>
+  <li>Dependencies installed in your active virtual environment:</li>
+</ul>
+<pre>pip install -r requirements.txt</pre>
+
+<h2>Starting the application</h2>
+<p>Run from the <code>PDF</code> directory:</p>
+<pre>cd GUI/PySide6/Apps/PDF
+python main.py</pre>
+<p>The main window opens with empty file name/path fields and both grid rows showing <code>—</code>.</p>
+
+<h2>Step 1 — Select a PDF file</h2>
+<p>Click <strong>Browse for PDF…</strong> and choose the file you want to inspect. Once selected:</p>
+<ul>
+  <li>The <strong>File Name</strong> field shows the PDF's file name.</li>
+  <li>The <strong>File Path</strong> field shows the full path on disk.</li>
+  <li>Every page in the document is read and classified as <strong>Letter</strong> (8.5&nbsp;&times;&nbsp;11&nbsp;in), <strong>Legal</strong> (8.5&nbsp;&times;&nbsp;14&nbsp;in), or another size.</li>
+</ul>
+
+<div class="tip"><strong>Tip:</strong> Page size is compared using the page's long and short edges, so rotated (landscape) Letter or Legal pages are still recognised correctly.</div>
+
+<h2>Step 2 — Review the page ranges</h2>
+<p>The grid shows one row per size:</p>
+<table>
+  <tr><th>Row</th><th>Page Range column</th></tr>
+  <tr><td>Letter</td><td>Comma-separated ranges of every Letter-sized page, e.g. <code>1-2, 4</code></td></tr>
+  <tr><td>Legal</td><td>Comma-separated ranges of every Legal-sized page, e.g. <code>3, 5-6</code></td></tr>
+</table>
+<p>Consecutive page numbers are collapsed into a dash range (<code>5-6</code>); isolated pages are listed individually (<code>4</code>).</p>
+<p>If a document has no pages of a given size, that row shows <code>—</code> and its <strong>Copy</strong> button is disabled.</p>
+
+<h2>Step 3 — Copy a page range</h2>
+<p>Click the <strong>Copy</strong> button next to either row to copy that row's page range to the clipboard. The status bar confirms what was copied.</p>
+<p>Paste the copied text directly into the <strong>Pages</strong> field of the Windows Print dialog box to print only that size's pages, for example on the correct paper tray.</p>
+
+<h2>Notes</h2>
+<ul>
+  <li>Page sizes are compared with a small tolerance (2&nbsp;points) to absorb minor rounding differences between PDF producers.</li>
+  <li>Pages that are neither Letter nor Legal sized are counted in the status bar summary but are not shown in the grid.</li>
+  <li>Selecting a new PDF file replaces the previous results.</li>
+</ul>
+
+</body>
+</html>
