@@ -4,18 +4,20 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from PySide6.QtCore import QSettings
+from PySide6.QtCore import QSettings, Qt
 from PySide6.QtWidgets import (
     QApplication,
+    QAbstractItemView,
     QFileDialog,
     QFrame,
-    QGridLayout,
+    QHeaderView,
     QHBoxLayout,
     QLabel,
     QMainWindow,
     QMessageBox,
     QPushButton,
-    QScrollArea,
+    QTableWidget,
+    QTableWidgetItem,
     QVBoxLayout,
     QWidget,
 )
@@ -95,76 +97,78 @@ class MainWindow(QMainWindow):
 
         return col
 
-    def _make_grid(self) -> QWidget:
-        container = QWidget()
-        container_layout = QVBoxLayout(container)
-        container_layout.setContentsMargins(0, 0, 0, 0)
-        container_layout.setSpacing(3)
+    def _make_grid(self) -> QTableWidget:
+        table = QTableWidget(0, 4)
+        table.setStyleSheet(
+            """
+            QTableWidget {
+                background-color: #1E1E1E;
+                color: #E0E0E0;
+                gridline-color: #2A2A2A;
+                selection-background-color: #3A3D41;
+                selection-color: #FFFFFF;
+            }
+            QHeaderView::section:horizontal {
+                background-color: #2A2D2E;
+                color: #F0F0F0;
+                border: 0px;
+                border-bottom: 1px solid #3A3A3A;
+                padding: 6px;
+                font-weight: bold;
+            }
+            QHeaderView::section:vertical {
+                background-color: #252525;
+                color: #B0B0B0;
+                border: 0px;
+                border-right: 1px solid #333333;
+            }
+            QTableCornerButton::section {
+                background-color: #252525;
+                border: 0px;
+            }
+            QTableWidget::item:hover {
+                background-color: #2E2E2E;
+            }
+            """
+        )
+        table.setHorizontalHeaderLabels(["Size", "Page Range", "Total", ""])
+        table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        table.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
+        table.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+        table.setShowGrid(False)
+        table.setWordWrap(False)
+        table.verticalHeader().setVisible(True)
+        table.verticalHeader().setDefaultSectionSize(28)
+        table.verticalHeader().setMinimumSectionSize(28)
+        table.horizontalHeader().setStretchLastSection(False)
+        table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+        table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+        table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.Fixed)
+        table.setColumnWidth(3, 70)
 
-        header = QGridLayout()
-        header.setContentsMargins(0, 0, 0, 0)
-        header.setHorizontalSpacing(12)
-        header.setVerticalSpacing(0)
-        headers = ["Size", "Page Range", "Total", ""]
-        for col, text in enumerate(headers):
-            header_label = QLabel(text)
-            header_label.setStyleSheet("font-weight: bold;")
-            header.addWidget(header_label, 0, col)
-        header.setColumnMinimumWidth(2, 40)
-        header.setColumnMinimumWidth(3, 70)
-        header.setColumnStretch(1, 1)
-        container_layout.addLayout(header)
-
-        scroll_area = QScrollArea()
-        scroll_area.setWidgetResizable(True)
-        scroll_area.setFrameShape(QFrame.Shape.NoFrame)
-
-        grid_widget = QWidget()
-        grid = QGridLayout(grid_widget)
-        grid.setContentsMargins(0, 0, 0, 0)
-        grid.setHorizontalSpacing(12)
-        grid.setVerticalSpacing(4)
-
-        self._grid = grid
-        self._size_rows: list[tuple[QLabel, QLabel, QLabel, QPushButton]] = []
+        self._grid = table
         self._add_size_row(LABEL_LETTER)
         self._add_size_row(LABEL_LEGAL)
-        grid.setColumnMinimumWidth(2, 40)
-        grid.setColumnMinimumWidth(3, 70)
-        grid.setColumnStretch(1, 1)
-        scroll_area.setWidget(grid_widget)
-        container_layout.addWidget(scroll_area)
-        return container
+        return table
 
     def _add_size_row(self, label_text: str, pages: list[int] | None = None) -> None:
-        row = len(self._size_rows) + 1
+        row = self._grid.rowCount()
         page_range = PdfPageAnalyzer.format_page_range(pages or []) or "—"
-        label = QLabel(label_text)
-        range_value = QLabel(page_range)
-        total_value = QLabel(str(len(pages)) if pages else "—")
+        self._grid.insertRow(row)
+        self._grid.setItem(row, 0, QTableWidgetItem(label_text))
+        self._grid.setItem(row, 1, QTableWidgetItem(page_range))
+        self._grid.setItem(row, 2, QTableWidgetItem(str(len(pages)) if pages else "—"))
         copy_button = QPushButton("Copy")
         copy_button.setEnabled(page_range != "—")
         copy_button.setFixedWidth(70)
         copy_button.clicked.connect(
-            lambda checked=False, value=range_value: self._copy_range(value.text())
+            lambda checked=False, value=page_range: self._copy_range(value)
         )
-        self._grid.addWidget(label, row, 0)
-        self._grid.addWidget(range_value, row, 1)
-        self._grid.addWidget(total_value, row, 2)
-        self._grid.addWidget(copy_button, row, 3)
-        self._size_rows.append((label, range_value, total_value, copy_button))
+        self._grid.setCellWidget(row, 3, copy_button)
 
     def _clear_size_rows(self) -> None:
-        for label, range_value, total_value, copy_button in self._size_rows:
-            self._grid.removeWidget(label)
-            self._grid.removeWidget(range_value)
-            self._grid.removeWidget(total_value)
-            self._grid.removeWidget(copy_button)
-            label.deleteLater()
-            range_value.deleteLater()
-            total_value.deleteLater()
-            copy_button.deleteLater()
-        self._size_rows.clear()
+        self._grid.setRowCount(0)
 
     # ------------------------------------------------------------------
     # Slots

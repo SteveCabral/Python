@@ -1,8 +1,9 @@
 """Application-wide configuration constants for PDF Page Size Finder."""
 
 APP_NAME = "PDF Page Size Finder"
-APP_VERSION = "1.0"
+APP_VERSION = "2.0"
 LAST_PDF_PATH_KEY = "last_pdf_path"
+CONTROL_FONT_FAMILIES = ["Inter", "Segoe UI", "Roboto"]
 
 # ── Page size detection ─────────────────────────────────────────────────────
 # Dimensions are compared in PDF points (1 inch = 72 points), using the

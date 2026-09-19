@@ -139,7 +139,8 @@ class PdfPageReport:
     <tr>
       <td><code>format_page_range(pages)</code></td>
       <td>Collapses a sorted list of 1-based page numbers into a compact range string, e.g. <code>[1, 2, 4]</code> →
-        <code>"1-2, 4"</code></td>
+        <code>"1-2, 4"</code>
+      </td>
     </tr>
   </table>
 
@@ -164,13 +165,15 @@ class PdfPageReport:
       <td>Labels showing the selected file's name and full path</td>
     </tr>
     <tr>
-      <td><code>QScrollArea</code> + <code>QGridLayout</code></td>
-      <td>Scrollable page-size rows, each with a size label, page-range label, total count, and Copy button</td>
+      <td><code>QTableWidget</code></td>
+      <td>Scrollable page-size rows with a frozen header, controlled row height, size label, page-range label, total
+        count, and Copy button</td>
     </tr>
     <tr>
       <td><code>_add_size_row()</code></td>
       <td>Creates a size row and copies that row's page range to the system clipboard via
-        <code>QApplication.clipboard()</code>; the button is disabled when the range is empty</td>
+        <code>QApplication.clipboard()</code>; the button is disabled when the range is empty
+      </td>
     </tr>
     <tr>
       <td><code>statusBar()</code></td>
@@ -180,7 +183,8 @@ class PdfPageReport:
 
   <h3><code>main.py</code></h3>
   <p>Minimal entry point: creates <code>QApplication</code>, instantiates <code>MainWindow</code>, calls
-    <code>show()</code> and <code>exec()</code>.</p>
+    <code>show()</code> and <code>exec()</code>.
+  </p>
 
 </body>
 
