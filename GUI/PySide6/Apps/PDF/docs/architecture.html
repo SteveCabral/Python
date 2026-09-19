@@ -5,59 +5,219 @@
   <meta charset="UTF-8" />
   <title>PDF Page Size Finder — Architecture</title>
   <style>
+    :root {
+      color-scheme: light dark;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Segoe UI, Arial, sans-serif;
-      max-width: 860px;
-      margin: 2em auto;
-      padding: 0 1em;
-      line-height: 1.55;
-      color: #222;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 14.5px;
+      line-height: 1.65;
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 24px 72px;
+      color: light-dark(#1f2937, #e2e8f0);
+      background: light-dark(#ffffff, #0f172a);
     }
 
-    h1,
-    h2,
+    .doc-header {
+      border-left: 5px solid light-dark(#2563eb, #60a5fa);
+      padding: 18px 22px;
+      background: light-dark(#eff6ff, #1e293b);
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 36px;
+    }
+
+    .doc-header h1 {
+      margin: 0 0 10px;
+      font-size: 1.45rem;
+      color: light-dark(#1e40af, #93c5fd);
+    }
+
+    .doc-header .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 4px 24px;
+      font-size: 0.85rem;
+      color: light-dark(#4b5563, #94a3b8);
+    }
+
+    .doc-header .meta-grid span strong {
+      color: light-dark(#374151, #cbd5e1);
+    }
+
+    .toc {
+      background: light-dark(#f8fafc, #1e293b);
+      border: 1px solid light-dark(#e2e8f0, #334155);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+      font-size: 0.875rem;
+    }
+
+    .toc h3 {
+      margin: 0 0 10px;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: light-dark(#6b7280, #64748b);
+    }
+
+    .toc ol {
+      margin: 0;
+      padding-left: 20px;
+      columns: 2;
+      column-gap: 24px;
+    }
+
+    .toc li {
+      margin-bottom: 4px;
+      break-inside: avoid;
+    }
+
+    .toc a {
+      color: light-dark(#2563eb, #60a5fa);
+      text-decoration: none;
+    }
+
+    .toc a:hover {
+      text-decoration: underline;
+    }
+
+    h2 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: light-dark(#111827, #f1f5f9);
+      border-bottom: 1px solid light-dark(#e5e7eb, #334155);
+      padding-bottom: 6px;
+      margin: 40px 0 14px;
+    }
+
     h3 {
-      border-bottom: 1px solid #ddd;
-      padding-bottom: 0.3em;
+      font-size: 1rem;
+      font-weight: 600;
+      color: light-dark(#374151, #cbd5e1);
+      margin: 28px 0 10px;
     }
 
-    code,
-    pre {
-      background: #f4f4f4;
-      border-radius: 4px;
-      padding: 0.15em 0.4em;
-      font-family: Consolas, monospace;
+    h4 {
+      font-size: 0.9rem;
+      color: light-dark(#6b7280, #94a3b8);
+      margin: 18px 0 8px;
+      font-weight: 600;
+    }
+
+    p {
+      margin: 0 0 12px;
+    }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    p code,
+    li code,
+    td code,
+    th code,
+    h2 code,
+    h4 code {
+      background: light-dark(#f1f5f9, #1e293b);
+      border: 1px solid light-dark(#e2e8f0, #334155);
+      color: light-dark(#0f172a, #e2e8f0);
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 0.84em;
     }
 
     pre {
-      padding: 0.8em;
+      background: light-dark(#f8fafc, #1e293b);
+      border: 1px solid light-dark(#e2e8f0, #334155);
+      border-radius: 6px;
+      padding: 14px 16px;
       overflow-x: auto;
+      font-size: 0.82rem;
+      line-height: 1.6;
+      margin: 10px 0 16px;
     }
 
     table {
-      border-collapse: collapse;
       width: 100%;
-      margin: 1em 0;
-    }
-
-    th,
-    td {
-      border: 1px solid #ccc;
-      padding: 0.5em 0.7em;
-      text-align: left;
+      border-collapse: collapse;
+      font-size: 0.865rem;
+      margin: 10px 0 20px;
     }
 
     th {
-      background: #f0f0f0;
+      text-align: left;
+      font-weight: 600;
+      padding: 8px 12px;
+      border: 1px solid light-dark(#d1d5db, #334155);
+      color: light-dark(#374151, #cbd5e1);
+      background: light-dark(#f1f5f9, #1e293b);
+    }
+
+    td {
+      padding: 7px 12px;
+      border: 1px solid light-dark(#e5e7eb, #334155);
+      vertical-align: top;
+    }
+
+    tbody tr:nth-child(even) {
+      background: light-dark(#f9fafb, #1a2332);
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid light-dark(#e5e7eb, #334155);
+      margin: 32px 0;
+    }
+
+    ul,
+    ol {
+      padding-left: 22px;
+      margin: 8px 0 12px;
+    }
+
+    li {
+      margin-bottom: 4px;
+    }
+
+    strong {
+      color: light-dark(#111827, #f1f5f9);
     }
   </style>
 </head>
 
 <body>
-  <h1>Architecture</h1>
-  <p>This document describes the internal structure of the PDF Page Size Finder application.</p>
+  <div class="doc-header">
+    <h1>PDF Page Size Finder — Architecture</h1>
+    <div class="meta-grid">
+      <span><strong>Application:</strong> PDF Page Size Finder</span>
+      <span><strong>Version:</strong> 2.0</span>
+      <span><strong>Type:</strong> Architecture reference</span>
+      <span><strong>Focus:</strong> Model, view, and configuration</span>
+    </div>
+  </div>
 
-  <h2>Overview</h2>
+  <div class="toc">
+    <h3>Contents</h3>
+    <ol>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#layers">Layer responsibilities</a></li>
+      <li><a href="#config">Configuration</a></li>
+      <li><a href="#model">Model</a></li>
+      <li><a href="#view">View</a></li>
+      <li><a href="#entry">Entry point</a></li>
+    </ol>
+  </div>
+
+  <h2 id="overview">Overview</h2>
   <p>The application follows the same <strong>Model / View / Configuration</strong> separation pattern used by
     the other PySide6 apps in this repository. Each layer has a distinct responsibility and may be understood
     or modified without touching the other layers.</p>
@@ -79,9 +239,9 @@
     ├── architecture.html      ← this file
     └── usage.html             ← step-by-step user guide</pre>
 
-  <h2>Layer responsibilities</h2>
+  <h2 id="layers">Layer responsibilities</h2>
 
-  <h3><code>config/settings.py</code></h3>
+  <h3 id="config"><code>config/settings.py</code></h3>
   <p>Constants only — no logic, no imports beyond the standard library.</p>
   <table>
     <tr>
@@ -110,7 +270,7 @@
     </tr>
   </table>
 
-  <h3><code>model/pdf_page_analyzer.py</code></h3>
+  <h3 id="model"><code>model/pdf_page_analyzer.py</code></h3>
   <p>Pure business logic; contains no PySide6 imports and is independently testable.</p>
 
   <h4><code>PdfPageReport</code></h4>
@@ -148,7 +308,7 @@ class PdfPageReport:
     raw width/height, so a landscape-rotated Letter page (792 × 612 pt) still matches the same reference as a
     portrait Letter page (612 × 792 pt).</p>
 
-  <h3><code>view/main_window.py</code></h3>
+  <h3 id="view"><code>view/main_window.py</code></h3>
   <p>Owns the entire UI layout. Key components:</p>
   <table>
     <tr>
@@ -181,7 +341,7 @@ class PdfPageReport:
     </tr>
   </table>
 
-  <h3><code>main.py</code></h3>
+  <h3 id="entry"><code>main.py</code></h3>
   <p>Minimal entry point: creates <code>QApplication</code>, instantiates <code>MainWindow</code>, calls
     <code>show()</code> and <code>exec()</code>.
   </p>
