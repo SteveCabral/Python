@@ -1,7 +1,8 @@
 """Application-wide configuration constants for PDF Page Size Finder."""
 
 APP_NAME = "PDF Page Size Finder"
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.0"
+LAST_PDF_PATH_KEY = "last_pdf_path"
 
 # ── Page size detection ─────────────────────────────────────────────────────
 # Dimensions are compared in PDF points (1 inch = 72 points), using the
@@ -13,5 +14,5 @@ LEGAL_SIZE_IN = (8.5, 14.0)
 SIZE_TOLERANCE_PT = 2.0
 
 # ── Row labels ───────────────────────────────────────────────────────────────
-LABEL_LETTER = "Letter"
-LABEL_LEGAL = "Legal"
+LABEL_LETTER = "Letter (8½ × 11)"
+LABEL_LEGAL = "Legal (8½ × 14)"

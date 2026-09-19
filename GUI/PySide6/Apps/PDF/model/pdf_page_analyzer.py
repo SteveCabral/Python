@@ -31,6 +31,7 @@ class PdfPageReport:
     letter_pages: list[int]  # 1-based page numbers
     legal_pages: list[int]  # 1-based page numbers
     other_pages: list[int]  # 1-based page numbers that are neither size
+    other_size_pages: list[tuple[str, list[int]]]
 
 
 class PdfPageAnalyzer:
@@ -53,6 +54,7 @@ class PdfPageAnalyzer:
         letter_pages: list[int] = []
         legal_pages: list[int] = []
         other_pages: list[int] = []
+        other_size_pages: dict[tuple[float, float], list[int]] = {}
 
         for index, page in enumerate(reader.pages, start=1):
             width_pt = float(page.mediabox.width)
@@ -64,6 +66,11 @@ class PdfPageAnalyzer:
                 legal_pages.append(index)
             else:
                 other_pages.append(index)
+                dimensions = (
+                    _rounded_inches(width_pt),
+                    _rounded_inches(height_pt),
+                )
+                other_size_pages.setdefault(dimensions, []).append(index)
 
         return PdfPageReport(
             file_name=pdf_path.name,
@@ -72,6 +79,10 @@ class PdfPageAnalyzer:
             letter_pages=letter_pages,
             legal_pages=legal_pages,
             other_pages=other_pages,
+            other_size_pages=[
+                (_format_size_label(width, height), pages)
+                for (width, height), pages in other_size_pages.items()
+            ],
         )
 
     # ------------------------------------------------------------------
@@ -126,6 +137,14 @@ def _matches(short_edge: float, long_edge: float, size_in: tuple[float, float]) 
         abs(short_edge - expected_short) <= SIZE_TOLERANCE_PT
         and abs(long_edge - expected_long) <= SIZE_TOLERANCE_PT
     )
+
+
+def _rounded_inches(points: float) -> float:
+    return round(points / POINTS_PER_INCH, 2)
+
+
+def _format_size_label(width: float, height: float) -> str:
+    return f"{width:g} × {height:g}"
 
 
 def _format_span(start: int, end: int) -> str:

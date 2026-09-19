@@ -1,28 +1,68 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8" />
-<title>PDF Page Size Finder — Architecture</title>
-<style>
-  body { font-family: Segoe UI, Arial, sans-serif; max-width: 860px; margin: 2em auto; padding: 0 1em; line-height: 1.55; color: #222; }
-  h1, h2, h3 { border-bottom: 1px solid #ddd; padding-bottom: 0.3em; }
-  code, pre { background: #f4f4f4; border-radius: 4px; padding: 0.15em 0.4em; font-family: Consolas, monospace; }
-  pre { padding: 0.8em; overflow-x: auto; }
-  table { border-collapse: collapse; width: 100%; margin: 1em 0; }
-  th, td { border: 1px solid #ccc; padding: 0.5em 0.7em; text-align: left; }
-  th { background: #f0f0f0; }
-</style>
+  <meta charset="UTF-8" />
+  <title>PDF Page Size Finder — Architecture</title>
+  <style>
+    body {
+      font-family: Segoe UI, Arial, sans-serif;
+      max-width: 860px;
+      margin: 2em auto;
+      padding: 0 1em;
+      line-height: 1.55;
+      color: #222;
+    }
+
+    h1,
+    h2,
+    h3 {
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 0.3em;
+    }
+
+    code,
+    pre {
+      background: #f4f4f4;
+      border-radius: 4px;
+      padding: 0.15em 0.4em;
+      font-family: Consolas, monospace;
+    }
+
+    pre {
+      padding: 0.8em;
+      overflow-x: auto;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 1em 0;
+    }
+
+    th,
+    td {
+      border: 1px solid #ccc;
+      padding: 0.5em 0.7em;
+      text-align: left;
+    }
+
+    th {
+      background: #f0f0f0;
+    }
+  </style>
 </head>
+
 <body>
-<h1>Architecture</h1>
-<p>This document describes the internal structure of the PDF Page Size Finder application.</p>
+  <h1>Architecture</h1>
+  <p>This document describes the internal structure of the PDF Page Size Finder application.</p>
 
-<h2>Overview</h2>
-<p>The application follows the same <strong>Model / View / Configuration</strong> separation pattern used by
-the other PySide6 apps in this repository. Each layer has a distinct responsibility and may be understood
-or modified without touching the other layers.</p>
+  <h2>Overview</h2>
+  <p>The application follows the same <strong>Model / View / Configuration</strong> separation pattern used by
+    the other PySide6 apps in this repository. Each layer has a distinct responsibility and may be understood
+    or modified without touching the other layers.</p>
 
-<pre>PDF/
+  <pre>PDF/
 ├── main.py                    ← entry point — bootstraps QApplication and MainWindow
 ├── README.md                  ← root documentation (start here)
 ├── requirements.txt           ← PySide6 + pypdf
@@ -39,25 +79,43 @@ or modified without touching the other layers.</p>
     ├── architecture.html      ← this file
     └── usage.html             ← step-by-step user guide</pre>
 
-<h2>Layer responsibilities</h2>
+  <h2>Layer responsibilities</h2>
 
-<h3><code>config/settings.py</code></h3>
-<p>Constants only — no logic, no imports beyond the standard library.</p>
-<table>
-  <tr><th>Symbol</th><th>Purpose</th></tr>
-  <tr><td><code>APP_NAME</code>, <code>APP_VERSION</code></td><td>Title bar text</td></tr>
-  <tr><td><code>POINTS_PER_INCH</code></td><td>PDF unit conversion (1 in = 72 pt)</td></tr>
-  <tr><td><code>LETTER_SIZE_IN</code>, <code>LEGAL_SIZE_IN</code></td><td>Reference page sizes in inches (short, long)</td></tr>
-  <tr><td><code>SIZE_TOLERANCE_PT</code></td><td>Allowed rounding error, in points, when matching a page size</td></tr>
-  <tr><td><code>LABEL_LETTER</code>, <code>LABEL_LEGAL</code></td><td>Row/label text shared between the model and the view</td></tr>
-</table>
+  <h3><code>config/settings.py</code></h3>
+  <p>Constants only — no logic, no imports beyond the standard library.</p>
+  <table>
+    <tr>
+      <th>Symbol</th>
+      <th>Purpose</th>
+    </tr>
+    <tr>
+      <td><code>APP_NAME</code>, <code>APP_VERSION</code></td>
+      <td>Title bar text</td>
+    </tr>
+    <tr>
+      <td><code>POINTS_PER_INCH</code></td>
+      <td>PDF unit conversion (1 in = 72 pt)</td>
+    </tr>
+    <tr>
+      <td><code>LETTER_SIZE_IN</code>, <code>LEGAL_SIZE_IN</code></td>
+      <td>Reference page sizes in inches (short, long)</td>
+    </tr>
+    <tr>
+      <td><code>SIZE_TOLERANCE_PT</code></td>
+      <td>Allowed rounding error, in points, when matching a page size</td>
+    </tr>
+    <tr>
+      <td><code>LABEL_LETTER</code>, <code>LABEL_LEGAL</code></td>
+      <td>Row/label text shared between the model and the view</td>
+    </tr>
+  </table>
 
-<h3><code>model/pdf_page_analyzer.py</code></h3>
-<p>Pure business logic; contains no PySide6 imports and is independently testable.</p>
+  <h3><code>model/pdf_page_analyzer.py</code></h3>
+  <p>Pure business logic; contains no PySide6 imports and is independently testable.</p>
 
-<h4><code>PdfPageReport</code></h4>
-<p>An immutable <code>dataclass</code> holding the result of analysing one PDF:</p>
-<pre>@dataclass(frozen=True)
+  <h4><code>PdfPageReport</code></h4>
+  <p>An immutable <code>dataclass</code> holding the result of analysing one PDF:</p>
+  <pre>@dataclass(frozen=True)
 class PdfPageReport:
     file_name: str
     file_path: Path
@@ -66,31 +124,64 @@ class PdfPageReport:
     legal_pages: list[int]    # 1-based page numbers
     other_pages: list[int]    # 1-based page numbers that are neither size</pre>
 
-<h4><code>PdfPageAnalyzer</code></h4>
-<p>A stateless class with two static methods:</p>
-<table>
-  <tr><th>Method</th><th>Description</th></tr>
-  <tr><td><code>analyze(pdf_path)</code></td><td>Opens the PDF with <code>pypdf</code>, reads each page's <code>mediabox</code>, and classifies it by comparing its short/long edges (in points) against the Letter and Legal reference sizes within a tolerance</td></tr>
-  <tr><td><code>format_page_range(pages)</code></td><td>Collapses a sorted list of 1-based page numbers into a compact range string, e.g. <code>[1, 2, 4]</code> → <code>"1-2, 4"</code></td></tr>
-</table>
+  <h4><code>PdfPageAnalyzer</code></h4>
+  <p>A stateless class with two static methods:</p>
+  <table>
+    <tr>
+      <th>Method</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td><code>analyze(pdf_path)</code></td>
+      <td>Opens the PDF with <code>pypdf</code>, reads each page's <code>mediabox</code>, and classifies it by comparing
+        its short/long edges (in points) against the Letter and Legal reference sizes within a tolerance</td>
+    </tr>
+    <tr>
+      <td><code>format_page_range(pages)</code></td>
+      <td>Collapses a sorted list of 1-based page numbers into a compact range string, e.g. <code>[1, 2, 4]</code> →
+        <code>"1-2, 4"</code></td>
+    </tr>
+  </table>
 
-<p>Orientation independence: pages are compared using their sorted (short edge, long edge) pair rather than
-raw width/height, so a landscape-rotated Letter page (792 × 612 pt) still matches the same reference as a
-portrait Letter page (612 × 792 pt).</p>
+  <p>Orientation independence: pages are compared using their sorted (short edge, long edge) pair rather than
+    raw width/height, so a landscape-rotated Letter page (792 × 612 pt) still matches the same reference as a
+    portrait Letter page (612 × 792 pt).</p>
 
-<h3><code>view/main_window.py</code></h3>
-<p>Owns the entire UI layout. Key components:</p>
-<table>
-  <tr><th>Widget</th><th>Role</th></tr>
-  <tr><td>Browse button</td><td>Opens a native file dialog filtered to <code>*.pdf</code></td></tr>
-  <tr><td><code>_name_value</code> / <code>_path_value</code></td><td>Labels showing the selected file's name and full path</td></tr>
-  <tr><td><code>QGridLayout</code></td><td>Two data rows (Letter, Legal), each with a size label, a page-range label, and a Copy button</td></tr>
-  <tr><td><code>_letter_copy_btn</code> / <code>_legal_copy_btn</code></td><td>Copies that row's page range to the system clipboard via <code>QApplication.clipboard()</code>; disabled when the range is empty</td></tr>
-  <tr><td><code>statusBar()</code></td><td>Running single-line summary of the current scan / last copy action</td></tr>
-</table>
+  <h3><code>view/main_window.py</code></h3>
+  <p>Owns the entire UI layout. Key components:</p>
+  <table>
+    <tr>
+      <th>Widget</th>
+      <th>Role</th>
+    </tr>
+    <tr>
+      <td>Open PDF button</td>
+      <td>Opens a native file dialog filtered to <code>*.pdf</code>, starting at the previously selected PDF's directory
+      </td>
+    </tr>
+    <tr>
+      <td><code>_name_value</code> / <code>_path_value</code></td>
+      <td>Labels showing the selected file's name and full path</td>
+    </tr>
+    <tr>
+      <td><code>QScrollArea</code> + <code>QGridLayout</code></td>
+      <td>Scrollable page-size rows, each with a size label, page-range label, total count, and Copy button</td>
+    </tr>
+    <tr>
+      <td><code>_add_size_row()</code></td>
+      <td>Creates a size row and copies that row's page range to the system clipboard via
+        <code>QApplication.clipboard()</code>; the button is disabled when the range is empty</td>
+    </tr>
+    <tr>
+      <td><code>statusBar()</code></td>
+      <td>Running single-line summary of the current scan / last copy action</td>
+    </tr>
+  </table>
 
-<h3><code>main.py</code></h3>
-<p>Minimal entry point: creates <code>QApplication</code>, instantiates <code>MainWindow</code>, calls <code>show()</code> and <code>exec()</code>.</p>
+  <h3><code>main.py</code></h3>
+  <p>Minimal entry point: creates <code>QApplication</code>, instantiates <code>MainWindow</code>, calls
+    <code>show()</code> and <code>exec()</code>.</p>
 
 </body>
+
 </html>

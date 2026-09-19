@@ -9,10 +9,11 @@ into the Windows Print dialog box.
 
 ## Features
 
-- Browse for a PDF file with a native file dialog
+- Open a PDF file with a native file dialog
 - Displays the selected file's name and full path
-- Grid with one row for **Letter** pages and one row for **Legal** pages, each showing:
+- Grid with one row for **Letter** pages, one row for **Legal** pages, and one row for each distinct other page size, each showing:
   - A compact page-range string (e.g. `1-2, 4`)
+  - The total number of pages for that size
   - A **Copy** button that copies that range to the clipboard for pasting into Print → Pages
 - Orientation-independent size detection — rotated (landscape) pages are still matched correctly
 
@@ -45,18 +46,20 @@ python main.py
 
 ## Quick start
 
-1. Click **Browse for PDF…** and select the PDF file you want to inspect.
+1. Click **Open PDF** and select the PDF file you want to inspect.
 2. The **File Name** and **File Path** fields update to show the selected file.
 3. The grid shows the page range for **Letter** pages and for **Legal** pages, e.g. a
    6-page PDF with Letter pages 1, 2, & 4 and Legal pages 3, 5, & 6 shows:
 
-   | Size | Page Range | |
-   |---|---|---|
-   | Letter | 1-2, 4 | Copy |
-   | Legal | 3, 5-6 | Copy |
+  | Size | Page Range | Total | |
+  |---|---|---|---|
+  | Letter | 1-2, 4 | 3 | Copy |
+  | Legal | 3, 5-6 | 3 | Copy |
 
 4. Click **Copy** next to either row to copy that page range to the clipboard.
 5. Paste the copied text into the **Pages** field of the Windows Print dialog box to print only that size's pages.
+
+The full path of the selected PDF is saved and used as the starting location the next time a PDF is opened.
 
 ---
 
@@ -93,5 +96,5 @@ PDF/
 ## Notes
 
 - Page size is determined from each page's `mediabox` dimensions, compared in PDF points (1 in = 72 pt) with a small tolerance for rounding.
-- Pages that are neither Letter nor Legal sized are counted in the status bar but not shown in the grid.
+- Pages that are neither Letter nor Legal sized are grouped by width and height and shown in their own grid rows.
 - Selecting a new PDF file replaces all previous results.
