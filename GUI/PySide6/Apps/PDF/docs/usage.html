@@ -229,7 +229,8 @@ python main.py</pre>
   <p>The main window opens with empty file name/path fields and both grid rows showing <code>—</code>.</p>
 
   <h2 id="rebuild">Rebuilding the EXE</h2>
-  <p>To regenerate the packaged Windows app after a source change, run the project helper batch file from the PDF folder:</p>
+  <p>To regenerate the packaged Windows app after a source change, run the project helper batch file from the PDF
+    folder:</p>
   <pre>rebuild_pdf_app.bat</pre>
   <p>This script activates the project virtual environment and runs the PyInstaller build command:</p>
   <pre>python -m PyInstaller --noconfirm "PDF_Page_Size_Finder.spec"</pre>
