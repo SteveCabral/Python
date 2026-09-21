@@ -44,6 +44,24 @@ python main.py
 
 ---
 
+## Rebuilding the EXE
+
+To regenerate the packaged Windows app after code changes, run the project helper batch file:
+
+```bat
+rebuild_pdf_app.bat
+```
+
+This activates the Python environment and runs:
+
+```bat
+python -m PyInstaller --noconfirm "PDF_Page_Size_Finder.spec"
+```
+
+The packaged app is output to `dist\PDF_Page_Size_Finder.exe`.
+
+---
+
 ## Quick start
 
 1. Click **Open PDF** and select the PDF file you want to inspect.

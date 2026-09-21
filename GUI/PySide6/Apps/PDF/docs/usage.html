@@ -207,6 +207,7 @@
     <ol>
       <li><a href="#prerequisites">Prerequisites</a></li>
       <li><a href="#starting">Starting the application</a></li>
+      <li><a href="#rebuild">Rebuilding the EXE</a></li>
       <li><a href="#select">Select a PDF file</a></li>
       <li><a href="#review">Review the page ranges</a></li>
       <li><a href="#copy">Copy a page range</a></li>
@@ -226,6 +227,13 @@
   <pre>cd GUI/PySide6/Apps/PDF
 python main.py</pre>
   <p>The main window opens with empty file name/path fields and both grid rows showing <code>—</code>.</p>
+
+  <h2 id="rebuild">Rebuilding the EXE</h2>
+  <p>To regenerate the packaged Windows app after a source change, run the project helper batch file from the PDF folder:</p>
+  <pre>rebuild_pdf_app.bat</pre>
+  <p>This script activates the project virtual environment and runs the PyInstaller build command:</p>
+  <pre>python -m PyInstaller --noconfirm "PDF_Page_Size_Finder.spec"</pre>
+  <p>The updated executable is written to <code>dist\PDF_Page_Size_Finder.exe</code>.</p>
 
   <h2 id="select">Step 1 — Select a PDF file</h2>
   <p>Click <strong>Open PDF</strong> and choose the file you want to inspect. Once selected:</p>
