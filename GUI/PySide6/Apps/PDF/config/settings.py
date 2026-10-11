@@ -1,7 +1,7 @@
 """Application-wide configuration constants for PDF Page Size Finder."""
 
 APP_NAME = "PDF Page Size Finder"
-APP_VERSION = "2.0"
+APP_VERSION = "3.3"
 LAST_PDF_PATH_KEY = "last_pdf_path"
 CONTROL_FONT_FAMILIES = ["Inter", "Segoe UI", "Roboto"]
 
@@ -17,3 +17,7 @@ SIZE_TOLERANCE_PT = 2.0
 # ── Row labels ───────────────────────────────────────────────────────────────
 LABEL_LETTER = "Letter (8½ × 11)"
 LABEL_LEGAL = "Legal (8½ × 14)"
+
+# ── Table text colors ────────────────────────────────────────────────────────
+# Text color for the Page Range, Size, and Total cells of Legal rows.
+LEGAL_TEXT_COLOR = "#FF0000"

@@ -196,7 +196,7 @@
     <h1>PDF Page Size Finder — Usage Guide</h1>
     <div class="meta-grid">
       <span><strong>Application:</strong> PDF Page Size Finder</span>
-      <span><strong>Version:</strong> 2.0</span>
+      <span><strong>Version:</strong> 3.3</span>
       <span><strong>Type:</strong> Usage guide</span>
       <span><strong>Focus:</strong> Page-size analysis and printing</span>
     </div>
@@ -226,15 +226,24 @@
   <p>Run from the <code>PDF</code> directory:</p>
   <pre>cd GUI/PySide6/Apps/PDF
 python main.py</pre>
-  <p>The main window opens with empty file name/path fields and both grid rows showing <code>—</code>.</p>
+  <p>The main window opens with empty file name/path fields and the <strong>By Page Size</strong> grid showing
+    <code>—</code> in its Letter and Legal rows (the <strong>By Page Range</strong> grid is empty until a PDF is
+    opened).</p>
 
   <h2 id="rebuild">Rebuilding the EXE</h2>
   <p>To regenerate the packaged Windows app after a source change, run the project helper batch file from the PDF
     folder:</p>
   <pre>rebuild_pdf_app.bat</pre>
-  <p>This script activates the project virtual environment and runs the PyInstaller build command:</p>
+  <p>This script calls the project virtual environment's Python directly
+    (<code>C:\PythonVenv\py311\Scripts\python.exe</code>; no activation needed) and performs these steps:</p>
+  <ol>
+    <li>Checks the source files for syntax errors with <code>py_compile</code> and stops if any are found.</li>
+    <li>Deletes the previous <code>dist\PDF_Page_Size_Finder.exe</code>.</li>
+    <li>Runs the PyInstaller build command:</li>
+  </ol>
   <pre>python -m PyInstaller --noconfirm "PDF_Page_Size_Finder.spec"</pre>
-  <p>The updated executable is written to <code>dist\PDF_Page_Size_Finder.exe</code>.</p>
+  <p>The script stops with an error message if the syntax check or the build fails. The updated executable is
+    written to <code>dist\PDF_Page_Size_Finder.exe</code>.</p>
 
   <h2 id="select">Step 1 — Select a PDF file</h2>
   <p>Click <strong>Open PDF</strong> and choose the file you want to inspect. Once selected:</p>
@@ -250,7 +259,7 @@ python main.py</pre>
     (landscape) Letter or Legal pages are still recognised correctly.</div>
 
   <h2 id="review">Step 2 — Review the page ranges</h2>
-  <p>The grid shows one row per size:</p>
+  <p>The grid shows one row per size, with the Page Range column before the Size column:</p>
   <table>
     <tr>
       <th>Row</th>
@@ -271,6 +280,12 @@ python main.py</pre>
   </table>
   <p>Consecutive page numbers are collapsed into a dash range (<code>5-6</code>); isolated pages are listed individually
     (<code>4</code>).</p>
+  <p>Use the <strong>By Page Size</strong> and <strong>By Page Range</strong> buttons above the grid to switch views.
+    <strong>By Page Size</strong> (the default) shows the rows above. <strong>By Page Range</strong> shows one row
+    per individual page range (e.g. <code>1</code> and <code>4-5</code> on separate rows), sorted by page number,
+    each with its own size, total, and <strong>Copy</strong> button. The selected button stays highlighted.</p>
+  <p>Rows for <strong>Legal</strong> pages are displayed in bright red text (Page Range, Size, and Total columns) in
+    both views. The color is controlled by <code>LEGAL_TEXT_COLOR</code> in <code>config/settings.py</code>.</p>
   <p>If a document has no pages of a given size, that row shows <code>—</code> and its <strong>Copy</strong> button is
     disabled.</p>
 
@@ -286,7 +301,7 @@ python main.py</pre>
       producers.</li>
     <li>Pages that are neither Letter nor Legal sized are grouped by width and height and shown in their own grid rows.
     </li>
-    <li>Selecting a new PDF file replaces the previous results.</li>
+    <li>Selecting a new PDF file replaces the previous results in both views.</li>
     <li>The full path of the selected PDF is saved and used as the starting location the next time a PDF is opened.</li>
   </ul>
 

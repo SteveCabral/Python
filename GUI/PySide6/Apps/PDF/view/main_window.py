@@ -5,9 +5,11 @@ from __future__ import annotations
 from pathlib import Path
 
 from PySide6.QtCore import QSettings, Qt
+from PySide6.QtGui import QColor
 from PySide6.QtWidgets import (
     QApplication,
     QAbstractItemView,
+    QButtonGroup,
     QFileDialog,
     QFrame,
     QHeaderView,
@@ -16,6 +18,7 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QMessageBox,
     QPushButton,
+    QStackedWidget,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
@@ -28,6 +31,7 @@ from config.settings import (
     LABEL_LEGAL,
     LABEL_LETTER,
     LAST_PDF_PATH_KEY,
+    LEGAL_TEXT_COLOR,
 )
 from model.pdf_page_analyzer import PdfPageAnalyzer, PdfPageReport
 
@@ -60,9 +64,11 @@ class MainWindow(QMainWindow):
         root.addLayout(self._make_browse_row())
         root.addLayout(self._make_info_rows())
         root.addWidget(_separator())
-        root.addWidget(self._make_grid(), stretch=1)
+        root.addLayout(self._make_view_buttons())
+        root.addWidget(self._make_tables(), stretch=1)
         root.addStretch()
 
+        self.statusBar().setStyleSheet("QStatusBar { border-top: 1px solid #3A3A3A; }")
         self.statusBar().showMessage("Select a PDF file to begin.")
 
     def _make_browse_row(self) -> QHBoxLayout:
@@ -70,7 +76,7 @@ class MainWindow(QMainWindow):
         row.setSpacing(6)
 
         browse_btn = QPushButton("Open PDF")
-        browse_btn.setFixedWidth(150)
+        browse_btn.setFixedWidth(120)
         browse_btn.clicked.connect(self._browse_pdf)
         row.addWidget(browse_btn)
         row.addStretch()
@@ -97,7 +103,52 @@ class MainWindow(QMainWindow):
 
         return col
 
+    def _make_view_buttons(self) -> QHBoxLayout:
+        row = QHBoxLayout()
+        row.setSpacing(6)
+
+        self._by_size_btn = QPushButton("By Page Size")
+        self._by_page_btn = QPushButton("By Page Range")
+        group = QButtonGroup(self)
+        group.setExclusive(True)
+        for index, button in enumerate((self._by_size_btn, self._by_page_btn)):
+            button.setCheckable(True)
+            button.setFixedWidth(120)
+            group.addButton(button, index)
+            row.addWidget(button)
+        self._by_size_btn.setChecked(True)
+        group.idClicked.connect(self._show_table)
+        self._view_group = group
+        row.addStretch()
+
+        return row
+
+    def _make_tables(self) -> QStackedWidget:
+        self._stack = QStackedWidget()
+        self._stack.addWidget(self._make_grid())
+        self._stack.addWidget(self._make_page_grid())
+        return self._stack
+
+    def _show_table(self, index: int) -> None:
+        self._stack.setCurrentIndex(index)
+
+    def _make_page_grid(self) -> QTableWidget:
+        table = self._make_table()
+        table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Fixed)
+        table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        # Roughly 30% of the By Page Size Page Range column (a 70% reduction).
+        table.setColumnWidth(0, 100)
+        self._page_grid = table
+        return table
+
     def _make_grid(self) -> QTableWidget:
+        table = self._make_table()
+        self._grid = table
+        self._add_size_row(LABEL_LETTER)
+        self._add_size_row(LABEL_LEGAL)
+        return table
+
+    def _make_table(self) -> QTableWidget:
         table = QTableWidget(0, 4)
         table.setStyleSheet(
             """
@@ -131,7 +182,7 @@ class MainWindow(QMainWindow):
             }
             """
         )
-        table.setHorizontalHeaderLabels(["Size", "Page Range", "Total", ""])
+        table.setHorizontalHeaderLabels(["Page Range", "Size", "Total", ""])
         table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         table.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         table.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -141,34 +192,52 @@ class MainWindow(QMainWindow):
         table.verticalHeader().setDefaultSectionSize(28)
         table.verticalHeader().setMinimumSectionSize(28)
         table.horizontalHeader().setStretchLastSection(False)
-        table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
-        table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+        table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
+        table.horizontalHeader().setSectionResizeMode(1, QHeaderView.ResizeMode.ResizeToContents)
         table.horizontalHeader().setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
         table.horizontalHeader().setSectionResizeMode(3, QHeaderView.ResizeMode.Fixed)
         table.setColumnWidth(3, 70)
-
-        self._grid = table
-        self._add_size_row(LABEL_LETTER)
-        self._add_size_row(LABEL_LEGAL)
         return table
 
     def _add_size_row(self, label_text: str, pages: list[int] | None = None) -> None:
-        row = self._grid.rowCount()
         page_range = PdfPageAnalyzer.format_page_range(pages or []) or "—"
-        self._grid.insertRow(row)
-        self._grid.setItem(row, 0, QTableWidgetItem(label_text))
-        self._grid.setItem(row, 1, QTableWidgetItem(page_range))
-        self._grid.setItem(row, 2, QTableWidgetItem(str(len(pages)) if pages else "—"))
+        self._add_row(self._grid, page_range, label_text, len(pages) if pages else None)
+
+    def _add_row(
+        self, table: QTableWidget, page_range: str, label_text: str, total: int | None
+    ) -> None:
+        row = table.rowCount()
+        table.insertRow(row)
+        items = (
+            QTableWidgetItem(page_range),
+            QTableWidgetItem(label_text),
+            QTableWidgetItem(str(total) if total else "—"),
+        )
+        for column, item in enumerate(items):
+            if label_text == LABEL_LEGAL:
+                item.setForeground(QColor(LEGAL_TEXT_COLOR))
+            table.setItem(row, column, item)
         copy_button = QPushButton("Copy")
         copy_button.setEnabled(page_range != "—")
         copy_button.setFixedWidth(70)
         copy_button.clicked.connect(
             lambda checked=False, value=page_range: self._copy_range(value)
         )
-        self._grid.setCellWidget(row, 3, copy_button)
+        table.setCellWidget(row, 3, copy_button)
 
     def _clear_size_rows(self) -> None:
         self._grid.setRowCount(0)
+        self._page_grid.setRowCount(0)
+
+    def _populate_page_grid(self, size_groups: list[tuple[str, list[int]]]) -> None:
+        entries: list[tuple[int, str, str, int]] = []
+        for label, pages in size_groups:
+            for page_range in PdfPageAnalyzer.split_page_ranges(pages):
+                start, _, end = page_range.partition("-")
+                total = int(end) - int(start) + 1 if end else 1
+                entries.append((int(start), page_range, label, total))
+        for _, page_range, label, total in sorted(entries):
+            self._add_row(self._page_grid, page_range, label, total)
 
     # ------------------------------------------------------------------
     # Slots
@@ -219,6 +288,7 @@ class MainWindow(QMainWindow):
         ]
         for label, pages in size_groups:
             self._add_size_row(label, pages)
+        self._populate_page_grid(size_groups)
 
         message = (
             f"{report.page_count} page(s) — "

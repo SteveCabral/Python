@@ -96,8 +96,16 @@ class PdfPageAnalyzer:
         Example: ``[1, 2, 4]`` -> ``"1-2, 4"``.  Returns an empty string for
         an empty list.
         """
+        return ", ".join(PdfPageAnalyzer.split_page_ranges(pages))
+
+    @staticmethod
+    def split_page_ranges(pages: list[int]) -> list[str]:
+        """Split a sorted list of page numbers into individual range strings.
+
+        Example: ``[1, 4, 5]`` -> ``["1", "4-5"]``.
+        """
         if not pages:
-            return ""
+            return []
 
         ranges: list[str] = []
         start = prev = pages[0]
@@ -110,7 +118,7 @@ class PdfPageAnalyzer:
             start = prev = page
 
         ranges.append(_format_span(start, prev))
-        return ", ".join(ranges)
+        return ranges
 
 
 # ── Module-level helpers ──────────────────────────────────────────────────────

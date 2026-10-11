@@ -11,10 +11,12 @@ into the Windows Print dialog box.
 
 - Open a PDF file with a native file dialog
 - Displays the selected file's name and full path
-- Grid with one row for **Letter** pages, one row for **Legal** pages, and one row for each distinct other page size, each showing:
+- **By Page Size** view (default): one row for **Letter** pages, one row for **Legal** pages, and one row for each distinct other page size, each showing:
   - A compact page-range string (e.g. `1-2, 4`)
   - The total number of pages for that size
   - A **Copy** button that copies that range to the clipboard for pasting into Print → Pages
+- **By Page Range** view: one row per individual page range (e.g. `1` and `4-5` on separate rows), sorted by page number, with its own size, total, and **Copy** button
+- Legal rows are shown in bright red text; the color is configurable via `LEGAL_TEXT_COLOR` in `config/settings.py`
 - Orientation-independent size detection — rotated (landscape) pages are still matched correctly
 
 ---
@@ -52,12 +54,18 @@ To regenerate the packaged Windows app after code changes, run the project helpe
 rebuild_pdf_app.bat
 ```
 
-This activates the Python environment and runs:
+This runs the following steps using the project virtual environment's Python directly
+(`C:\PythonVenv\py311\Scripts\python.exe`, no activation needed):
+
+1. Checks the source files for syntax errors (`py_compile`) and stops if any are found
+2. Deletes the previous `dist\PDF_Page_Size_Finder.exe`
+3. Builds the new EXE:
 
 ```bat
 python -m PyInstaller --noconfirm "PDF_Page_Size_Finder.spec"
 ```
 
+The batch file stops with an error message if the syntax check or the build fails.
 The packaged app is output to `dist\PDF_Page_Size_Finder.exe`.
 
 ---
@@ -66,16 +74,26 @@ The packaged app is output to `dist\PDF_Page_Size_Finder.exe`.
 
 1. Click **Open PDF** and select the PDF file you want to inspect.
 2. The **File Name** and **File Path** fields update to show the selected file.
-3. The grid shows the page range for **Letter** pages and for **Legal** pages, e.g. a
-   6-page PDF with Letter pages 1, 2, & 4 and Legal pages 3, 5, & 6 shows:
+3. The **By Page Size** view (shown by default) lists the page range for **Letter** pages and for **Legal** pages, e.g. a
+   6-page PDF with Letter pages 1, 2, & 4 and Legal pages 3, 5, & 6 shows (Legal rows appear in red):
 
-  | Size | Page Range | Total | |
+  | Page Range | Size | Total | |
   |---|---|---|---|
-  | Letter | 1-2, 4 | 3 | Copy |
-  | Legal | 3, 5-6 | 3 | Copy |
+  | 1-2, 4 | Letter | 3 | Copy |
+  | 3, 5-6 | Legal | 3 | Copy |
 
-4. Click **Copy** next to either row to copy that page range to the clipboard.
-5. Paste the copied text into the **Pages** field of the Windows Print dialog box to print only that size's pages.
+4. Click **By Page Range** to replace that table with one row per individual page range, sorted by page number:
+
+  | Page Range | Size | Total | |
+  |---|---|---|---|
+  | 1-2 | Letter | 2 | Copy |
+  | 3 | Legal | 1 | Copy |
+  | 4 | Letter | 1 | Copy |
+  | 5-6 | Legal | 2 | Copy |
+
+   Click **By Page Size** to return to the grouped view.
+5. Click **Copy** next to any row to copy that page range to the clipboard.
+6. Paste the copied text into the **Pages** field of the Windows Print dialog box to print only those pages.
 
 The full path of the selected PDF is saved and used as the starting location the next time a PDF is opened.
 
@@ -90,7 +108,7 @@ PDF/
 ├── requirements.txt           # PySide6 + pypdf
 ├── config/
 │   ├── __init__.py
-│   └── settings.py            # App-wide constants (size thresholds, labels, version)
+│   └── settings.py            # App-wide constants (size thresholds, labels, version, Legal text color)
 ├── model/
 │   ├── __init__.py
 │   └── pdf_page_analyzer.py   # Business logic — no GUI dependencies
@@ -115,4 +133,4 @@ PDF/
 
 - Page size is determined from each page's `mediabox` dimensions, compared in PDF points (1 in = 72 pt) with a small tolerance for rounding.
 - Pages that are neither Letter nor Legal sized are grouped by width and height and shown in their own grid rows.
-- Selecting a new PDF file replaces all previous results.
+- Selecting a new PDF file replaces all previous results in both views.

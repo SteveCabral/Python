@@ -199,7 +199,7 @@
     <h1>PDF Page Size Finder — Architecture</h1>
     <div class="meta-grid">
       <span><strong>Application:</strong> PDF Page Size Finder</span>
-      <span><strong>Version:</strong> 2.0</span>
+      <span><strong>Version:</strong> 3.3</span>
       <span><strong>Type:</strong> Architecture reference</span>
       <span><strong>Focus:</strong> Model, view, and configuration</span>
     </div>
@@ -228,7 +228,7 @@
 ├── requirements.txt           ← PySide6 + pypdf
 ├── config/
 │   ├── __init__.py
-│   └── settings.py            ← constants: app name/version, size thresholds, labels
+│   └── settings.py            ← constants: app name/version, size thresholds, labels, Legal text color
 ├── model/
 │   ├── __init__.py
 │   └── pdf_page_analyzer.py   ← all PDF parsing/classification logic; no GUI dependencies
@@ -268,6 +268,10 @@
       <td><code>LABEL_LETTER</code>, <code>LABEL_LEGAL</code></td>
       <td>Row/label text shared between the model and the view</td>
     </tr>
+    <tr>
+      <td><code>LEGAL_TEXT_COLOR</code></td>
+      <td>Text color (default bright red <code>#FF0000</code>) for the Page Range, Size, and Total cells of Legal rows</td>
+    </tr>
   </table>
 
   <h3 id="model"><code>model/pdf_page_analyzer.py</code></h3>
@@ -285,7 +289,7 @@ class PdfPageReport:
     other_pages: list[int]    # 1-based page numbers that are neither size</pre>
 
   <h4><code>PdfPageAnalyzer</code></h4>
-  <p>A stateless class with two static methods:</p>
+  <p>A stateless class with three static methods:</p>
   <table>
     <tr>
       <th>Method</th>
@@ -300,6 +304,12 @@ class PdfPageReport:
       <td><code>format_page_range(pages)</code></td>
       <td>Collapses a sorted list of 1-based page numbers into a compact range string, e.g. <code>[1, 2, 4]</code> →
         <code>"1-2, 4"</code>
+      </td>
+    </tr>
+    <tr>
+      <td><code>split_page_ranges(pages)</code></td>
+      <td>Splits a sorted list of page numbers into separate range strings, e.g. <code>[1, 4, 5]</code> →
+        <code>["1", "4-5"]</code>; used by the By Page Range view and by <code>format_page_range</code>
       </td>
     </tr>
   </table>
@@ -325,19 +335,38 @@ class PdfPageReport:
       <td>Labels showing the selected file's name and full path</td>
     </tr>
     <tr>
-      <td><code>QTableWidget</code></td>
-      <td>Scrollable page-size rows with a frozen header, controlled row height, size label, page-range label, total
-        count, and Copy button</td>
+      <td><code>_by_size_btn</code> / <code>_by_page_btn</code></td>
+      <td>Checkable, mutually exclusive <strong>By Page Size</strong> and <strong>By Page Range</strong> buttons
+        (<code>QButtonGroup</code>) that choose which table is visible</td>
     </tr>
     <tr>
-      <td><code>_add_size_row()</code></td>
-      <td>Creates a size row and copies that row's page range to the system clipboard via
-        <code>QApplication.clipboard()</code>; the button is disabled when the range is empty
+      <td><code>QStackedWidget</code></td>
+      <td>Holds the two tables and shows only one at a time, switched by the view buttons</td>
+    </tr>
+    <tr>
+      <td><code>_grid</code> (<code>QTableWidget</code>)</td>
+      <td>By Page Size table: one row per size (Letter, Legal, each other size) with a comma-separated page-range
+        string, size label, total count, and Copy button</td>
+    </tr>
+    <tr>
+      <td><code>_page_grid</code> (<code>QTableWidget</code>)</td>
+      <td>By Page Range table: one row per individual page range, sorted by starting page, with a narrower fixed-width
+        Page Range column</td>
+    </tr>
+    <tr>
+      <td><code>_add_row()</code></td>
+      <td>Shared row builder for both tables: adds the page-range, size, and total cells (Legal rows use
+        <code>LEGAL_TEXT_COLOR</code>) and a Copy button that copies that row's page range to the system clipboard
+        via <code>QApplication.clipboard()</code>; the button is disabled when the range is empty
       </td>
     </tr>
     <tr>
+      <td><code>_populate_page_grid()</code></td>
+      <td>Builds the By Page Range rows from the size groups using <code>split_page_ranges</code></td>
+    </tr>
+    <tr>
       <td><code>statusBar()</code></td>
-      <td>Running single-line summary of the current scan / last copy action</td>
+      <td>Running single-line summary of the current scan / last copy action, separated from the table by a top border</td>
     </tr>
   </table>
 
