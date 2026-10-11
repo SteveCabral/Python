@@ -9,7 +9,7 @@ import sys
 from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QApplication
 
-from config.settings import APP_NAME, CONTROL_FONT_FAMILIES
+from config.settings import APP_NAME, CONTROL_FONT_FAMILIES, CONTROL_FONT_SIZE_PX
 from view.main_window import MainWindow
 
 
@@ -18,6 +18,7 @@ def main() -> None:
     app.setApplicationName(APP_NAME)
     app_font = QFont()
     app_font.setFamilies(CONTROL_FONT_FAMILIES)
+    app_font.setPixelSize(CONTROL_FONT_SIZE_PX)
     app.setFont(app_font)
 
     window = MainWindow()

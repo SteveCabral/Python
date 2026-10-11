@@ -17,6 +17,7 @@ into the Windows Print dialog box.
   - A **Copy** button that copies that range to the clipboard for pasting into Print → Pages
 - **By Page Range** view: one row per individual page range (e.g. `1` and `4-5` on separate rows), sorted by page number, with its own size, total, and **Copy** button
 - Legal rows are shown in bright red text; the color is configurable via `LEGAL_TEXT_COLOR` in `config/settings.py`
+- UI font matches the Visual Studio Code menu (Segoe UI, 13 px); configurable via `CONTROL_FONT_FAMILIES` and `CONTROL_FONT_SIZE_PX` in `config/settings.py`
 - Orientation-independent size detection — rotated (landscape) pages are still matched correctly
 
 ---

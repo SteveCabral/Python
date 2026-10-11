@@ -1,9 +1,11 @@
 """Application-wide configuration constants for PDF Page Size Finder."""
 
 APP_NAME = "PDF Page Size Finder"
-APP_VERSION = "3.3"
+APP_VERSION = "3.4"
 LAST_PDF_PATH_KEY = "last_pdf_path"
-CONTROL_FONT_FAMILIES = ["Inter", "Segoe UI", "Roboto"]
+# Matches the Visual Studio Code UI/menu font on Windows (Segoe UI, 13 px).
+CONTROL_FONT_FAMILIES = ["Segoe UI"]
+CONTROL_FONT_SIZE_PX = 13
 
 # ── Page size detection ─────────────────────────────────────────────────────
 # Dimensions are compared in PDF points (1 inch = 72 points), using the
