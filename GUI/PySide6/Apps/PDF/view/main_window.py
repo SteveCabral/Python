@@ -5,7 +5,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from PySide6.QtCore import QSettings, Qt
-from PySide6.QtGui import QColor
+from PySide6.QtGui import QColor, QFont
 from PySide6.QtWidgets import (
     QApplication,
     QAbstractItemView,
@@ -29,9 +29,12 @@ from config.settings import (
     APP_NAME,
     APP_VERSION,
     LABEL_LEGAL,
-    LABEL_LETTER,
     LAST_PDF_PATH_KEY,
     LEGAL_TEXT_COLOR,
+    MONO_FONT_BOLD,
+    MONO_FONT_FAMILIES,
+    MONO_FONT_ITALIC,
+    MONO_FONT_SIZE_PX,
 )
 from model.pdf_page_analyzer import PdfPageAnalyzer, PdfPageReport
 
@@ -45,7 +48,9 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(620, 338)
 
         self._pdf_path: Path | None = None
+        self._page_count = 0
         self._settings = QSettings(APP_NAME, APP_NAME)
+        self._mono_font = _mono_font()
 
         self._build_ui()
 
@@ -144,8 +149,6 @@ class MainWindow(QMainWindow):
     def _make_grid(self) -> QTableWidget:
         table = self._make_table()
         self._grid = table
-        self._add_size_row(LABEL_LETTER)
-        self._add_size_row(LABEL_LEGAL)
         return table
 
     def _make_table(self) -> QTableWidget:
@@ -182,7 +185,11 @@ class MainWindow(QMainWindow):
             }
             """
         )
-        table.setHorizontalHeaderLabels(["Page Range", "Size", "Total", ""])
+        table.setHorizontalHeaderLabels(
+            ["Page Range", "Page Size (H × W)", "Total Pages", ""]
+        )
+        for column in (0, 2):
+            table.horizontalHeaderItem(column).setTextAlignment(Qt.AlignmentFlag.AlignCenter)
         table.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         table.setSelectionMode(QAbstractItemView.SelectionMode.NoSelection)
         table.setFocusPolicy(Qt.FocusPolicy.NoFocus)
@@ -214,6 +221,9 @@ class MainWindow(QMainWindow):
             QTableWidgetItem(str(total) if total else "—"),
         )
         for column, item in enumerate(items):
+            if column != 1:
+                item.setFont(self._mono_font)
+                item.setTextAlignment(Qt.AlignmentFlag.AlignCenter)
             if label_text == LABEL_LEGAL:
                 item.setForeground(QColor(LEGAL_TEXT_COLOR))
             table.setItem(row, column, item)
@@ -273,7 +283,9 @@ class MainWindow(QMainWindow):
         if not range_text or range_text == "—":
             return
         QApplication.clipboard().setText(range_text)
-        self.statusBar().showMessage(f"Copied page range to clipboard: {range_text}")
+        self.statusBar().showMessage(
+            f"{self._page_count} page(s) — Copied page range to clipboard: {range_text}"
+        )
 
     # ------------------------------------------------------------------
     # Grid population
@@ -281,9 +293,9 @@ class MainWindow(QMainWindow):
 
     def _populate_grid(self, report: PdfPageReport) -> None:
         self._clear_size_rows()
+        self._page_count = report.page_count
         size_groups = [
-            (LABEL_LETTER, report.letter_pages),
-            (LABEL_LEGAL, report.legal_pages),
+            *report.standard_size_pages,
             *report.other_size_pages,
         ]
         for label, pages in size_groups:
@@ -292,19 +304,36 @@ class MainWindow(QMainWindow):
 
         message = (
             f"{report.page_count} page(s) — "
-            f"{len(report.letter_pages)} Letter, {len(report.legal_pages)} Legal"
+            f"{_count_pages(report.standard_size_pages, 'Letter')} Letter, "
+            f"{_count_pages(report.standard_size_pages, 'Legal')} Legal"
         )
+        if report.standard_size_pages:
+            message += f", {len(report.standard_size_pages)} standard size(s)"
         if report.other_pages:
             message += f", {len(report.other_size_pages)} other size(s)"
         self.statusBar().showMessage(message)
 
     def _reset_grid(self) -> None:
         self._clear_size_rows()
-        self._add_size_row(LABEL_LETTER)
-        self._add_size_row(LABEL_LEGAL)
+        self._page_count = 0
 
 
 # ── Module-level helpers ──────────────────────────────────────────────────────
+
+def _mono_font() -> QFont:
+    font = QFont()
+    font.setFamilies(MONO_FONT_FAMILIES)
+    font.setStyleHint(QFont.StyleHint.Monospace)
+    font.setPixelSize(MONO_FONT_SIZE_PX)
+    font.setBold(MONO_FONT_BOLD)
+    font.setItalic(MONO_FONT_ITALIC)
+    return font
+
+
+def _count_pages(size_groups: list[tuple[str, list[int]]], size_name: str) -> int:
+    prefix = f"{size_name} ("
+    return sum(len(pages) for label, pages in size_groups if label.startswith(prefix))
+
 
 def _field_label(text: str) -> QLabel:
     label = QLabel(text)

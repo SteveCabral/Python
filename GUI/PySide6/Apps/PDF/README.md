@@ -1,5 +1,7 @@
 # PDF Page Size Finder
 
+Version 3.6
+
 A PySide6 desktop application that scans a PDF file and reports which pages
 are **Letter** size (8.5 × 11 in) and which are **Legal** size (8.5 × 14 in) —
 useful for printing mixed-size documents with the correct page range typed
@@ -17,7 +19,11 @@ into the Windows Print dialog box.
   - A **Copy** button that copies that range to the clipboard for pasting into Print → Pages
 - **By Page Range** view: one row per individual page range (e.g. `1` and `4-5` on separate rows), sorted by page number, with its own size, total, and **Copy** button
 - Legal rows are shown in bright red text; the color is configurable via `LEGAL_TEXT_COLOR` in `config/settings.py`
+- Common standard sizes are named in the Page Size column, including A4, A3, A5, B5, Executive, Statement, Folio, and Tabloid
 - UI font matches the Visual Studio Code menu (Segoe UI, 13 px); configurable via `CONTROL_FONT_FAMILIES` and `CONTROL_FONT_SIZE_PX` in `config/settings.py`
+- The Page Range and Total Pages columns use a fixed-width font like the VS Code editor (Consolas, 14 px); configurable via `MONO_FONT_FAMILIES`, `MONO_FONT_SIZE_PX`, `MONO_FONT_BOLD`, and `MONO_FONT_ITALIC`
+- Both tables start empty until a PDF is opened
+- The status bar keeps the PDF's total page count visible when a range is copied (e.g. `6 page(s) — Copied page range to clipboard: 1-2, 4`)
 - Orientation-independent size detection — rotated (landscape) pages are still matched correctly
 
 ---
@@ -78,14 +84,14 @@ The packaged app is output to `dist\PDF_Page_Size_Finder.exe`.
 3. The **By Page Size** view (shown by default) lists the page range for **Letter** pages and for **Legal** pages, e.g. a
    6-page PDF with Letter pages 1, 2, & 4 and Legal pages 3, 5, & 6 shows (Legal rows appear in red):
 
-  | Page Range | Size | Total | |
+  | Page Range | Page Size (H × W) | Total Pages | |
   |---|---|---|---|
   | 1-2, 4 | Letter | 3 | Copy |
   | 3, 5-6 | Legal | 3 | Copy |
 
 4. Click **By Page Range** to replace that table with one row per individual page range, sorted by page number:
 
-  | Page Range | Size | Total | |
+  | Page Range | Page Size (H × W) | Total Pages | |
   |---|---|---|---|
   | 1-2 | Letter | 2 | Copy |
   | 3 | Legal | 1 | Copy |
@@ -109,7 +115,7 @@ PDF/
 ├── requirements.txt           # PySide6 + pypdf
 ├── config/
 │   ├── __init__.py
-│   └── settings.py            # App-wide constants (size thresholds, labels, version, Legal text color)
+│   └── settings.py            # App-wide constants (size thresholds, standard sizes, labels, version, colors)
 ├── model/
 │   ├── __init__.py
 │   └── pdf_page_analyzer.py   # Business logic — no GUI dependencies

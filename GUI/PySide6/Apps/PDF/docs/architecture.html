@@ -199,7 +199,7 @@
     <h1>PDF Page Size Finder — Architecture</h1>
     <div class="meta-grid">
       <span><strong>Application:</strong> PDF Page Size Finder</span>
-      <span><strong>Version:</strong> 3.4</span>
+      <span><strong>Version:</strong> 3.6</span>
       <span><strong>Type:</strong> Architecture reference</span>
       <span><strong>Focus:</strong> Model, view, and configuration</span>
     </div>
@@ -228,7 +228,7 @@
 ├── requirements.txt           ← PySide6 + pypdf
 ├── config/
 │   ├── __init__.py
-│   └── settings.py            ← constants: app name/version, size thresholds, labels, Legal text color
+│   └── settings.py            ← constants: app name/version, size thresholds, standard sizes, labels, colors
 ├── model/
 │   ├── __init__.py
 │   └── pdf_page_analyzer.py   ← all PDF parsing/classification logic; no GUI dependencies
@@ -261,6 +261,10 @@
       <td>Reference page sizes in inches (short, long)</td>
     </tr>
     <tr>
+      <td><code>STANDARD_PAGE_SIZES</code></td>
+      <td>All named PDF sizes used by the app, including Letter, Legal, A4, A3, A5, B5, Executive, Statement, Folio, and Tabloid, with dimensions in inches</td>
+    </tr>
+    <tr>
       <td><code>SIZE_TOLERANCE_PT</code></td>
       <td>Allowed rounding error, in points, when matching a page size</td>
     </tr>
@@ -273,8 +277,12 @@
       <td>Application-wide UI font (default Segoe UI, 13&nbsp;px — the same as the Visual Studio Code menu), applied in <code>main.py</code></td>
     </tr>
     <tr>
+      <td><code>MONO_FONT_FAMILIES</code>, <code>MONO_FONT_SIZE_PX</code>, <code>MONO_FONT_BOLD</code>, <code>MONO_FONT_ITALIC</code></td>
+      <td>Fixed-width font for the Page Range and Total Pages cells (default Consolas, 14&nbsp;px, regular — the Visual Studio Code editor font)</td>
+    </tr>
+    <tr>
       <td><code>LEGAL_TEXT_COLOR</code></td>
-      <td>Text color (default bright red <code>#FF0000</code>) for the Page Range, Size, and Total cells of Legal rows</td>
+      <td>Text color (default bright red <code>#FF0000</code>) for the Page Range, Page Size, and Total Pages cells of Legal rows</td>
     </tr>
   </table>
 
@@ -288,9 +296,11 @@ class PdfPageReport:
     file_name: str
     file_path: Path
     page_count: int
-    letter_pages: list[int]   # 1-based page numbers
-    legal_pages: list[int]    # 1-based page numbers
-    other_pages: list[int]    # 1-based page numbers that are neither size</pre>
+    other_pages: list[int]    # 1-based page numbers that are neither size
+    standard_size_pages: list[tuple[str, list[int]]]
+    other_size_pages: list[tuple[str, list[int]]]</pre>
+  <p><code>standard_size_pages</code> contains recognized additional standard sizes as
+    <code>(label, page_numbers)</code> pairs. Unknown dimensions remain in <code>other_size_pages</code>.</p>
 
   <h4><code>PdfPageAnalyzer</code></h4>
   <p>A stateless class with three static methods:</p>
@@ -302,7 +312,7 @@ class PdfPageReport:
     <tr>
       <td><code>analyze(pdf_path)</code></td>
       <td>Opens the PDF with <code>pypdf</code>, reads each page's <code>mediabox</code>, and classifies it by comparing
-        its short/long edges (in points) against the Letter and Legal reference sizes within a tolerance</td>
+        its short/long edges (in points) against the configured standard sizes within a tolerance</td>
     </tr>
     <tr>
       <td><code>format_page_range(pages)</code></td>
@@ -349,7 +359,7 @@ class PdfPageReport:
     </tr>
     <tr>
       <td><code>_grid</code> (<code>QTableWidget</code>)</td>
-      <td>By Page Size table: one row per size (Letter, Legal, each other size) with a comma-separated page-range
+      <td>By Page Size table: one row per recognized standard size or unknown size with a comma-separated page-range
         string, size label, total count, and Copy button</td>
     </tr>
     <tr>
@@ -370,7 +380,9 @@ class PdfPageReport:
     </tr>
     <tr>
       <td><code>statusBar()</code></td>
-      <td>Running single-line summary of the current scan / last copy action, separated from the table by a top border</td>
+      <td>Running single-line summary of the current scan. After a Copy it reads
+        <code>&lt;n&gt; page(s) — Copied page range to clipboard: &lt;range&gt;</code>, using the page count of the loaded
+        PDF (<code>_page_count</code>). Separated from the table by a top border</td>
     </tr>
   </table>
 
